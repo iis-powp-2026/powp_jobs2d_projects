@@ -6,10 +6,20 @@ import edu.kis.powp.jobs2d.drivers.CurrentDriverInfoObserver;
 import edu.kis.powp.jobs2d.drivers.DriverManager;
 import edu.kis.powp.jobs2d.drivers.SelectDriverMenuOptionListener;
 
-public class DriverFeature {
+public class DriverFeature implements IFeature {
 
     private static DriverManager driverManager = new DriverManager();
     private static Application app;
+
+    @Override
+    public void setup(Application application) {
+        setupDriverPlugin(application);
+    }
+
+    @Override
+    public String getName() {
+        return "Driver";
+    }
 
     public static DriverManager getDriverManager() {
         return driverManager;
