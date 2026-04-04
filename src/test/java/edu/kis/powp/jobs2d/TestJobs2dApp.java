@@ -49,6 +49,17 @@ public class TestJobs2dApp {
         application.addTest("Load recorded macro", new SelectLoadRecordedMacroOptionListener(DriverFeature.getDriverManager()));
         application.addTest("Clear panel", new SelectClearPanelOptionListener());
         application.addTest("Run command", new SelectRunCurrentCommandOptionListener(DriverFeature.getDriverManager()));
+
+        application.addTest("Toggle recording", (ActionEvent e) -> {
+            edu.kis.powp.jobs2d.drivers.RecordingDriver rec = DriverFeature.getDriverManager().getRecordingDriver();
+            rec.setRecordingEnabled(!rec.isRecordingEnabled());
+            DriverFeature.updateDriverInfo(); // odświeżenie UI
+        });
+
+        application.addTest("Clear recording", (ActionEvent e) -> {
+            DriverFeature.getDriverManager().getRecordingDriver().clearRecorded();
+            DriverFeature.updateDriverInfo(); // odświeżenie UI
+        });
     }
 
     /**
