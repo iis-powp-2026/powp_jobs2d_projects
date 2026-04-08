@@ -6,9 +6,9 @@
 
 ## dokumentacja do bibliotek 
 
-* [Drawer](http://coach.kis.p.lodz.pl/powp-libs-docs/Drawer/)
-* [Jobs2dMagic](http://coach.kis.p.lodz.pl/powp-libs-docs/Jobs2dMagic/)
-* [PowpAppBase](http://coach.kis.p.lodz.pl/powp-libs-docs/PowpAppBase/)
+* [Drawer](https://coach.iis.p.lodz.pl/powp-libs-docs/Drawer/)
+* [Jobs2dMagic](https://coach.iis.p.lodz.pl/powp-libs-docs/Jobs2dMagic/)
+* [PowpAppBase](https://coach.iis.p.lodz.pl/powp-libs-docs/PowpAppBase/)
 
 ## zasady pracy z github przy projekcie grupowym.
 
