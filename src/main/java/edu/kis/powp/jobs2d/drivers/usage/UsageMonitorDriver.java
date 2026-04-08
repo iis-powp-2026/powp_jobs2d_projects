@@ -1,13 +1,12 @@
 package edu.kis.powp.jobs2d.drivers.usage;
 
 import edu.kis.powp.jobs2d.Job2dDriver;
-import java.util.ArrayList;
-import java.util.List;
+import edu.kis.powp.observer.Publisher; // <-- Zwróć uwagę na ten import (może być lekko inny w Twoim projekcie)
 
 public class UsageMonitorDriver implements Job2dDriver, IUsageMonitor {
     private final Job2dDriver innerDriver;
 
-    private final List<UsageSubscriber> subscribers = new ArrayList<>();
+    private final Publisher publisher = new Publisher();
 
     private int currentX = 0;
     private int currentY = 0;
@@ -18,14 +17,8 @@ public class UsageMonitorDriver implements Job2dDriver, IUsageMonitor {
         this.innerDriver = innerDriver;
     }
 
-    public void addSubscriber(UsageSubscriber subscriber) {
-        subscribers.add(subscriber);
-    }
-
-    private void notifySubscribers() {
-        for (UsageSubscriber subscriber : subscribers) {
-            subscriber.update(headDistance, operatingDistance);
-        }
+    public Publisher getPublisher() {
+        return publisher;
     }
 
     private double calculateDistance(int targetX, int targetY) {
@@ -39,7 +32,7 @@ public class UsageMonitorDriver implements Job2dDriver, IUsageMonitor {
         currentY = y;
         innerDriver.setPosition(x, y);
 
-        notifySubscribers();
+        publisher.notifyObservers();
     }
 
     @Override
@@ -51,18 +44,14 @@ public class UsageMonitorDriver implements Job2dDriver, IUsageMonitor {
         currentY = y;
         innerDriver.operateTo(x, y);
 
-        notifySubscribers();
+        publisher.notifyObservers();
     }
 
     @Override
-    public double getHeadDistance() {
-        return headDistance;
-    }
+    public double getHeadDistance() { return headDistance; }
 
     @Override
-    public double getOperatingDistance() {
-        return operatingDistance;
-    }
+    public double getOperatingDistance() { return operatingDistance; }
 
     @Override
     public String toString() {
