@@ -1,7 +1,7 @@
 package edu.kis.powp.jobs2d.drivers.usage;
 
 import edu.kis.powp.jobs2d.Job2dDriver;
-import edu.kis.powp.observer.Publisher; // <-- Zwróć uwagę na ten import (może być lekko inny w Twoim projekcie)
+import edu.kis.powp.observer.Publisher;
 
 public class UsageMonitorDriver implements Job2dDriver, IUsageMonitor {
     private final Job2dDriver innerDriver;
