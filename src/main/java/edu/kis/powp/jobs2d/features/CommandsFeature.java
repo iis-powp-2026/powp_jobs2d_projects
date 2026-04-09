@@ -1,12 +1,12 @@
 package edu.kis.powp.jobs2d.features;
 
 import edu.kis.powp.appbase.Application;
-import edu.kis.powp.jobs2d.command.manager.DriverCommandManager;
+import edu.kis.powp.jobs2d.command.manager.CommandManager;
 import edu.kis.powp.jobs2d.command.manager.LoggerCommandChangeObserver;
 
 public class CommandsFeature implements IFeature {
 
-    private static DriverCommandManager commandManager;
+    private static CommandManager commandManager;
 
     @Override
     public void setup(Application application) {
@@ -19,7 +19,7 @@ public class CommandsFeature implements IFeature {
     }
 
     public static void setupCommandManager() {
-        commandManager = new DriverCommandManager();
+        commandManager = new CommandManager();
 
         LoggerCommandChangeObserver loggerObserver = new LoggerCommandChangeObserver();
         commandManager.getChangePublisher().addSubscriber(loggerObserver);
@@ -30,7 +30,7 @@ public class CommandsFeature implements IFeature {
      * 
      * @return plotterCommandManager.
      */
-    public static DriverCommandManager getDriverCommandManager() {
+    public static CommandManager getDriverCommandManager() {
         return commandManager;
     }
 }
