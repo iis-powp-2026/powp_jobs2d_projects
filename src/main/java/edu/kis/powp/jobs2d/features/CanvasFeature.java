@@ -23,7 +23,7 @@ public class CanvasFeature {
     }
 
     private static void setCanvas(CanvasFormat format) {
-        PathIterator path = format.getShape().getPathIterator(null);
+        PathIterator segments = format.getShape().getPathIterator(null);
         double[] coordinates = new double[2];
 
         double startX = 0;
@@ -31,8 +31,8 @@ public class CanvasFeature {
         double currentX = 0;
         double currentY = 0;
 
-        while (!path.isDone()) {
-            int segmentType = path.currentSegment(coordinates);
+        while (!segments.isDone()) {
+            int segmentType = segments.currentSegment(coordinates);
 
             if (segmentType == PathIterator.SEG_MOVETO) {
                 startX = coordinates[0];
@@ -47,7 +47,7 @@ public class CanvasFeature {
                 drawLine(currentX, currentY, startX, startY);
             }
 
-            path.next();
+            segments.next();
         }
     }
 
