@@ -24,8 +24,17 @@ public class CanvasFeature {
         }
     }
 
+    public static void clearPanel() {
+        DrawerFeature.getDrawerController().clearPanel();
+        redrawCanvas(currentFormat, true);
+    }
+
     public static void setCanvas(CanvasFormat format) {
-        if (format == currentFormat) {
+        redrawCanvas(format, false);
+    }
+
+    private static void redrawCanvas(CanvasFormat format, boolean forceRedraw) {
+        if (!forceRedraw && format == currentFormat) {
             return;
         }
 
