@@ -50,6 +50,10 @@ public class CanvasFeature implements IFeature {
         redrawCanvas(format, false);
     }
 
+    public static CanvasFormat getCanvas() {
+        return currentFormat;
+    }
+
     private static void redrawCanvas(CanvasFormat format, boolean forceRedraw) {
         if (!forceRedraw && format == currentFormat) {
             return;
