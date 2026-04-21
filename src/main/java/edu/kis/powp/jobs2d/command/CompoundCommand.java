@@ -126,4 +126,14 @@ public class CompoundCommand implements ICompoundCommand {
         }
         return "CompoundCommand [" + commands.size() + " commands]";
     }
+
+    @Override
+    public CompoundCommand deepCopy() {
+        CompoundCommand copy = new CompoundCommand();
+        copy.name = this.name;
+        for (DriverCommand cmd : commands) {
+            copy.addCommand(cmd.deepCopy());
+        }
+        return copy;
+    }
 }

@@ -23,4 +23,12 @@ public interface DriverCommand {
      */
     void accept(ICommandVisitor visitor);
 
+    /**
+     * Returns a deep copy of this command. Modifying the original or the copy
+     * must not affect the other.
+     *
+     * @return independent deep copy of this command
+     */
+    DriverCommand deepCopy();
+
 }

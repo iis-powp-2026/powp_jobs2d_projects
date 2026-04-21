@@ -12,8 +12,9 @@ public class ImmutableCompoundCommand implements ICompoundCommand {
 
     /**
      * Create immutable compound command with sequence of commands.
-     * @param name      name of the compound command, optional
-     * @param commands  list of the commands
+     * 
+     * @param name     name of the compound command, optional
+     * @param commands list of the commands
      */
     public ImmutableCompoundCommand(String name, List<DriverCommand> commands) {
         if (name == null) {
@@ -21,7 +22,10 @@ public class ImmutableCompoundCommand implements ICompoundCommand {
         } else {
             this.name = name;
         }
-        this.commands = new ArrayList<>(commands);
+        this.commands = new ArrayList<>();
+        for (DriverCommand cmd : commands) {
+            this.commands.add(cmd.deepCopy());
+        }
     }
 
     /**
@@ -49,7 +53,11 @@ public class ImmutableCompoundCommand implements ICompoundCommand {
      */
     @Override
     public Iterator<DriverCommand> iterator() {
-        return commands.iterator();
+        List<DriverCommand> copy = new ArrayList<>();
+        for (DriverCommand cmd : commands) {
+            copy.add(cmd.deepCopy());
+        }
+        return copy.iterator();
     }
 
     /**
@@ -59,16 +67,25 @@ public class ImmutableCompoundCommand implements ICompoundCommand {
      */
     @Override
     public void execute(Job2dDriver driver) {
-        for(DriverCommand command: commands) {
+        for (DriverCommand command : commands) {
             command.execute(driver);
         }
     }
 
     @Override
     public String toString() {
-        if(name != null) {
+        if (name != null) {
             return name;
         }
         return "ImmutableCompoundCommand";
+    }
+
+    @Override
+    public ImmutableCompoundCommand deepCopy() {
+        List<DriverCommand> copiedCommands = new ArrayList<>();
+        for (DriverCommand cmd : commands) {
+            copiedCommands.add(cmd.deepCopy());
+        }
+        return new ImmutableCompoundCommand(this.name, copiedCommands);
     }
 }
