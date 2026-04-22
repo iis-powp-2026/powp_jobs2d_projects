@@ -19,13 +19,13 @@ public class EnsureRecordingDriverIsCurrent implements Subscriber {
 
     @Override
     public void update() {
-        Job2dDriver current = driverManager.getCurrentDriver();
+        Job2dDriver base = driverManager.getBaseDriver();
 
-        if (current == recordingDriver) {
+        if (base == recordingDriver) {
             return;
         }
 
-        recordingDriver.setTarget(current);
-        driverManager.setCurrentDriver(recordingDriver);
+        recordingDriver.setTarget(base);
+        driverManager.setBaseDriver(recordingDriver);
     }
 }

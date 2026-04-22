@@ -2,7 +2,6 @@ package edu.kis.powp.jobs2d;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,7 +28,7 @@ public class TestJobs2dApp {
 
     /**
      * Setup test concerning preset figures in context.
-     * 
+     *
      * @param application Application context.
      */
     private static void setupPresetTests(Application application) {
@@ -44,7 +43,7 @@ public class TestJobs2dApp {
 
     /**
      * Setup test using driver commands in context.
-     * 
+     *
      * @param application Application context.
      */
     private static void setupCommandTests(Application application) {
@@ -67,7 +66,7 @@ public class TestJobs2dApp {
                 new SelectTransformCommandOptionListener(new RotateTransformer(45.0), "Rotate 45 degrees"));
         application.addTest("Transform current command: Flip Y",
                 new SelectTransformCommandOptionListener(new FlipTransformer(false, true), "Flip Y"));
-        
+
 
         RecordingDriver rec = RecordingFeature.getRecordingDriver();
         boolean initial = rec.isRecordingEnabled();
@@ -88,7 +87,7 @@ public class TestJobs2dApp {
 
     /**
      * Setup driver manager, and set default Job2dDriver for application.
-     * 
+     *
      * @param application Application context.
      */
     private static void setupDrivers(Application application) {
@@ -98,7 +97,7 @@ public class TestJobs2dApp {
         DrawPanelController drawerController = DrawerFeature.getDrawerController();
         Job2dDriver driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
         DriverFeature.addDriver("Line Simulator", driver);
-        DriverFeature.getDriverManager().setCurrentDriver(driver);
+        DriverFeature.getDriverManager().setBaseDriver(driver);
 
         driver = new LineDriverAdapter(drawerController, LineFactory.getSpecialLine(), "special");
         DriverFeature.addDriver("Special line Simulator", driver);
@@ -133,7 +132,7 @@ public class TestJobs2dApp {
         chaosCompositeDriver.addDriver(TrackingLoggerDriver);
         chaosCompositeDriver.addDriver(scaledDownDriver);
         DriverFeature.addDriver(chaosCompositeDriver.toString(), chaosCompositeDriver);
-      
+
         driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
         Job2dDriver animatedDriver = new RealTimeDriver(driver, 10, 10, "Real-Time Driver 1x speed");
         DriverFeature.addDriver(animatedDriver.toString(), animatedDriver);
@@ -143,6 +142,9 @@ public class TestJobs2dApp {
 
         animatedDriver = new RealTimeDriver(driver, 1, 1, "Real-Time Driver 10x speed");
         DriverFeature.addDriver(animatedDriver.toString(), animatedDriver);
+
+        DriverFeature.addExtension("Tracking Logger Extension", TrackingLoggerDriver, false);
+        DriverFeature.updateDriverInfo();
     }
 
     private static void setupWindows(Application application) {
@@ -157,7 +159,7 @@ public class TestJobs2dApp {
 
     /**
      * Setup menu for adjusting logging settings.
-     * 
+     *
      * @param application Application context.
      */
     private static void setupLogger(Application application) {

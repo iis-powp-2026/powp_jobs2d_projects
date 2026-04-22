@@ -14,6 +14,11 @@ public class CompositeDriver implements Job2dDriver {
         this.drivers = new ArrayList<>();
     }
 
+    public CompositeDriver(String name, List<Job2dDriver> drivers) {
+        this.name = name;
+        this.drivers = new ArrayList<>(drivers);
+    }
+
     public CompositeDriver(){
         this("Composite Driver");
     }

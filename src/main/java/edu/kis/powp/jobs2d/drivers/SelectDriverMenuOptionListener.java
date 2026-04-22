@@ -16,6 +16,6 @@ public class SelectDriverMenuOptionListener implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        driverManager.setCurrentDriver(driver);
+        driverManager.setBaseDriver(driver);
     }
 }

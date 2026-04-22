@@ -5,6 +5,7 @@ import edu.kis.powp.jobs2d.Job2dDriver;
 import edu.kis.powp.jobs2d.drivers.CurrentDriverInfoObserver;
 import edu.kis.powp.jobs2d.drivers.DriverManager;
 import edu.kis.powp.jobs2d.drivers.SelectDriverMenuOptionListener;
+import edu.kis.powp.jobs2d.events.ToggleExtensionOptionListener;
 
 public class DriverFeature implements IFeature {
 
@@ -54,6 +55,22 @@ public class DriverFeature implements IFeature {
      */
     public static void updateDriverInfo() {
         app.updateInfo(driverManager.getCurrentDriver().toString());
+    }
+
+    /**
+     * Add an extension driver to context, create a checkbox in the driver menu.
+     *
+     * @param name         Checkbox name.
+     * @param extension    Job2dDriver extension object.
+     * @param initialState True if the extension should be enabled by default.
+     */
+    public static void addExtension(String name, Job2dDriver extension, boolean initialState) {
+        ToggleExtensionOptionListener listener = new ToggleExtensionOptionListener(extension, driverManager);
+        app.addComponentMenuElementWithCheckBox(DriverFeature.class, name, listener, initialState);
+
+        if (initialState) {
+            driverManager.addExtension(extension);
+        }
     }
 
 }
