@@ -1,10 +1,11 @@
 package edu.kis.powp.jobs2d.command;
 
-import edu.kis.powp.jobs2d.Job2dDriver;
+
 import edu.kis.powp.jobs2d.command.visitor.ICommandVisitor;
+import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 
 /**
- * Implementation of Job2dDriverCommand for operateTo command functionality.
+ * Implementation of VisitableDriverCommand for operateTo command functionality.
  */
 public class OperateToCommand implements DriverCommand {
 
@@ -17,7 +18,7 @@ public class OperateToCommand implements DriverCommand {
     }
 
     @Override
-    public void execute(Job2dDriver driver) {
+    public void execute(VisitableDriver driver) {
         driver.operateTo(posX, posY);
     }
 

@@ -1,6 +1,6 @@
 package edu.kis.powp.jobs2d.drivers.packet_composite;
 
-import edu.kis.powp.jobs2d.Job2dDriver;
+
 import edu.kis.powp.jobs2d.drivers.visitor.DriverVisitor;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 
@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class CompositeDriver implements Job2dDriver, VisitableDriver {
-    private List<Job2dDriver> drivers;
+public class CompositeDriver implements VisitableDriver {
+    private List<VisitableDriver> drivers;
     private final String name;
 
     public CompositeDriver(String name) {
@@ -21,7 +21,7 @@ public class CompositeDriver implements Job2dDriver, VisitableDriver {
         this("Composite Driver");
     }
 
-    public void addDriver(Job2dDriver driver) {
+    public void addDriver(VisitableDriver driver) {
         if(drivers == null) {
             throw new IllegalArgumentException("Drivers cannot be null");
         }
@@ -31,14 +31,14 @@ public class CompositeDriver implements Job2dDriver, VisitableDriver {
         drivers.add(driver);
     }
 
-    public boolean removeDriver(Job2dDriver driver) {
+    public boolean removeDriver(VisitableDriver driver) {
         if(drivers == null) {
             throw new IllegalArgumentException("Drivers cannot be null");
         }
         return drivers.remove(driver);
     }
 
-    public List<Job2dDriver> getDrivers() {
+    public List<VisitableDriver> getDrivers() {
         return drivers;
     }
 
@@ -50,14 +50,14 @@ public class CompositeDriver implements Job2dDriver, VisitableDriver {
 
     @Override
     public void setPosition(int x, int y) {
-        for (Job2dDriver driver : drivers) {
+        for (VisitableDriver driver : drivers) {
             driver.setPosition(x, y);
         }
     }
 
     @Override
     public void operateTo(int x, int y) {
-        for (Job2dDriver driver : drivers) {
+        for (VisitableDriver driver : drivers) {
             driver.operateTo(x, y);
         }
     }

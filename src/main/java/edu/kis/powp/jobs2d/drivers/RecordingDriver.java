@@ -4,30 +4,31 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import edu.kis.powp.jobs2d.Job2dDriver;
 import edu.kis.powp.jobs2d.command.DriverCommand;
 import edu.kis.powp.jobs2d.command.OperateToCommand;
 import edu.kis.powp.jobs2d.command.SetPositionCommand;
+import edu.kis.powp.jobs2d.drivers.visitor.DriverVisitor;
+import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 
 /**
  * Decorator driver that records all calls as command objects.
  * Recording can be temporarily disabled (used during playback).
  */
-public class RecordingDriver implements Job2dDriver {
+public class RecordingDriver implements VisitableDriver {
 
-    private Job2dDriver target;
+    private VisitableDriver target;
     private final List<DriverCommand> recorded = new ArrayList<>();
     private boolean recordingEnabled = true;
 
-    public RecordingDriver(Job2dDriver initialTarget) {
+    public RecordingDriver(VisitableDriver initialTarget) {
         this.target = initialTarget;
     }
 
-    public synchronized void setTarget(Job2dDriver target) {
+    public synchronized void setTarget(VisitableDriver target) {
         this.target = target;
     }
 
-    public synchronized Job2dDriver getTarget() {
+    public synchronized VisitableDriver getTarget() {
         return target;
     }
 
@@ -71,5 +72,10 @@ public class RecordingDriver implements Job2dDriver {
     @Override
     public synchronized String toString() {
         return "RecordingDriver -> " + target;
+    }
+
+    @Override
+    public void accept(DriverVisitor visitor) {
+        visitor.visit(this);
     }
 }

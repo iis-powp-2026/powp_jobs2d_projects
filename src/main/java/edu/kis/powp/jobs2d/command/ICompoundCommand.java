@@ -5,7 +5,7 @@ import java.util.Iterator;
 import edu.kis.powp.jobs2d.command.visitor.ICommandVisitor;
 
 /**
- * Interface extending Job2dDriverCommand to execute more than one command.
+ * Interface extending VisitableDriverCommand to execute more than one command.
  */
 public interface ICompoundCommand extends DriverCommand {
 

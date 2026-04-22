@@ -2,7 +2,6 @@ package edu.kis.powp.jobs2d;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
-import java.sql.Driver;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -70,7 +69,8 @@ public class TestJobs2dApp {
                 new SelectTransformCommandOptionListener(new RotateTransformer(45.0), "Rotate 45 degrees"));
         application.addTest("Transform current command: Flip Y",
                 new SelectTransformCommandOptionListener(new FlipTransformer(false, true), "Flip Y"));
-        
+        application.addTest("FullNameGetter visitor test",
+                new SelectFullNameGetterVisitorTestListener(new FullNameGetterVisitor()));
 
         RecordingDriver rec = RecordingFeature.getRecordingDriver();
         boolean initial = rec.isRecordingEnabled();
@@ -90,16 +90,16 @@ public class TestJobs2dApp {
     }
 
     /**
-     * Setup driver manager, and set default Job2dDriver for application.
+     * Setup driver manager, and set default VisitableDriver for application.
      * 
      * @param application Application context.
      */
     private static void setupDrivers(Application application) {
-        Job2dDriver TrackingLoggerDriver = new TrackingLoggerDriver();
+        VisitableDriver TrackingLoggerDriver = new TrackingLoggerDriver();
         DriverFeature.addDriver("Tracking Logger driver", TrackingLoggerDriver);
 
         DrawPanelController drawerController = DrawerFeature.getDrawerController();
-        Job2dDriver driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
+        VisitableDriver driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
         DriverFeature.addDriver("Line Simulator", driver);
         DriverFeature.getDriverManager().setCurrentDriver(driver);
 
@@ -113,22 +113,22 @@ public class TestJobs2dApp {
         DriverFeature.addDriver(basicCompositeDriver.toString(), basicCompositeDriver);
 
         CoordinateTransformer scale = new ScaleTransformer(2.0, 2.0);
-        Job2dDriver scaledDriver = new TransformingDriver(driver, scale, "Transform: Scaled 2x");
+        VisitableDriver scaledDriver = new TransformingDriver(driver, scale, "Transform: Scaled 2x");
         DriverFeature.addDriver(scaledDriver.toString(), scaledDriver);
 
         CoordinateTransformer scaleDown = new ScaleTransformer(0.5, 0.5);
-        Job2dDriver scaledDownDriver = new TransformingDriver(driver, scaleDown, "Transform: Scaled 0.5x");
+        VisitableDriver scaledDownDriver = new TransformingDriver(driver, scaleDown, "Transform: Scaled 0.5x");
         DriverFeature.addDriver(scaledDownDriver.toString(), scaledDownDriver);
 
         CoordinateTransformer flip = new FlipTransformer(false, true);
-        Job2dDriver flippedDriver = new TransformingDriver(driver, flip, "Transform: Flipped Y");
+        VisitableDriver flippedDriver = new TransformingDriver(driver, flip, "Transform: Flipped Y");
         DriverFeature.addDriver(flippedDriver.toString(), flippedDriver);
 
         CoordinateTransformer rotate = new RotateTransformer(45.0);
-        Job2dDriver rotatedDriver = new TransformingDriver(driver, rotate, "Transform: Rotated 45 degrees");
+        VisitableDriver rotatedDriver = new TransformingDriver(driver, rotate, "Transform: Rotated 45 degrees");
         DriverFeature.addDriver(rotatedDriver.toString(), rotatedDriver);
 
-        Job2dDriver scaledAndRotatedDriver = new TransformingDriver(scaledDriver, rotate, "Transform: Scaled 2x & Rotated 45");
+        VisitableDriver scaledAndRotatedDriver = new TransformingDriver(scaledDriver, rotate, "Transform: Scaled 2x & Rotated 45");
         DriverFeature.addDriver(scaledAndRotatedDriver.toString(), scaledAndRotatedDriver);
 
         CompositeDriver chaosCompositeDriver = new CompositeDriver("Chaos Composite Driver");
@@ -138,7 +138,7 @@ public class TestJobs2dApp {
         DriverFeature.addDriver(chaosCompositeDriver.toString(), chaosCompositeDriver);
       
         driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
-        Job2dDriver animatedDriver = new RealTimeDriver(driver, 10, 10, "Real-Time Driver 1x speed");
+        VisitableDriver animatedDriver = new RealTimeDriver(driver, 10, 10, "Real-Time Driver 1x speed");
         DriverFeature.addDriver(animatedDriver.toString(), animatedDriver);
 
         animatedDriver = new RealTimeDriver(driver, 5, 5, "Real-Time Driver 2x speed");
@@ -146,13 +146,6 @@ public class TestJobs2dApp {
 
         animatedDriver = new RealTimeDriver(driver, 1, 1, "Real-Time Driver 10x speed");
         DriverFeature.addDriver(animatedDriver.toString(), animatedDriver);
-
-        application.addComponentMenuElement(DriverFeature.class, "Log Chaos Driver Full Name (visitor test)", (ActionEvent e) -> {
-            FullNameGetterVisitor visitor = new FullNameGetterVisitor();
-            chaosCompositeDriver.accept(visitor);
-            logger.info(visitor.getFullName());
-
-        });
     }
 
     private static void setupWindows(Application application) {
