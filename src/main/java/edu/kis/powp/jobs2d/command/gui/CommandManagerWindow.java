@@ -4,23 +4,23 @@ import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
-import java.util.List;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JTextArea;
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
-import edu.kis.powp.appbase.gui.WindowComponent;
-import edu.kis.powp.jobs2d.command.manager.CommandManager;
-import edu.kis.powp.observer.Subscriber;
-import edu.kis.powp.jobs2d.command.io.CommandImporter;
-import edu.kis.powp.jobs2d.command.io.CommandImporterFactory;
-import edu.kis.powp.jobs2d.command.ICompoundCommand;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JTextArea;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import edu.kis.powp.appbase.gui.WindowComponent;
+import edu.kis.powp.jobs2d.command.ICompoundCommand;
+import edu.kis.powp.jobs2d.command.io.CommandImporter;
+import edu.kis.powp.jobs2d.command.io.CommandImporterFactory;
+import edu.kis.powp.jobs2d.command.manager.CommandManager;
+import edu.kis.powp.observer.Subscriber;
 
 public class CommandManagerWindow extends JFrame implements WindowComponent {
 
@@ -115,7 +115,7 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileToImport = fileChooser.getSelectedFile();
             try {
-                String text = Files.readString(fileToImport.toPath());
+                String text = Files.c(fileToImport.toPath());
 
                 CommandImporter importer = CommandImporterFactory.getImporter(text);
 
