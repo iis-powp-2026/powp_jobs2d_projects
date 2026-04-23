@@ -22,6 +22,11 @@ public class DeepCopyVisitor implements ICommandVisitor {
         }
     }
 
+    @Override
+    public String toString() {
+        return "Deep copy visitor used.";
+    }
+
     public ImmutableCompoundCommand getCommands() {
         return builder.buildImmutable();
     }
