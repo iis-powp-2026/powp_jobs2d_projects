@@ -17,5 +17,6 @@ public class SelectTestFigureOptionListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         FiguresJoe.figureScript1(driverManager.getCurrentDriver());
+        edu.kis.powp.jobs2d.features.HistoryFeature.getHistoryManager().addHistory("Figure drawn: Figure Joe 1");
     }
 }

@@ -32,6 +32,7 @@ public class CanvasFeature implements IFeature {
     public static void clearPanel() {
         DrawerFeature.getDrawerController().clearPanel();
         redrawCanvas(currentFormat, true);
+        HistoryFeature.getHistoryManager().addHistory("Panel cleared");
     }
 
     public static void setCanvas(ICanvas format) {
