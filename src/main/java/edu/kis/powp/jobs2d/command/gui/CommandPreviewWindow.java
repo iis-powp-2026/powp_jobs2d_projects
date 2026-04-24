@@ -36,7 +36,7 @@ public class CommandPreviewWindow extends JFrame implements WindowComponent {
     public void updatePreview(DriverCommand command) {
         previewDrawController.clearPanel();
         if (command != null && previewDriver != null) {
-            command.execute(previewDriver);
+            command.execute((VisitableDriver) previewDriver);
         }
     }
 
