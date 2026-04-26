@@ -19,6 +19,8 @@ import edu.kis.powp.jobs2d.drivers.packet_composite.CompositeDriver;
 import edu.kis.powp.jobs2d.drivers.transformations.*;
 import edu.kis.powp.jobs2d.drivers.visitor.FullNameGetterVisitor;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
+import edu.kis.powp.jobs2d.drivers.usage.LoggerUsageMonitorSubscriber;
+import edu.kis.powp.jobs2d.drivers.usage.UsageMonitorDriver;
 import edu.kis.powp.jobs2d.events.*;
 import edu.kis.powp.jobs2d.features.*;
 import edu.kis.powp.jobs2d.events.SelectLoadRecordedMacroOptionListener;
@@ -105,6 +107,12 @@ public class TestJobs2dApp {
 
         driver = new LineDriverAdapter(drawerController, LineFactory.getSpecialLine(), "special");
         DriverFeature.addDriver("Special line Simulator", driver);
+
+
+        UsageMonitorDriver monitoredDriver = new UsageMonitorDriver(new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic"));
+        monitoredDriver.getChangePublisher().addSubscriber(new LoggerUsageMonitorSubscriber(monitoredDriver));
+        DriverFeature.addDriver("Line Simulator with Usage Monitor", monitoredDriver);
+
         DriverFeature.updateDriverInfo();
 
         CompositeDriver basicCompositeDriver = new CompositeDriver("Basic & Log Composite Driver");
