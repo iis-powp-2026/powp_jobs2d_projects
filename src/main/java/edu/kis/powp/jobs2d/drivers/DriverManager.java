@@ -1,7 +1,7 @@
 package edu.kis.powp.jobs2d.drivers;
 
-
 import edu.kis.powp.jobs2d.drivers.logger.TrackingLoggerDriver;
+import edu.kis.powp.jobs2d.drivers.packet_composite.CompositeDriver;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 import edu.kis.powp.observer.Publisher;
 
@@ -11,22 +11,40 @@ import edu.kis.powp.observer.Publisher;
  */
 public class DriverManager {
 
-    private VisitableDriver currentDriver = new TrackingLoggerDriver();
+    private VisitableDriver coreDriver = new TrackingLoggerDriver();
+    private CompositeDriver extensionsComposite = new CompositeDriver("Extensions");
     private Publisher changePublisher = new Publisher();
 
-    /**
-     * @param driver Set the driver as current.
-     */
     public synchronized void setCurrentDriver(VisitableDriver driver) {
-        currentDriver = driver;
+        coreDriver = driver;
         changePublisher.notifyObservers();
     }
 
-    /**
-     * @return Current driver.
-     */
+    public synchronized void addExtension(VisitableDriver extension) {
+        extensionsComposite.addDriver(extension);
+        changePublisher.notifyObservers();
+    }
+
+    public synchronized void removeExtension(VisitableDriver extension) {
+        extensionsComposite.removeDriver(extension);
+        changePublisher.notifyObservers();
+    }
+
     public synchronized VisitableDriver getCurrentDriver() {
-        return currentDriver;
+        if (extensionsComposite.getDriverCount() == 0) {
+            return coreDriver;
+        }
+
+        CompositeDriver activeDriver = new CompositeDriver(coreDriver.toString());
+        activeDriver.addDriver(coreDriver);
+        for (VisitableDriver ext : extensionsComposite.getDrivers()) {
+            activeDriver.addDriver(ext);
+        }
+        return activeDriver;
+    }
+
+    public synchronized VisitableDriver getCoreDriver() {
+        return coreDriver;
     }
 
     /**

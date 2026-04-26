@@ -148,6 +148,11 @@ public class TestJobs2dApp {
         DriverFeature.addDriver(animatedDriver.toString(), animatedDriver);
     }
 
+    private static void setupExtensions() {
+        VisitableDriver loggerDriver = new TrackingLoggerDriver();
+        ExtensionFeature.addExtension("Logger", loggerDriver);
+    }
+
     private static void setupWindows(Application application) {
 
         CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager());
@@ -190,6 +195,7 @@ public class TestJobs2dApp {
                 FeaturesManager.registerFeature(new DrawerFeature());
                 FeaturesManager.registerFeature(new CommandsFeature());
                 FeaturesManager.registerFeature(new DriverFeature());
+                FeaturesManager.registerFeature(new ExtensionFeature());
                 FeaturesManager.registerFeature(new CanvasFeature());
 
                 // Automatycznie skonfiguruj wszystkie zarejestrowane funkcje
@@ -197,6 +203,7 @@ public class TestJobs2dApp {
                 FeaturesManager.setupAllFeatures(app);
 
                 setupDrivers(app);
+                setupExtensions();
                 RecordingFeature.setup(DriverFeature.getDriverManager());
                 setupPresetTests(app);
                 setupCommandTests(app);
