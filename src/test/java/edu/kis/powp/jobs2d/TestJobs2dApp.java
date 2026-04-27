@@ -11,6 +11,8 @@ import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.Application;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
+import edu.kis.powp.jobs2d.command.gui.CommandPreviewObserver;
+import edu.kis.powp.jobs2d.command.gui.CommandPreviewWindow;
 import edu.kis.powp.jobs2d.drivers.RealTimeDriver;
 import edu.kis.powp.jobs2d.drivers.RecordingDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
@@ -156,6 +158,18 @@ public class TestJobs2dApp {
         CommandManagerWindowCommandChangeObserver windowObserver = new CommandManagerWindowCommandChangeObserver(
                 commandManager);
         CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(windowObserver);
+
+        CommandPreviewWindow commandPreview = new CommandPreviewWindow();
+        application.addWindowComponent("Command Preview", commandPreview);
+
+        DrawPanelController previewDrawController = commandPreview.getDrawPanelController();
+        Job2dDriver basicDriver = new LineDriverAdapter(previewDrawController, LineFactory.getBasicLine(), "basic");
+        CoordinateTransformer scaleDown = new ScaleTransformer(0.5, 0.5);
+        Job2dDriver scaledDownDriver = new TransformingDriver(basicDriver, scaleDown, "Preview Transform: Scaled 0.5x");
+        commandPreview.setPreviewDriver(scaledDownDriver);
+
+        CommandPreviewObserver previewObserver = new CommandPreviewObserver(CommandsFeature.getDriverCommandManager(), commandPreview);
+        CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(previewObserver);
     }
 
     /**
