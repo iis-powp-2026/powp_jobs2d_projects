@@ -4,6 +4,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 import edu.kis.powp.appbase.Application;
+import edu.kis.powp.jobs2d.features.canvas.CustomShape;
+import edu.kis.powp.jobs2d.features.canvas.PaperFormat;
 import edu.kis.powp.jobs2d.events.SelectClearPanelOptionListener;
 import edu.kis.legacy.drawer.panel.DrawPanelController;
 import edu.kis.legacy.drawer.shape.ILine;
@@ -11,44 +13,6 @@ import edu.kis.legacy.drawer.shape.LineFactory;
 
 public class DrawerFeature {
 
-    public enum PaperFormat {
-        A4(210, 297),
-        B3(353, 500);
-
-        private final int width;
-        private final int height;
-
-        PaperFormat(int width, int height) {
-            this.width = width;
-            this.height = height;
-        }
-
-        public CustomShape toShape() {
-            return new CustomShape(width, height);
-        }
-    }
-
-    public static class CustomShape {
-        private final int width;
-        private final int height;
-
-        public CustomShape(int width, int height) {
-            this.width = width;
-            this.height = height;
-        }
-
-        public int getWidth() {
-            return width;
-        }
-
-        public int getHeight() {
-            return height;
-        }
-
-        public boolean isValid() {
-            return width > 0 && height > 0;
-        }
-    }
 
     private static DrawPanelController drawerController;
     private static Application app;
