@@ -12,7 +12,7 @@ public enum PaperFormat {
         this.height = height;
     }
 
-    public CustomShape toShape() {
+    public CanvasShape toShape() {
         return new CustomShape(width, height);
     }
 }

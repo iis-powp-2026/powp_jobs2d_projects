@@ -4,6 +4,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 import edu.kis.powp.appbase.Application;
+import edu.kis.powp.jobs2d.features.canvas.CanvasLine;
+import edu.kis.powp.jobs2d.features.canvas.CanvasShape;
 import edu.kis.powp.jobs2d.features.canvas.CustomShape;
 import edu.kis.powp.jobs2d.features.canvas.PaperFormat;
 import edu.kis.powp.jobs2d.events.SelectClearPanelOptionListener;
@@ -16,7 +18,7 @@ public class DrawerFeature {
 
     private static DrawPanelController drawerController;
     private static Application app;
-    private static CustomShape currentCanvas = PaperFormat.A4.toShape();
+    private static CanvasShape currentCanvas = PaperFormat.A4.toShape();
 
     /**
      * Setup Drawer Plugin and add to application.
@@ -42,7 +44,7 @@ public class DrawerFeature {
         redrawCanvasGuide();
     }
 
-    private static void setCanvas(CustomShape shape, String name) {
+    private static void setCanvas(CanvasShape shape, String name) {
         if (shape == null || !shape.isValid()) {
             return;
         }
@@ -53,8 +55,16 @@ public class DrawerFeature {
     }
 
     private static void selectCustomCanvas() {
-        JTextField widthField = new JTextField(Integer.toString(currentCanvas.getWidth()));
-        JTextField heightField = new JTextField(Integer.toString(currentCanvas.getHeight()));
+        int initialWidth = 210;
+        int initialHeight = 297;
+        if (currentCanvas instanceof CustomShape) {
+            CustomShape rectangularShape = (CustomShape) currentCanvas;
+            initialWidth = rectangularShape.getWidth();
+            initialHeight = rectangularShape.getHeight();
+        }
+
+        JTextField widthField = new JTextField(Integer.toString(initialWidth));
+        JTextField heightField = new JTextField(Integer.toString(initialHeight));
 
         Object[] message = { "Width:", widthField, "Height:", heightField };
         int result = JOptionPane.showConfirmDialog(null, message, "Custom Canvas", JOptionPane.OK_CANCEL_OPTION,
@@ -77,13 +87,9 @@ public class DrawerFeature {
     private static void redrawCanvasGuide() {
         drawerController.clearPanel();
 
-        int halfWidth = currentCanvas.getWidth() / 2;
-        int halfHeight = currentCanvas.getHeight() / 2;
-
-        drawLine(-halfWidth, -halfHeight, halfWidth, -halfHeight);
-        drawLine(halfWidth, -halfHeight, halfWidth, halfHeight);
-        drawLine(halfWidth, halfHeight, -halfWidth, halfHeight);
-        drawLine(-halfWidth, halfHeight, -halfWidth, -halfHeight);
+        for (CanvasLine line : currentCanvas.getGuideLines()) {
+            drawLine(line.getX1(), line.getY1(), line.getX2(), line.getY2());
+        }
     }
 
     private static void drawLine(int x1, int y1, int x2, int y2) {
@@ -94,7 +100,7 @@ public class DrawerFeature {
     }
 
     private static void updateInfo(String canvasName) {
-        app.updateInfo("Canvas: " + canvasName + " (" + currentCanvas.getWidth() + "x" + currentCanvas.getHeight() + ")");
+        app.updateInfo("Canvas: " + canvasName + " (" + currentCanvas.describe() + ")");
     }
 
     /**
