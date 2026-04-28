@@ -9,10 +9,11 @@ import edu.kis.powp.jobs2d.features.canvas.CanvasShape;
 import edu.kis.powp.jobs2d.features.canvas.CanvasRenderer;
 import edu.kis.powp.jobs2d.features.canvas.CustomShape;
 import edu.kis.powp.jobs2d.features.canvas.PaperFormat;
+import edu.kis.powp.jobs2d.canvas.PaperFormat;
 import edu.kis.powp.jobs2d.events.SelectClearPanelOptionListener;
 import edu.kis.legacy.drawer.panel.DrawPanelController;
 
-public class DrawerFeature {
+public class DrawerFeature implements IFeature {
 
 
     private static DrawPanelController drawerController;
@@ -20,6 +21,16 @@ public class DrawerFeature {
     private static CanvasShape currentCanvas = PaperFormat.A4.toShape();
     private static CanvasRenderer canvasRenderer;
     private static boolean showCanvas = true;
+
+    @Override
+    public void setup(Application application) {
+        setupDrawerPlugin(application);
+    }
+
+    @Override
+    public String getName() {
+        return "Drawer";
+    }
 
     /**
      * Setup Drawer Plugin and add to application.

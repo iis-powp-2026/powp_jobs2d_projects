@@ -1,0 +1,27 @@
+[
+  {
+    "type": "SetPositionCommand",
+    "posX": -100,
+    "posY": -100
+  },
+  {
+    "type": "OperateToCommand",
+    "posX": 100,
+    "posY": -100
+  },
+  {
+    "type": "OperateToCommand",
+    "posX": 100,
+    "posY": 100
+  },
+  {
+    "type": "OperateToCommand",
+    "posX": -100,
+    "posY": 100
+  },
+  {
+    "type": "OperateToCommand",
+    "posX": -100,
+    "posY": -100
+  }
+]

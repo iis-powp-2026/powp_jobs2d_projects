@@ -2,6 +2,7 @@ package edu.kis.powp.jobs2d;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -10,14 +11,20 @@ import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.Application;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
+import edu.kis.powp.jobs2d.drivers.RealTimeDriver;
+import edu.kis.powp.jobs2d.drivers.RecordingDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
-import edu.kis.powp.jobs2d.events.SelectLoadSecretCommandOptionListener;
-import edu.kis.powp.jobs2d.events.SelectRunCurrentCommandOptionListener;
-import edu.kis.powp.jobs2d.events.SelectTestFigure2OptionListener;
-import edu.kis.powp.jobs2d.events.SelectTestFigureOptionListener;
-import edu.kis.powp.jobs2d.features.CommandsFeature;
-import edu.kis.powp.jobs2d.features.DrawerFeature;
-import edu.kis.powp.jobs2d.features.DriverFeature;
+import edu.kis.powp.jobs2d.drivers.logger.TrackingLoggerDriver;
+import edu.kis.powp.jobs2d.drivers.packet_composite.CompositeDriver;
+import edu.kis.powp.jobs2d.drivers.transformations.*;
+import edu.kis.powp.jobs2d.drivers.visitor.FullNameGetterVisitor;
+import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
+import edu.kis.powp.jobs2d.events.*;
+import edu.kis.powp.jobs2d.features.*;
+import edu.kis.powp.jobs2d.events.SelectLoadRecordedMacroOptionListener;
+import edu.kis.powp.jobs2d.events.SelectClearPanelOptionListener;
+import edu.kis.powp.jobs2d.events.SelectToggleRecordingOptionListener;
+import edu.kis.powp.jobs2d.events.SelectClearRecordingOptionListener;
 
 public class TestJobs2dApp {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -44,28 +51,101 @@ public class TestJobs2dApp {
      */
     private static void setupCommandTests(Application application) {
         application.addTest("Load secret command", new SelectLoadSecretCommandOptionListener());
+        application.addTest("Load immutable rectangle command", new SelectLoadImmutableRectangleCommandOptionListener());
 
+        application.addTest("Load kite command", new SelectLoadKiteCommandOptionListener());
+        application.addTest("Load recorded macro", new SelectLoadRecordedMacroOptionListener());
+
+        application.addTest("Clear panel", new SelectClearPanelOptionListener());
         application.addTest("Run command", new SelectRunCurrentCommandOptionListener(DriverFeature.getDriverManager()));
+        application.addTest("Count current command", new SelectCountCommandsOptionListener());
 
+        application.addTest("Check current command bounds", new SelectCheckCanvasBoundsOptionListener());
+        application.addTest("Transform current command: Scale 2x",
+                new SelectTransformCommandOptionListener(new ScaleTransformer(2.0, 2.0), "Scale 2x"));
+        application.addTest("Transform current command: Scale 0.5x",
+                new SelectTransformCommandOptionListener(new ScaleTransformer(0.5, 0.5), "Scale 0.5x"));
+        application.addTest("Transform current command: Rotate 45 degrees",
+                new SelectTransformCommandOptionListener(new RotateTransformer(45.0), "Rotate 45 degrees"));
+        application.addTest("Transform current command: Flip Y",
+                new SelectTransformCommandOptionListener(new FlipTransformer(false, true), "Flip Y"));
+        application.addTest("FullNameGetter visitor test",
+                new SelectFullNameGetterVisitorTestListener(new FullNameGetterVisitor()));
+
+        RecordingDriver rec = RecordingFeature.getRecordingDriver();
+        boolean initial = rec.isRecordingEnabled();
+
+        application.addComponentMenuElementWithCheckBox(
+                DriverFeature.class,
+                "Recording",
+                new SelectToggleRecordingOptionListener(rec),
+                initial
+        );
+
+        application.addComponentMenuElement(
+                DriverFeature.class,
+                "Clear recording",
+                new SelectClearRecordingOptionListener()
+        );
     }
 
     /**
-     * Setup driver manager, and set default Job2dDriver for application.
+     * Setup driver manager, and set default VisitableDriver for application.
      * 
      * @param application Application context.
      */
     private static void setupDrivers(Application application) {
-        Job2dDriver loggerDriver = new LoggerDriver();
-        DriverFeature.addDriver("Logger driver", loggerDriver);
+        VisitableDriver TrackingLoggerDriver = new TrackingLoggerDriver();
+        DriverFeature.addDriver("Tracking Logger driver", TrackingLoggerDriver);
 
         DrawPanelController drawerController = DrawerFeature.getDrawerController();
-        Job2dDriver driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
+        VisitableDriver driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
         DriverFeature.addDriver("Line Simulator", driver);
         DriverFeature.getDriverManager().setCurrentDriver(driver);
 
         driver = new LineDriverAdapter(drawerController, LineFactory.getSpecialLine(), "special");
         DriverFeature.addDriver("Special line Simulator", driver);
         DriverFeature.updateDriverInfo();
+
+        CompositeDriver basicCompositeDriver = new CompositeDriver("Basic & Log Composite Driver");
+        basicCompositeDriver.addDriver(TrackingLoggerDriver);
+        basicCompositeDriver.addDriver(driver);
+        DriverFeature.addDriver(basicCompositeDriver.toString(), basicCompositeDriver);
+
+        CoordinateTransformer scale = new ScaleTransformer(2.0, 2.0);
+        VisitableDriver scaledDriver = new TransformingDriver(driver, scale, "Transform: Scaled 2x");
+        DriverFeature.addDriver(scaledDriver.toString(), scaledDriver);
+
+        CoordinateTransformer scaleDown = new ScaleTransformer(0.5, 0.5);
+        VisitableDriver scaledDownDriver = new TransformingDriver(driver, scaleDown, "Transform: Scaled 0.5x");
+        DriverFeature.addDriver(scaledDownDriver.toString(), scaledDownDriver);
+
+        CoordinateTransformer flip = new FlipTransformer(false, true);
+        VisitableDriver flippedDriver = new TransformingDriver(driver, flip, "Transform: Flipped Y");
+        DriverFeature.addDriver(flippedDriver.toString(), flippedDriver);
+
+        CoordinateTransformer rotate = new RotateTransformer(45.0);
+        VisitableDriver rotatedDriver = new TransformingDriver(driver, rotate, "Transform: Rotated 45 degrees");
+        DriverFeature.addDriver(rotatedDriver.toString(), rotatedDriver);
+
+        VisitableDriver scaledAndRotatedDriver = new TransformingDriver(scaledDriver, rotate, "Transform: Scaled 2x & Rotated 45");
+        DriverFeature.addDriver(scaledAndRotatedDriver.toString(), scaledAndRotatedDriver);
+
+        CompositeDriver chaosCompositeDriver = new CompositeDriver("Chaos Composite Driver");
+        chaosCompositeDriver.addDriver(driver);
+        chaosCompositeDriver.addDriver(TrackingLoggerDriver);
+        chaosCompositeDriver.addDriver(scaledDownDriver);
+        DriverFeature.addDriver(chaosCompositeDriver.toString(), chaosCompositeDriver);
+      
+        driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
+        VisitableDriver animatedDriver = new RealTimeDriver(driver, 10, 10, "Real-Time Driver 1x speed");
+        DriverFeature.addDriver(animatedDriver.toString(), animatedDriver);
+
+        animatedDriver = new RealTimeDriver(driver, 5, 5, "Real-Time Driver 2x speed");
+        DriverFeature.addDriver(animatedDriver.toString(), animatedDriver);
+
+        animatedDriver = new RealTimeDriver(driver, 1, 1, "Real-Time Driver 10x speed");
+        DriverFeature.addDriver(animatedDriver.toString(), animatedDriver);
     }
 
     private static void setupWindows(Application application) {
@@ -104,11 +184,20 @@ public class TestJobs2dApp {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 Application app = new Application("Jobs 2D");
-                DrawerFeature.setupDrawerPlugin(app);
-                CommandsFeature.setupCommandManager();
 
-                DriverFeature.setupDriverPlugin(app);
+                // Przykład użycia automatycznego zarządzania funkcjami (features management)
+                // Zarejestruj funkcje, które mają być automatycznie skonfigurowane
+                FeaturesManager.registerFeature(new DrawerFeature());
+                FeaturesManager.registerFeature(new CommandsFeature());
+                FeaturesManager.registerFeature(new DriverFeature());
+                FeaturesManager.registerFeature(new CanvasFeature());
+
+                // Automatycznie skonfiguruj wszystkie zarejestrowane funkcje
+                // To zastępuje ręczne wywołania setup dla każdej funkcji
+                FeaturesManager.setupAllFeatures(app);
+
                 setupDrivers(app);
+                RecordingFeature.setup(DriverFeature.getDriverManager());
                 setupPresetTests(app);
                 setupCommandTests(app);
                 setupLogger(app);

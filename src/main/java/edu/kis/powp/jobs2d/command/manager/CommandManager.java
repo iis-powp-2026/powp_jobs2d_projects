@@ -3,15 +3,16 @@ package edu.kis.powp.jobs2d.command.manager;
 import java.util.Iterator;
 import java.util.List;
 
-import edu.kis.powp.jobs2d.Job2dDriver;
+
+import edu.kis.powp.jobs2d.command.CompoundCommand;
 import edu.kis.powp.jobs2d.command.DriverCommand;
-import edu.kis.powp.jobs2d.command.ICompoundCommand;
+import edu.kis.powp.jobs2d.command.ImmutableCompoundCommand;
 import edu.kis.powp.observer.Publisher;
 
 /**
  * Driver command Manager.
  */
-public class DriverCommandManager {
+public class CommandManager {
     private DriverCommand currentCommand = null;
 
     private Publisher changePublisher = new Publisher();
@@ -33,26 +34,7 @@ public class DriverCommandManager {
      * @param name        name of the command.
      */
     public synchronized void setCurrentCommand(List<DriverCommand> commandList, String name) {
-        setCurrentCommand(new ICompoundCommand() {
-
-            List<DriverCommand> driverCommands = commandList;
-
-            @Override
-            public void execute(Job2dDriver driver) {
-                driverCommands.forEach((c) -> c.execute(driver));
-            }
-
-            @Override
-            public Iterator<DriverCommand> iterator() {
-                return driverCommands.iterator();
-            }
-
-            @Override
-            public String toString() {
-                return name;
-            }
-        });
-
+        setCurrentCommand(new ImmutableCompoundCommand(name, commandList));
     }
 
     /**
