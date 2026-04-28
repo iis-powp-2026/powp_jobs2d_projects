@@ -6,12 +6,11 @@ import javax.swing.JTextField;
 import edu.kis.powp.appbase.Application;
 import edu.kis.powp.jobs2d.features.canvas.CanvasLine;
 import edu.kis.powp.jobs2d.features.canvas.CanvasShape;
+import edu.kis.powp.jobs2d.features.canvas.CanvasRenderer;
 import edu.kis.powp.jobs2d.features.canvas.CustomShape;
 import edu.kis.powp.jobs2d.features.canvas.PaperFormat;
 import edu.kis.powp.jobs2d.events.SelectClearPanelOptionListener;
 import edu.kis.legacy.drawer.panel.DrawPanelController;
-import edu.kis.legacy.drawer.shape.ILine;
-import edu.kis.legacy.drawer.shape.LineFactory;
 
 public class DrawerFeature {
 
@@ -19,6 +18,7 @@ public class DrawerFeature {
     private static DrawPanelController drawerController;
     private static Application app;
     private static CanvasShape currentCanvas = PaperFormat.A4.toShape();
+    private static CanvasRenderer canvasRenderer;
     private static boolean showCanvas = true;
 
     /**
@@ -42,6 +42,7 @@ public class DrawerFeature {
         });
 
         drawerController.initialize(app.getFreePanel());
+        canvasRenderer = new CanvasRenderer(drawerController);
         redrawCanvasGuide();
         updateInfo("A4");
     }
@@ -97,16 +98,7 @@ public class DrawerFeature {
             return;
         }
 
-        for (CanvasLine line : currentCanvas.getGuideLines()) {
-            drawLine(line.getX1(), line.getY1(), line.getX2(), line.getY2());
-        }
-    }
-
-    private static void drawLine(int x1, int y1, int x2, int y2) {
-        ILine guideLine = LineFactory.getDottedLine();
-        guideLine.setStartCoordinates(x1, y1);
-        guideLine.setEndCoordinates(x2, y2);
-        drawerController.drawLine(guideLine);
+        canvasRenderer.drawCanvasGuide(currentCanvas);
     }
 
     private static void updateInfo(String canvasName) {
