@@ -19,6 +19,7 @@ public class DrawerFeature {
     private static DrawPanelController drawerController;
     private static Application app;
     private static CanvasShape currentCanvas = PaperFormat.A4.toShape();
+    private static boolean showCanvas = true;
 
     /**
      * Setup Drawer Plugin and add to application.
@@ -34,6 +35,11 @@ public class DrawerFeature {
         app.addComponentMenuElement(DrawPanelController.class, "Canvas A4", e -> setCanvas(PaperFormat.A4.toShape(), "A4"));
         app.addComponentMenuElement(DrawPanelController.class, "Canvas B3", e -> setCanvas(PaperFormat.B3.toShape(), "B3"));
         app.addComponentMenuElement(DrawPanelController.class, "Canvas Custom...", e -> selectCustomCanvas());
+        app.addComponentMenuElement(DrawPanelController.class, "Toggle Canvas Guide", e -> {
+            showCanvas = !showCanvas;
+            redrawCanvasGuide();
+            updateInfo(showCanvas ? "Canvas shown" : "Canvas hidden");
+        });
 
         drawerController.initialize(app.getFreePanel());
         redrawCanvasGuide();
@@ -87,6 +93,10 @@ public class DrawerFeature {
     private static void redrawCanvasGuide() {
         drawerController.clearPanel();
 
+        if (!showCanvas) {
+            return;
+        }
+
         for (CanvasLine line : currentCanvas.getGuideLines()) {
             drawLine(line.getX1(), line.getY1(), line.getX2(), line.getY2());
         }
@@ -100,7 +110,7 @@ public class DrawerFeature {
     }
 
     private static void updateInfo(String canvasName) {
-        app.updateInfo("Canvas: " + canvasName + " (" + currentCanvas.describe() + ")");
+        app.updateInfo("Canvas: " + canvasName + " (" + currentCanvas.describe() + ")" + (showCanvas ? " [guide]" : " [no guide]"));
     }
 
     /**
