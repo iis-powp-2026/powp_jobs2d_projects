@@ -59,6 +59,7 @@ public class TestJobs2dApp {
         application.addTest("Clear panel", new SelectClearPanelOptionListener());
         application.addTest("Run command", new SelectRunCurrentCommandOptionListener(DriverFeature.getDriverManager()));
         application.addTest("Count current command", new SelectCountCommandsOptionListener());
+        application.addTest("Deep copy of current command", new SelectDeepCopyCommandOptionListener());
 
         application.addTest("Check current command bounds", new SelectCheckCanvasBoundsOptionListener());
         application.addTest("Transform current command: Scale 2x",
