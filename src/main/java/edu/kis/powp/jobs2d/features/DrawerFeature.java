@@ -114,6 +114,15 @@ public class DrawerFeature {
     }
 
     /**
+     * Get the currently selected canvas shape.
+     *
+     * @return the current canvas shape.
+     */
+    public static CanvasShape getCurrentCanvas() {
+        return currentCanvas;
+    }
+
+    /**
      * Get controller of application drawing panel.
      *
      * @return drawPanelController.
