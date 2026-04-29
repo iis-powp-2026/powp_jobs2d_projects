@@ -74,16 +74,6 @@ public class TestJobs2dApp {
         application.addTest("FullNameGetter visitor test",
                 new SelectFullNameGetterVisitorTestListener(new FullNameGetterVisitor()));
 
-        RecordingDriver rec = RecordingFeature.getRecordingDriver();
-        boolean initial = rec.isRecordingEnabled();
-
-        application.addComponentMenuElementWithCheckBox(
-                DriverFeature.class,
-                "Recording",
-                new SelectToggleRecordingOptionListener(rec),
-                initial
-        );
-
         application.addComponentMenuElement(
                 DriverFeature.class,
                 "Clear recording",
@@ -97,8 +87,6 @@ public class TestJobs2dApp {
      * @param application Application context.
      */
     private static void setupDrivers(Application application) {
-        VisitableDriver TrackingLoggerDriver = new TrackingLoggerDriver();
-        DriverFeature.addDriver("Tracking Logger driver", TrackingLoggerDriver);
 
         DrawPanelController drawerController = DrawerFeature.getDrawerController();
         VisitableDriver driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
@@ -109,10 +97,6 @@ public class TestJobs2dApp {
         DriverFeature.addDriver("Special line Simulator", driver);
         DriverFeature.updateDriverInfo();
 
-        CompositeDriver basicCompositeDriver = new CompositeDriver("Basic & Log Composite Driver");
-        basicCompositeDriver.addDriver(TrackingLoggerDriver);
-        basicCompositeDriver.addDriver(driver);
-        DriverFeature.addDriver(basicCompositeDriver.toString(), basicCompositeDriver);
 
         CoordinateTransformer scale = new ScaleTransformer(2.0, 2.0);
         VisitableDriver scaledDriver = new TransformingDriver(driver, scale, "Transform: Scaled 2x");
@@ -135,7 +119,6 @@ public class TestJobs2dApp {
 
         CompositeDriver chaosCompositeDriver = new CompositeDriver("Chaos Composite Driver");
         chaosCompositeDriver.addDriver(driver);
-        chaosCompositeDriver.addDriver(TrackingLoggerDriver);
         chaosCompositeDriver.addDriver(scaledDownDriver);
         DriverFeature.addDriver(chaosCompositeDriver.toString(), chaosCompositeDriver);
       
@@ -148,6 +131,14 @@ public class TestJobs2dApp {
 
         animatedDriver = new RealTimeDriver(driver, 1, 1, "Real-Time Driver 10x speed");
         DriverFeature.addDriver(animatedDriver.toString(), animatedDriver);
+    }
+
+    private static void setupExtensions() {
+        VisitableDriver loggerDriver = new TrackingLoggerDriver();
+        ExtensionFeature.addExtension("Logger", loggerDriver);
+
+        RecordingDriver rec = RecordingFeature.getRecordingDriver();
+        ExtensionFeature.addMenuToggle("Recording", new SelectToggleRecordingOptionListener(rec), rec.isRecordingEnabled());
     }
 
     private static void setupWindows(Application application) {
@@ -204,6 +195,7 @@ public class TestJobs2dApp {
                 FeaturesManager.registerFeature(new DrawerFeature());
                 FeaturesManager.registerFeature(new CommandsFeature());
                 FeaturesManager.registerFeature(new DriverFeature());
+                FeaturesManager.registerFeature(new ExtensionFeature());
                 FeaturesManager.registerFeature(new CanvasFeature());
 
                 // Automatycznie skonfiguruj wszystkie zarejestrowane funkcje
@@ -211,6 +203,7 @@ public class TestJobs2dApp {
                 FeaturesManager.setupAllFeatures(app);
 
                 setupDrivers(app);
+                setupExtensions();
                 RecordingFeature.setup(DriverFeature.getDriverManager());
                 setupPresetTests(app);
                 setupCommandTests(app);
