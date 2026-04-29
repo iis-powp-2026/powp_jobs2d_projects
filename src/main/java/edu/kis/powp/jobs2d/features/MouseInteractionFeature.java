@@ -7,9 +7,22 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JPanel;
 
+
+/**
+ * Feature responsible for translating mouse clicks into driver operations.
+ * Left mouse button draws a line to the clicked position and moves the device head.
+ * Right mouse button moves the device head without drawing.
+ */
 public class MouseInteractionFeature implements IFeature {
+    /**
+     * Ensures the mouse listener is registered only once.
+     */
     private static boolean initialized = false;
 
+    /**
+     * Initializes mouse interaction for the application.
+     * @param application the application context
+     */
     @Override
     public void setup(Application application) {
         if (initialized) {
@@ -49,6 +62,10 @@ public class MouseInteractionFeature implements IFeature {
         });
     }
 
+    /**
+     * Returns the name of this feature.
+     * @return feature name
+     */
     @Override
     public String getName() {
         return "Mouse Interaction";
