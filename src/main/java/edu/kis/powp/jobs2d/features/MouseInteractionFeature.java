@@ -8,9 +8,15 @@ import java.awt.event.MouseEvent;
 import javax.swing.JPanel;
 
 public class MouseInteractionFeature implements IFeature {
+    private static boolean initialized = false;
 
     @Override
     public void setup(Application application) {
+        if (initialized) {
+            return;
+        }
+        initialized = true;
+
         DriverManager driverManager = DriverFeature.getDriverManager();
         JPanel panel = application.getFreePanel();
 
@@ -18,6 +24,10 @@ public class MouseInteractionFeature implements IFeature {
 
             @Override
             public void mouseClicked(MouseEvent e) {
+                if (driverManager.getCurrentDriver() == null) {
+                    return;
+                }
+
                 int x = e.getX() - panel.getWidth() / 2;
                 int y = e.getY() - panel.getHeight() / 2;
 
