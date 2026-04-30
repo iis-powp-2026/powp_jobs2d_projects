@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import edu.kis.powp.jobs2d.command.gui.*;
+
 import edu.kis.legacy.drawer.panel.DrawPanelController;
 import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.Application;
-import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
-import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
 import edu.kis.powp.jobs2d.drivers.RealTimeDriver;
 import edu.kis.powp.jobs2d.drivers.RecordingDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
@@ -158,6 +158,36 @@ public class TestJobs2dApp {
         CommandManagerWindowCommandChangeObserver windowObserver = new CommandManagerWindowCommandChangeObserver(
                 commandManager);
         CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(windowObserver);
+
+
+
+        DrawPanelController previewDrawController = new DrawPanelController();
+
+        CommandPreviewWindow commandPreview =
+                new CommandPreviewWindow(previewDrawController);
+
+        application.addWindowComponent("Command Preview", commandPreview);
+
+        VisitableDriver basicDriver =
+                new LineDriverAdapter(previewDrawController, LineFactory.getBasicLine(), "basic");
+
+        CoordinateTransformer scaleDown = new ScaleTransformer(0.5, 0.5);
+
+        VisitableDriver scaledDownDriver =
+                new TransformingDriver(basicDriver, scaleDown, "Preview Transform: Scaled 0.5x");
+
+        CommandPreviewService previewService =
+                new CommandPreviewService(previewDrawController, scaledDownDriver);
+
+        CommandPreviewObserver previewObserver =
+                new CommandPreviewObserver(
+                        CommandsFeature.getDriverCommandManager(),
+                        previewService
+                );
+
+        CommandsFeature.getDriverCommandManager()
+                .getChangePublisher()
+                .addSubscriber(previewObserver);
     }
 
     /**
