@@ -14,14 +14,13 @@ import edu.kis.powp.jobs2d.Job2dDriver;
 import edu.kis.powp.jobs2d.command.DriverCommand;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 
-public class CommandPreviewWindow extends JFrame implements ICommandPreview, WindowComponent {
+public class CommandPreviewWindow extends JFrame implements WindowComponent {
 
     private JPanel previewPanel;
-    private DrawPanelController previewDrawController;
-    private VisitableDriver previewDriver;
+    private DrawPanelController drawController;
 
     public CommandPreviewWindow(DrawPanelController drawController) {
-        this.previewDrawController = drawController;
+        this.drawController = drawController;
 
         this.setTitle("Command Preview");
         this.setSize(400, 400);
@@ -33,30 +32,19 @@ public class CommandPreviewWindow extends JFrame implements ICommandPreview, Win
         previewPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         content.add(previewPanel, BorderLayout.CENTER);
 
-        previewDrawController.initialize(previewPanel);
+        drawController.initialize(previewPanel);
     }
 
-    public void updatePreview(DriverCommand command) {
-        previewDrawController.clearPanel();
-        if (command != null && previewDriver != null) {
-            command.execute(previewDriver);
-        }
+    public DrawPanelController getDrawController() {
+        return drawController;
     }
 
-    public DrawPanelController getDrawPanelController() {
-        return previewDrawController;
-    }
-
-    public void setPreviewDriver(VisitableDriver previewDriver) {
-        this.previewDriver = previewDriver;
+    public void clear() {
+        drawController.clearPanel();
     }
 
     @Override
     public void HideIfVisibleAndShowIfHidden() {
-        if (this.isVisible()) {
-            this.setVisible(false);
-        } else {
-            this.setVisible(true);
-        }
+        this.setVisible(!this.isVisible());
     }
 }
