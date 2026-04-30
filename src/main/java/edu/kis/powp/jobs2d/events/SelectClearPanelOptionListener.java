@@ -8,6 +8,6 @@ import edu.kis.powp.jobs2d.features.CanvasFeature;
 public class SelectClearPanelOptionListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
-        CanvasFeature.clearPanel();
+        DrawerFeature.clearPanel();
     }
 }
