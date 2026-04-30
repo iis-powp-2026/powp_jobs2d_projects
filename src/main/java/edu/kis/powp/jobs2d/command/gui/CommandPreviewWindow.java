@@ -14,7 +14,7 @@ import edu.kis.powp.jobs2d.Job2dDriver;
 import edu.kis.powp.jobs2d.command.DriverCommand;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 
-public class CommandPreviewWindow extends JFrame implements WindowComponent {
+public class CommandPreviewWindow extends JFrame implements ICommandPreview, WindowComponent {
 
     private JPanel previewPanel;
     private DrawPanelController previewDrawController;

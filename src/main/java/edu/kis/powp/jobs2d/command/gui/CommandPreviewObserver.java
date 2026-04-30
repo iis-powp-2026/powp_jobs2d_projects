@@ -1,15 +1,14 @@
 package edu.kis.powp.jobs2d.command.gui;
 
 import edu.kis.powp.jobs2d.command.DriverCommand;
-import edu.kis.powp.jobs2d.command.manager.CommandManager;
 import edu.kis.powp.observer.Subscriber;
 
 public class CommandPreviewObserver implements Subscriber {
 
-    private CommandManager commandManager;
-    private CommandPreviewWindow commandPreviewWindow;
+    private ICommandManager commandManager;
+    private ICommandPreview commandPreviewWindow;
 
-    public CommandPreviewObserver(CommandManager commandManager, CommandPreviewWindow commandPreviewWindow) {
+    public CommandPreviewObserver(ICommandManager commandManager, ICommandPreview commandPreviewWindow) {
         this.commandManager = commandManager;
         this.commandPreviewWindow = commandPreviewWindow;
     }
