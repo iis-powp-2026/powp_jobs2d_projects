@@ -25,6 +25,8 @@ import edu.kis.powp.jobs2d.events.SelectLoadRecordedMacroOptionListener;
 import edu.kis.powp.jobs2d.events.SelectClearPanelOptionListener;
 import edu.kis.powp.jobs2d.events.SelectToggleRecordingOptionListener;
 import edu.kis.powp.jobs2d.events.SelectClearRecordingOptionListener;
+import edu.kis.powp.jobs2d.features.FeaturesManager;
+import edu.kis.powp.jobs2d.drivers.ClickDriver;
 
 public class TestJobs2dApp {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -178,6 +180,10 @@ public class TestJobs2dApp {
         application.addComponentMenuElement(Logger.class, "OFF logging", (ActionEvent e) -> logger.setLevel(Level.OFF));
     }
 
+    private static void setupMouseHandler(Application application) {
+        new ClickDriver(application.getFreePanel());
+    }
+
     /**
      * Launch the application.
      */
@@ -203,6 +209,7 @@ public class TestJobs2dApp {
                 setupCommandTests(app);
                 setupLogger(app);
                 setupWindows(app);
+                setupMouseHandler(app);
 
                 app.setVisibility(true);
             }
