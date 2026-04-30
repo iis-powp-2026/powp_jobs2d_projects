@@ -3,6 +3,8 @@ package edu.kis.powp.jobs2d.features;
 import edu.kis.powp.appbase.Application;
 import edu.kis.powp.jobs2d.command.manager.CommandManager;
 import edu.kis.powp.jobs2d.command.manager.LoggerCommandChangeObserver;
+import edu.kis.powp.jobs2d.command.io.CommandImporterFactory;
+import edu.kis.powp.jobs2d.command.io.JsonCommandImporterProvider;
 
 public class CommandsFeature implements IFeature {
 
@@ -23,6 +25,8 @@ public class CommandsFeature implements IFeature {
 
         LoggerCommandChangeObserver loggerObserver = new LoggerCommandChangeObserver();
         commandManager.getChangePublisher().addSubscriber(loggerObserver);
+
+        CommandImporterFactory.registerProvider(new JsonCommandImporterProvider());
     }
 
     /**

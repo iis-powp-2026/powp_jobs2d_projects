@@ -1,0 +1,21 @@
+[
+  { "type": "SetPositionCommand", "x": -50, "y": 50 },
+  { "type": "OperateToCommand",   "x": -50, "y": -50 },
+  { "type": "OperateToCommand",   "x": 0,   "y": -100 },
+  { "type": "OperateToCommand",   "x": 50,  "y": -50 },
+  { "type": "OperateToCommand",   "x": 50,  "y": 50 },
+  { "type": "OperateToCommand",   "x": -50, "y": 50 },
+  { "type": "SetPositionCommand", "x": -10, "y": 50 },
+  { "type": "OperateToCommand",   "x": -10, "y": 10 },
+  { "type": "OperateToCommand",   "x": 10,  "y": 10 },
+  { "type": "OperateToCommand",   "x": 10,  "y": 50 },
+  { "type": "SetPositionCommand", "x": 20,  "y": -10 },
+  { "type": "OperateToCommand",   "x": 20,  "y": -30 },
+  { "type": "OperateToCommand",   "x": 40,  "y": -30 },
+  { "type": "OperateToCommand",   "x": 40,  "y": -10 },
+  { "type": "OperateToCommand",   "x": 20,  "y": -10 },
+  { "type": "SetPositionCommand", "x": 30,  "y": -70 },
+  { "type": "OperateToCommand",   "x": 30,  "y": -90 },
+  { "type": "OperateToCommand",   "x": 40,  "y": -90 },
+  { "type": "OperateToCommand",   "x": 40,  "y": -60 }
+]

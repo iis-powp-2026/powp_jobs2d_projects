@@ -1,14 +1,16 @@
 package edu.kis.powp.jobs2d.drivers;
 
-import edu.kis.powp.jobs2d.Job2dDriver;
+
+import edu.kis.powp.jobs2d.drivers.visitor.DriverVisitor;
+import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 
 import javax.swing.SwingUtilities;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 
-public class RealTimeDriver implements Job2dDriver {
-    private final Job2dDriver innerDriver;
+public class RealTimeDriver implements VisitableDriver {
+    private final VisitableDriver innerDriver;
     private final int operationToDelayMs;
     private final int setPositionDelayMs;
     private final String name;
@@ -18,7 +20,7 @@ public class RealTimeDriver implements Job2dDriver {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    public RealTimeDriver(Job2dDriver innerDriver, int operationToDelayMs, int setPositionDelayMs, String name) {
+    public RealTimeDriver(VisitableDriver innerDriver, int operationToDelayMs, int setPositionDelayMs, String name) {
         if (operationToDelayMs <= 0 || setPositionDelayMs <= 0) {
             throw new IllegalArgumentException("Delay must be a positive integer (milliseconds)!");
         }
@@ -27,6 +29,10 @@ public class RealTimeDriver implements Job2dDriver {
         this.operationToDelayMs = operationToDelayMs;
         this.setPositionDelayMs = setPositionDelayMs;
         this.name = name;
+    }
+
+    public VisitableDriver getInnerDriver() {
+        return innerDriver;
     }
 
     @Override
@@ -97,5 +103,10 @@ public class RealTimeDriver implements Job2dDriver {
     @Override
     public String toString() {
         return name;
+    }
+
+    @Override
+    public void accept(DriverVisitor visitor) {
+        visitor.visit(this);
     }
 }

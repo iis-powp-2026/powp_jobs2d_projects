@@ -1,6 +1,7 @@
 package edu.kis.powp.jobs2d.drivers;
 
-import edu.kis.powp.jobs2d.Job2dDriver;
+
+import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 import edu.kis.powp.observer.Subscriber;
 
 /**
@@ -19,7 +20,7 @@ public class EnsureRecordingDriverIsCurrent implements Subscriber {
 
     @Override
     public void update() {
-        Job2dDriver current = driverManager.getCurrentDriver();
+        VisitableDriver current = driverManager.getCurrentDriver();
 
         if (current == recordingDriver) {
             return;

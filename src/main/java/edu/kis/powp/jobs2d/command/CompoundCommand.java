@@ -1,10 +1,12 @@
 package edu.kis.powp.jobs2d.command;
 
+import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import edu.kis.powp.jobs2d.Job2dDriver;
+
 
 /**
  * Concrete implementation of ICompoundCommand. Executes multiple commands in
@@ -103,7 +105,7 @@ public class CompoundCommand implements ICompoundCommand {
      * @param driver the driver to execute commands on
      */
     @Override
-    public void execute(Job2dDriver driver) {
+    public void execute(VisitableDriver driver) {
         for (DriverCommand command : commands) {
             command.execute(driver);
         }
@@ -125,5 +127,15 @@ public class CompoundCommand implements ICompoundCommand {
             return name;
         }
         return "CompoundCommand [" + commands.size() + " commands]";
+    }
+
+    @Override
+    public CompoundCommand deepCopy() {
+        CompoundCommand copy = new CompoundCommand();
+        copy.name = this.name;
+        for (DriverCommand cmd : commands) {
+            copy.addCommand(cmd.deepCopy());
+        }
+        return copy;
     }
 }
