@@ -2,7 +2,6 @@ package edu.kis.powp.jobs2d;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,6 +10,11 @@ import edu.kis.powp.jobs2d.command.gui.*;
 import edu.kis.legacy.drawer.panel.DrawPanelController;
 import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.Application;
+import edu.kis.powp.jobs2d.command.CompoundCommandFactory;
+import edu.kis.powp.jobs2d.command.ImmutableCompoundCommandFactory;
+import edu.kis.powp.jobs2d.command.catalog.CommandCatalog;
+import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
+import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
 import edu.kis.powp.jobs2d.drivers.RealTimeDriver;
 import edu.kis.powp.jobs2d.drivers.RecordingDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
@@ -151,12 +155,15 @@ public class TestJobs2dApp {
         DriverFeature.addDriver(animatedDriver.toString(), animatedDriver);
     }
 
-    private static void setupWindows(Application application) {
+    private static void setupWindows(Application application, CommandCatalog commandCatalog) {
 
         CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager());
         application.addWindowComponent("Command Manager", commandManager);
 
-        CommandCatalogWindow commandCatalogWindow = new CommandCatalogWindow(CommandsFeature.getDriverCommandManager());
+        CommandCatalogWindow commandCatalogWindow = new CommandCatalogWindow(
+                CommandsFeature.getDriverCommandManager(),
+                commandCatalog
+        );
         application.addWindowComponent("Command Catalog", commandCatalogWindow);
 
         CommandManagerWindowCommandChangeObserver windowObserver = new CommandManagerWindowCommandChangeObserver(
@@ -228,6 +235,8 @@ public class TestJobs2dApp {
                 FeaturesManager.registerFeature(new DriverFeature());
                 FeaturesManager.registerFeature(new CanvasFeature());
 
+                CommandCatalog commandCatalog = createCommandCatalog();
+
                 // Automatycznie skonfiguruj wszystkie zarejestrowane funkcje
                 // To zastępuje ręczne wywołania setup dla każdej funkcji
                 FeaturesManager.setupAllFeatures(app);
@@ -237,11 +246,20 @@ public class TestJobs2dApp {
                 setupPresetTests(app);
                 setupCommandTests(app);
                 setupLogger(app);
-                setupWindows(app);
+                setupWindows(app, commandCatalog);
 
                 app.setVisibility(true);
             }
         });
     }
 
+    private static CommandCatalog createCommandCatalog() {
+        CommandCatalog commandCatalog = new CommandCatalog();
+
+        commandCatalog.addCommand("TopSecretCommand", CompoundCommandFactory.createTopSecretCommand());
+        commandCatalog.addCommand("KiteCommand", CompoundCommandFactory.createKiteCommand());
+        commandCatalog.addCommand("Immutable Rectangle", ImmutableCompoundCommandFactory.getRectangle(0, 0, 100, 150));
+
+        return commandCatalog;
+    }
 }

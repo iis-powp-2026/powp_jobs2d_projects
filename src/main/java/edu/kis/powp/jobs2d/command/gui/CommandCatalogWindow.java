@@ -14,7 +14,7 @@ import javax.swing.JScrollPane;
 
 import edu.kis.powp.appbase.gui.WindowComponent;
 import edu.kis.powp.jobs2d.command.DriverCommand;
-import edu.kis.powp.jobs2d.command.DriverCommandFactory;
+import edu.kis.powp.jobs2d.command.catalog.CommandCatalog;
 import edu.kis.powp.jobs2d.command.manager.CommandManager;
 import edu.kis.powp.observer.Subscriber;
 
@@ -23,18 +23,20 @@ public class CommandCatalogWindow extends JFrame implements WindowComponent, Sub
     private static final long serialVersionUID = 1L;
 
     private CommandManager commandManager;
+    private CommandCatalog commandCatalog;
 
     private DefaultListModel<String> commandListModel;
     private JList<String> commandList;
 
-    public CommandCatalogWindow(CommandManager commandManager) {
+    public CommandCatalogWindow(CommandManager commandManager, CommandCatalog commandCatalog) {
         this.setTitle("Command Catalog");
         this.setSize(400, 400);
 
+        this.commandManager = commandManager;
+        this.commandCatalog = commandCatalog;
+
         Container content = this.getContentPane();
         content.setLayout(new GridBagLayout());
-
-        this.commandManager = commandManager;
 
         commandListModel = new DefaultListModel<>();
         commandList = new JList<>(commandListModel);
@@ -67,7 +69,7 @@ public class CommandCatalogWindow extends JFrame implements WindowComponent, Sub
         c.gridy = 2;
         content.add(btnAddCommand, c);
 
-        DriverCommandFactory.getCommandCatalogChangePublisher().addSubscriber(this);
+        commandCatalog.getChangePublisher().addSubscriber(this);
 
         updateCommandList();
     }
@@ -75,7 +77,7 @@ public class CommandCatalogWindow extends JFrame implements WindowComponent, Sub
     private void updateCommandList() {
         commandListModel.clear();
 
-        for (String commandName : DriverCommandFactory.getCommandNames()) {
+        for (String commandName : commandCatalog.getCommandNames()) {
             commandListModel.addElement(commandName);
         }
     }
@@ -93,7 +95,7 @@ public class CommandCatalogWindow extends JFrame implements WindowComponent, Sub
             return;
         }
 
-        DriverCommand command = DriverCommandFactory.getCommand(selectedCommandName);
+        DriverCommand command = commandCatalog.getCommand(selectedCommandName);
 
         if (command == null) {
             JOptionPane.showMessageDialog(
@@ -139,7 +141,7 @@ public class CommandCatalogWindow extends JFrame implements WindowComponent, Sub
 
         commandName = commandName.trim();
 
-        if (DriverCommandFactory.containsCommand(commandName)) {
+        if (commandCatalog.containsCommand(commandName)) {
             int result = JOptionPane.showConfirmDialog(
                     this,
                     "Command '" + commandName + "' already exists. Overwrite?",
@@ -152,7 +154,7 @@ public class CommandCatalogWindow extends JFrame implements WindowComponent, Sub
             }
         }
 
-        DriverCommandFactory.registerCommand(commandName, currentCommand);
+        commandCatalog.addCommand(commandName, currentCommand);
     }
 
     @Override
