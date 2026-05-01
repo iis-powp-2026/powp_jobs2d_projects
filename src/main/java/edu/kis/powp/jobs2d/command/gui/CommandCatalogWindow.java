@@ -16,8 +16,9 @@ import edu.kis.powp.appbase.gui.WindowComponent;
 import edu.kis.powp.jobs2d.command.DriverCommand;
 import edu.kis.powp.jobs2d.command.DriverCommandFactory;
 import edu.kis.powp.jobs2d.command.manager.CommandManager;
+import edu.kis.powp.observer.Subscriber;
 
-public class CommandCatalogWindow extends JFrame implements WindowComponent {
+public class CommandCatalogWindow extends JFrame implements WindowComponent, Subscriber {
 
     private static final long serialVersionUID = 1L;
 
@@ -65,6 +66,8 @@ public class CommandCatalogWindow extends JFrame implements WindowComponent {
         c.gridx = 0;
         c.gridy = 2;
         content.add(btnAddCommand, c);
+
+        DriverCommandFactory.getCommandCatalogChangePublisher().addSubscriber(this);
 
         updateCommandList();
     }
@@ -150,14 +153,15 @@ public class CommandCatalogWindow extends JFrame implements WindowComponent {
         }
 
         DriverCommandFactory.registerCommand(commandName, currentCommand);
+    }
+
+    @Override
+    public void update() {
         updateCommandList();
-        commandList.setSelectedValue(commandName, true);
     }
 
     @Override
     public void HideIfVisibleAndShowIfHidden() {
-        updateCommandList();
-
         if (this.isVisible()) {
             this.setVisible(false);
         } else {
