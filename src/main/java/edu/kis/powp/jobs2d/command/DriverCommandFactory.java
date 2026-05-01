@@ -4,9 +4,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import edu.kis.powp.observer.Publisher;
+
 public class DriverCommandFactory {
 
     private static final Map<String, DriverCommand> commands = new LinkedHashMap<>();
+
+    private static final Publisher commandCatalogChangePublisher = new Publisher();
 
     static {
         registerCommand("TopSecretCommand", CompoundCommandFactory.createTopSecretCommand());
@@ -26,6 +30,7 @@ public class DriverCommandFactory {
         }
 
         commands.put(name, command.deepCopy());
+        commandCatalogChangePublisher.notifyObservers();
     }
 
     public static DriverCommand getCommand(String name) {
@@ -44,5 +49,9 @@ public class DriverCommandFactory {
 
     public static boolean containsCommand(String name) {
         return commands.containsKey(name);
+    }
+
+    public static Publisher getCommandCatalogChangePublisher() {
+        return commandCatalogChangePublisher;
     }
 }
