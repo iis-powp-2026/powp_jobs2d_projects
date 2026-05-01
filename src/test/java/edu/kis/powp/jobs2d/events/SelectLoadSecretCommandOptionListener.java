@@ -12,7 +12,8 @@ public class SelectLoadSecretCommandOptionListener implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        DriverCommand topSecret = DriverCommandFactory.getCommand("Top Secret");
+        DriverCommand topSecret = DriverCommandFactory.getCommand("TopSecretCommand");
+
         CommandManager manager = CommandsFeature.getDriverCommandManager();
         manager.setCurrentCommand(topSecret);
     }
