@@ -11,6 +11,10 @@ import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.Application;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
+import edu.kis.powp.jobs2d.features.history.HistoryWindow;
+import edu.kis.powp.jobs2d.features.history.HistoryWindowObserver;
+import edu.kis.powp.jobs2d.features.history.HistoryCommandChangeObserver;
+import edu.kis.powp.jobs2d.features.history.HistoryDriverChangeObserver;
 import edu.kis.powp.jobs2d.command.gui.CommandPreviewObserver;
 import edu.kis.powp.jobs2d.command.gui.CommandPreviewWindow;
 import edu.kis.powp.jobs2d.drivers.RealTimeDriver;
@@ -150,6 +154,17 @@ public class TestJobs2dApp {
                 commandManager);
         CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(windowObserver);
 
+        HistoryWindow historyWindow = new HistoryWindow(HistoryFeature.getHistoryManager());
+        application.addWindowComponent("History", historyWindow);
+
+        HistoryWindowObserver historyWindowObserver = new HistoryWindowObserver(historyWindow);
+        HistoryFeature.getHistoryManager().getChangePublisher().addSubscriber(historyWindowObserver);
+
+        HistoryCommandChangeObserver historyCommandObserver = new HistoryCommandChangeObserver(HistoryFeature.getHistoryManager(), CommandsFeature.getDriverCommandManager());
+        CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(historyCommandObserver);
+
+        HistoryDriverChangeObserver historyDriverObserver = new HistoryDriverChangeObserver(HistoryFeature.getHistoryManager(), DriverFeature.getDriverManager());
+        DriverFeature.getDriverManager().getChangePublisher().addSubscriber(historyDriverObserver);
         CommandPreviewWindow commandPreview = new CommandPreviewWindow();
         application.addWindowComponent("Command Preview", commandPreview);
 
@@ -197,6 +212,7 @@ public class TestJobs2dApp {
                 FeaturesManager.registerFeature(new DriverFeature());
                 FeaturesManager.registerFeature(new ExtensionFeature());
                 FeaturesManager.registerFeature(new CanvasFeature());
+                FeaturesManager.registerFeature(new HistoryFeature());
 
                 // Automatycznie skonfiguruj wszystkie zarejestrowane funkcje
                 // To zastępuje ręczne wywołania setup dla każdej funkcji

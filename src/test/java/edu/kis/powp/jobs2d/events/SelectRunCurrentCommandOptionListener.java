@@ -19,5 +19,8 @@ public class SelectRunCurrentCommandOptionListener implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         DriverCommand command = CommandsFeature.getDriverCommandManager().getCurrentCommand();
         command.execute(driverManager.getCurrentDriver());
+        edu.kis.powp.jobs2d.features.HistoryFeature.getHistoryManager().addHistory(
+                new edu.kis.powp.jobs2d.features.history.HistoryEntry("Command executed: " + command.toString(), command)
+        );
     }
 }
