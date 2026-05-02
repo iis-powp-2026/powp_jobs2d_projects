@@ -16,7 +16,7 @@ public class HistoryCommandChangeObserver implements Subscriber {
     @Override
     public void update() {
         if (commandManager.getCurrentCommand() != null) {
-            historyManager.addHistory("Command set: " + commandManager.getCurrentCommand().toString());
+            historyManager.addHistory(new HistoryEntry("Command set: " + commandManager.getCurrentCommand().toString(), commandManager.getCurrentCommand()));
         }
     }
 

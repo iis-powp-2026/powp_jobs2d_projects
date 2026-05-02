@@ -5,15 +5,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HistoryManager {
-    private List<String> historyList = new ArrayList<>();
+    private List<HistoryEntry> historyList = new ArrayList<>();
     private Publisher changePublisher = new Publisher();
 
-    public void addHistory(String history) {
+    public void addHistory(HistoryEntry history) {
         historyList.add(history);
         changePublisher.notifyObservers();
     }
 
-    public List<String> getHistoryList() {
+    public void removeFirst() {
+        if (!historyList.isEmpty()) {
+            historyList.remove(0);
+            changePublisher.notifyObservers();
+        }
+    }
+
+    public List<HistoryEntry> getHistoryList() {
         return historyList;
     }
 
