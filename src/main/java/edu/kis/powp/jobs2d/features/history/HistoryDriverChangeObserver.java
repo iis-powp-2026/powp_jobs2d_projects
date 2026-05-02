@@ -16,7 +16,7 @@ public class HistoryDriverChangeObserver implements Subscriber {
     @Override
     public void update() {
         if (driverManager.getCurrentDriver() != null) {
-            historyManager.addHistory("Driver set: " + driverManager.getCurrentDriver().toString());
+            historyManager.addHistory(new HistoryEntry("Driver set: " + driverManager.getCurrentDriver().toString(), null));
         }
     }
 
