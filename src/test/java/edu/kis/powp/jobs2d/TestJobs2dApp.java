@@ -109,9 +109,12 @@ public class TestJobs2dApp {
         DriverFeature.addDriver("Special line Simulator", driver);
 
 
-        UsageMonitorDriver monitoredDriver = new UsageMonitorDriver(new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic"));
-        monitoredDriver.getChangePublisher().addSubscriber(new LoggerUsageMonitorSubscriber(monitoredDriver));
-        DriverFeature.addDriver("Line Simulator with Usage Monitor", monitoredDriver);
+        UsageMonitorDriver usageMonitorDriver = new UsageMonitorDriver();
+        usageMonitorDriver.getChangePublisher().addSubscriber(new LoggerUsageMonitorSubscriber(usageMonitorDriver));
+        CompositeDriver monitoredDriverComposite = new CompositeDriver("Line Simulator with Usage Monitor");
+        monitoredDriverComposite.addDriver(new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic"));
+        monitoredDriverComposite.addDriver(usageMonitorDriver);
+        DriverFeature.addDriver(monitoredDriverComposite.toString(), monitoredDriverComposite);
 
         DriverFeature.updateDriverInfo();
 

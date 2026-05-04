@@ -53,7 +53,6 @@ public class FullNameGetterVisitor implements DriverVisitor {
     @Override
     public void visit(UsageMonitorDriver driver) {
         builder.append(driver.toString());
-        driver.getInnerDriver().accept(this);
     }
 
     public String getAndResetFullName() {
