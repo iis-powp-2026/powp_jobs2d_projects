@@ -1,5 +1,6 @@
 package edu.kis.powp.jobs2d.command.gui;
 
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -12,24 +13,37 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import edu.kis.legacy.drawer.panel.DrawPanelController;
+import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.gui.WindowComponent;
 import edu.kis.powp.jobs2d.command.ICompoundCommand;
 import edu.kis.powp.jobs2d.command.io.CommandImporter;
 import edu.kis.powp.jobs2d.command.io.CommandImporterFactory;
 import edu.kis.powp.jobs2d.command.manager.CommandManager;
+import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
+import edu.kis.powp.jobs2d.drivers.transformations.CoordinateTransformer;
+import edu.kis.powp.jobs2d.drivers.transformations.ScaleTransformer;
+import edu.kis.powp.jobs2d.drivers.transformations.TransformingDriver;
+import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 import edu.kis.powp.observer.Subscriber;
 
 public class CommandManagerWindow extends JFrame implements WindowComponent {
 
     private CommandManager commandManager;
 
-    private JTextArea currentCommandField;
+    private JLabel currentCommandField;
 
     private String observerListString;
     private JTextArea observerListField;
+
+    private VisitableDriver previewDriver;
+    private DrawPanelController drawerController;
 
     /**
      * 
@@ -46,21 +60,44 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
 
         GridBagConstraints c = new GridBagConstraints();
 
+        JPanel previewPanel = new JPanel();
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx = 1;
+        c.gridx = 1;
+        c.gridy = 1;
+        c.weighty = 7;
+        c.gridwidth = 1;
+        content.add(previewPanel, c);   
+
+        drawerController = new DrawPanelController();
+        drawerController.initialize(previewPanel);
+        VisitableDriver driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
+        CoordinateTransformer scaleDown = new ScaleTransformer(0.4, 0.4);
+        VisitableDriver scaledDownDriver = new TransformingDriver(driver, scaleDown, "Transform: Scaled 0.4x");
+        this.previewDriver = scaledDownDriver;
+
         observerListField = new JTextArea("");
         observerListField.setEditable(false);
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 1;
         c.gridx = 0;
+        c.gridy = 0;
         c.weighty = 1;
+        c.gridwidth = 2;
         content.add(observerListField, c);
         updateObserverListField();
 
-        currentCommandField = new JTextArea("");
-        currentCommandField.setEditable(false);
+        currentCommandField = new JLabel("");
+        currentCommandField.setVerticalAlignment(SwingConstants.CENTER);
+        currentCommandField.setHorizontalAlignment(SwingConstants.CENTER);
+        currentCommandField.setOpaque(true);
+        currentCommandField.setBackground(Color.WHITE);
         c.fill = GridBagConstraints.BOTH;
-        c.weightx = 1;
+        c.weightx = 0.5;
         c.gridx = 0;
-        c.weighty = 1;
+        c.gridy = 1;
+        c.weighty = 7;
+        c.gridwidth = 1;
         content.add(currentCommandField, c);
         updateCurrentCommandField();
 
@@ -69,7 +106,9 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 1;
         c.gridx = 0;
+        c.gridy = 2;
         c.weighty = 1;
+        c.gridwidth = 2;
         content.add(btnImportCommands, c);
 
         JButton btnClearCommand = new JButton("Clear command");
@@ -77,7 +116,9 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 1;
         c.gridx = 0;
+        c.gridy = 3;
         c.weighty = 1;
+        c.gridwidth = 2;
         content.add(btnClearCommand, c);
 
         JButton btnClearObservers = new JButton("Delete observers");
@@ -85,7 +126,9 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 1;
         c.gridx = 0;
+        c.gridy = 4;
         c.weighty = 1;
+        c.gridwidth = 2;
         content.add(btnClearObservers, c);
     }
 
@@ -95,6 +138,10 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
     }
 
     public void updateCurrentCommandField() {
+        if (commandManager.getCurrentCommand() != null) {
+            this.drawerController.clearPanel();
+            this.commandManager.getCurrentCommand().execute(this.previewDriver);
+        }
         currentCommandField.setText(commandManager.getCurrentCommandString());
     }
 
