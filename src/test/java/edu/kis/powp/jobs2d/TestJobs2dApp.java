@@ -12,6 +12,9 @@ import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
 import edu.kis.powp.jobs2d.command.gui.CommandPreviewObserver;
 import edu.kis.powp.jobs2d.command.gui.CommandPreviewWindow;
+import edu.kis.powp.jobs2d.drivers.usage.LoggerUsageMonitorSubscriber;
+import edu.kis.powp.jobs2d.drivers.usage.UsageMonitorDriver;
+import edu.kis.powp.jobs2d.features.*;
 import edu.kis.powp.jobs2d.features.history.HistoryWindow;
 import edu.kis.powp.jobs2d.features.history.HistoryWindowObserver;
 import edu.kis.powp.jobs2d.features.history.HistoryCommandChangeObserver;
@@ -44,13 +47,6 @@ import edu.kis.powp.jobs2d.events.SelectTestFigure2OptionListener;
 import edu.kis.powp.jobs2d.events.SelectTestFigureOptionListener;
 import edu.kis.powp.jobs2d.events.SelectToggleRecordingOptionListener;
 import edu.kis.powp.jobs2d.events.SelectTransformCommandOptionListener;
-import edu.kis.powp.jobs2d.features.CanvasFeature;
-import edu.kis.powp.jobs2d.features.CommandsFeature;
-import edu.kis.powp.jobs2d.features.DrawerFeature;
-import edu.kis.powp.jobs2d.features.DriverFeature;
-import edu.kis.powp.jobs2d.features.ExtensionFeature;
-import edu.kis.powp.jobs2d.features.FeaturesManager;
-import edu.kis.powp.jobs2d.features.RecordingFeature;
 
 public class TestJobs2dApp {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
