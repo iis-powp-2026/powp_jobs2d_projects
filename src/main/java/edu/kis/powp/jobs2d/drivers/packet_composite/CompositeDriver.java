@@ -4,8 +4,7 @@ package edu.kis.powp.jobs2d.drivers.packet_composite;
 import edu.kis.powp.jobs2d.drivers.visitor.DriverVisitor;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 
 public class CompositeDriver implements VisitableDriver {
@@ -19,6 +18,18 @@ public class CompositeDriver implements VisitableDriver {
 
     public CompositeDriver(){
         this("Composite Driver");
+    }
+
+    public CompositeDriver(String name, VisitableDriver baseDriver, Collection<VisitableDriver> extensions) {
+        this(name);
+
+        if (baseDriver != null) {
+            drivers.add(baseDriver);
+        }
+
+        if (extensions != null) {
+            drivers.addAll(extensions);
+        }
     }
 
     public void addDriver(VisitableDriver driver) {

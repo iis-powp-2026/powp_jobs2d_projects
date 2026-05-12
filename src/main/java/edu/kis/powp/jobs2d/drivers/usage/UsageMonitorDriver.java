@@ -1,9 +1,11 @@
 package edu.kis.powp.jobs2d.drivers.usage;
 
 import edu.kis.powp.jobs2d.Job2dDriver;
+import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 import edu.kis.powp.observer.Publisher;
+import edu.kis.powp.jobs2d.drivers.visitor.DriverVisitor;
 
-public class UsageMonitorDriver implements Job2dDriver, IUsageMonitor {
+public class UsageMonitorDriver implements VisitableDriver, Job2dDriver, IUsageMonitor {
     private final Job2dDriver innerDriver;
 
     private final Publisher publisher = new Publisher();
@@ -12,6 +14,11 @@ public class UsageMonitorDriver implements Job2dDriver, IUsageMonitor {
     private int currentY = 0;
     private double headDistance = 0;
     private double operatingDistance = 0;
+
+
+    public UsageMonitorDriver() {
+        this.innerDriver = null;
+    }
 
     public UsageMonitorDriver(Job2dDriver innerDriver) {
         this.innerDriver = innerDriver;
@@ -30,7 +37,10 @@ public class UsageMonitorDriver implements Job2dDriver, IUsageMonitor {
         headDistance += calculateDistance(x, y);
         currentX = x;
         currentY = y;
-        innerDriver.setPosition(x, y);
+        if (innerDriver != null) {
+            innerDriver.setPosition(x, y);
+        }
+
 
         publisher.notifyObservers();
     }
@@ -42,7 +52,10 @@ public class UsageMonitorDriver implements Job2dDriver, IUsageMonitor {
         operatingDistance += distance;
         currentX = x;
         currentY = y;
-        innerDriver.operateTo(x, y);
+        if (innerDriver != null) {
+            innerDriver.operateTo(x, y);
+        }
+
 
         publisher.notifyObservers();
     }
@@ -55,6 +68,14 @@ public class UsageMonitorDriver implements Job2dDriver, IUsageMonitor {
 
     @Override
     public String toString() {
-        return "Monitored " + innerDriver.toString();
+        return innerDriver != null
+                ? "Monitored " + innerDriver
+                : "Usage Monitor (extension)";
+    }
+
+
+    @Override
+    public void accept(DriverVisitor visitor) {
+        visitor.visit(this);
     }
 }

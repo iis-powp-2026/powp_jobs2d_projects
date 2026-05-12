@@ -20,6 +20,8 @@ public class RecordingDriver implements VisitableDriver {
     private final List<DriverCommand> recorded = new ArrayList<>();
     private boolean recordingEnabled = true;
 
+    public RecordingDriver() { this.target = null; }
+
     public RecordingDriver(VisitableDriver initialTarget) {
         this.target = initialTarget;
     }
@@ -58,7 +60,10 @@ public class RecordingDriver implements VisitableDriver {
         if (recordingEnabled) {
             recorded.add(new SetPositionCommand(x, y));
         }
-        target.setPosition(x, y);
+        if (target != null) {
+            target.setPosition(x, y);
+        }
+
     }
 
     @Override
@@ -66,13 +71,19 @@ public class RecordingDriver implements VisitableDriver {
         if (recordingEnabled) {
             recorded.add(new OperateToCommand(x, y));
         }
-        target.operateTo(x, y);
+        if (target != null) {
+            target.operateTo(x, y);
+        }
+
     }
 
     @Override
     public synchronized String toString() {
-        return "RecordingDriver -> " + target;
+        return target != null
+                ? "RecordingDriver -> " + target
+                : "Recording Driver (extension)";
     }
+
 
     @Override
     public void accept(DriverVisitor visitor) {
