@@ -2,6 +2,8 @@ package edu.kis.powp.jobs2d.canvas;
 
 import java.awt.Graphics2D;
 
+import edu.kis.powp.jobs2d.command.ICompoundCommand;
+
 /**
  * Represents a drawing area (canvas) with optional margin.
  * Implementations define the geometry of the drawable region.
@@ -21,10 +23,12 @@ public interface ICanvas {
 
     /**
      * Draw the outline of this canvas onto the given Graphics2D context.
-     * Implementations should draw both the outer boundary and the
-     * margin-reduced drawable area (margin as a dashed/lighter line).
-     *
-     * @param g graphics context to draw on
      */
     void draw(Graphics2D g);
+
+    /**
+     * Returns a compound command that, when executed by a driver,
+     * draws the outline of this canvas.
+     */
+    ICompoundCommand toCommand();
 }
