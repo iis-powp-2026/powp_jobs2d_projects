@@ -2,7 +2,10 @@ package edu.kis.powp.jobs2d.canvas;
 
 import edu.kis.powp.jobs2d.command.ICompoundCommand;
 import edu.kis.powp.jobs2d.command.ShapeCommandFactory;
-
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Stroke;
 /**
  * Circular canvas - example of a non-rectangular ("custom shape") canvas.
  * The drawable area is the disc of radius (radius - margin) centred at
@@ -47,5 +50,28 @@ public class CircleCanvas implements ICanvas {
     @Override
     public String getName() {
         return name;
+    }
+    @Override
+    public void draw(Graphics2D g) {
+        Color oldColor = g.getColor();
+        Stroke oldStroke = g.getStroke();
+
+        // outer circle
+        g.setColor(Color.BLACK);
+        g.setStroke(new BasicStroke(2));
+        g.drawOval(centerX - radius, centerY - radius, radius * 2, radius * 2);
+
+        // drawable area
+        if (margin > 0) {
+            int effectiveRadius = radius - margin;
+            g.setColor(Color.GRAY);
+            g.setStroke(new BasicStroke(1, BasicStroke.CAP_BUTT,
+                    BasicStroke.JOIN_MITER, 1f, new float[]{5f, 5f}, 0f));
+            g.drawOval(centerX - effectiveRadius, centerY - effectiveRadius,
+                    effectiveRadius * 2, effectiveRadius * 2);
+        }
+
+        g.setColor(oldColor);
+        g.setStroke(oldStroke);
     }
 }

@@ -1,6 +1,6 @@
 package edu.kis.powp.jobs2d.canvas;
 
-import edu.kis.powp.jobs2d.command.ICompoundCommand;
+import java.awt.Graphics2D;
 
 /**
  * Represents a drawing area (canvas) with optional margin.
@@ -11,20 +11,20 @@ public interface ICanvas {
     /**
      * Check whether the given point lies within the drawable area
      * (i.e. inside the canvas and not within the margin).
-     *
-     * @param x x-coordinate
-     * @param y y-coordinate
-     * @return true if the point is within bounds, false if it exceeds them
      */
     boolean contains(int x, int y);
 
     /**
-     * @return CompoundCommand which draws the canvas guides
-     */
-    ICompoundCommand toCommand();
-
-    /**
-     * @return human-readable name of this canvas (e.g. "A4", "B3", "Circle r=200")
+     * Human-readable name of this canvas.
      */
     String getName();
+
+    /**
+     * Draw the outline of this canvas onto the given Graphics2D context.
+     * Implementations should draw both the outer boundary and the
+     * margin-reduced drawable area (margin as a dashed/lighter line).
+     *
+     * @param g graphics context to draw on
+     */
+    void draw(Graphics2D g);
 }
