@@ -33,6 +33,7 @@ import edu.kis.powp.jobs2d.command.gui.CommandCatalogWindow;
 
 public class TestJobs2dApp {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private static final CommandCatalog commandCatalog = createCommandCatalog();
 
     /**
      * Setup test concerning preset figures in context.
@@ -155,14 +156,14 @@ public class TestJobs2dApp {
         DriverFeature.addDriver(animatedDriver.toString(), animatedDriver);
     }
 
-    private static void setupWindows(Application application, CommandCatalog commandCatalog) {
+    private static void setupWindows(Application application) {
 
         CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager());
         application.addWindowComponent("Command Manager", commandManager);
 
         CommandCatalogWindow commandCatalogWindow = new CommandCatalogWindow(
                 CommandsFeature.getDriverCommandManager(),
-                commandCatalog
+                getCommandCatalog()
         );
         application.addWindowComponent("Command Catalog", commandCatalogWindow);
 
@@ -220,6 +221,29 @@ public class TestJobs2dApp {
         application.addComponentMenuElement(Logger.class, "OFF logging", (ActionEvent e) -> logger.setLevel(Level.OFF));
     }
 
+    /** Get the command catalog instance.
+     *
+     * @return CommandCatalog instance.
+     */
+    public static CommandCatalog getCommandCatalog() {
+        return commandCatalog;
+    }
+
+    /**
+     * Create and populate the command catalog with predefined commands.
+     *
+     * @return Populated CommandCatalog instance.
+     */
+    private static CommandCatalog createCommandCatalog() {
+        CommandCatalog commandCatalog = new CommandCatalog();
+
+        commandCatalog.addCommand("TopSecretCommand", CompoundCommandFactory.createTopSecretCommand());
+        commandCatalog.addCommand("KiteCommand", CompoundCommandFactory.createKiteCommand());
+        commandCatalog.addCommand("Immutable Rectangle", ImmutableCompoundCommandFactory.getRectangle(0, 0, 100, 150));
+
+        return commandCatalog;
+    }
+
     /**
      * Launch the application.
      */
@@ -235,8 +259,6 @@ public class TestJobs2dApp {
                 FeaturesManager.registerFeature(new DriverFeature());
                 FeaturesManager.registerFeature(new CanvasFeature());
 
-                CommandCatalog commandCatalog = createCommandCatalog();
-
                 // Automatycznie skonfiguruj wszystkie zarejestrowane funkcje
                 // To zastępuje ręczne wywołania setup dla każdej funkcji
                 FeaturesManager.setupAllFeatures(app);
@@ -246,20 +268,10 @@ public class TestJobs2dApp {
                 setupPresetTests(app);
                 setupCommandTests(app);
                 setupLogger(app);
-                setupWindows(app, commandCatalog);
+                setupWindows(app);
 
                 app.setVisibility(true);
             }
         });
-    }
-
-    private static CommandCatalog createCommandCatalog() {
-        CommandCatalog commandCatalog = new CommandCatalog();
-
-        commandCatalog.addCommand("TopSecretCommand", CompoundCommandFactory.createTopSecretCommand());
-        commandCatalog.addCommand("KiteCommand", CompoundCommandFactory.createKiteCommand());
-        commandCatalog.addCommand("Immutable Rectangle", ImmutableCompoundCommandFactory.getRectangle(0, 0, 100, 150));
-
-        return commandCatalog;
     }
 }
