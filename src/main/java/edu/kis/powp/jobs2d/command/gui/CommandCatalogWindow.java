@@ -4,6 +4,10 @@ import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -27,6 +31,7 @@ public class CommandCatalogWindow extends JFrame implements WindowComponent, Sub
 
     private DefaultListModel<String> commandListModel;
     private JList<String> commandList;
+    private Map<String, String> displayedCommandNames = new LinkedHashMap<>();
 
     public CommandCatalogWindow(CommandManager commandManager, CommandCatalog commandCatalog) {
         this.setTitle("Command Catalog");
@@ -76,10 +81,23 @@ public class CommandCatalogWindow extends JFrame implements WindowComponent, Sub
 
     private void updateCommandList() {
         commandListModel.clear();
+        displayedCommandNames.clear();
 
         for (String commandName : commandCatalog.getCommandNames()) {
-            commandListModel.addElement(commandName);
+            String displayedCommandName = getDisplayedCommandName(commandName);
+            displayedCommandNames.put(displayedCommandName, commandName);
+            commandListModel.addElement(displayedCommandName);
         }
+    }
+
+    private String getDisplayedCommandName(String commandName) {
+        List<String> tags = commandCatalog.getCommandTags(commandName);
+
+        if (tags.isEmpty()) {
+            return commandName;
+        }
+
+        return commandName + " [" + String.join(", ", tags) + "]";
     }
 
     private void loadSelectedCommand() {
@@ -95,12 +113,13 @@ public class CommandCatalogWindow extends JFrame implements WindowComponent, Sub
             return;
         }
 
-        DriverCommand command = commandCatalog.getCommand(selectedCommandName);
+        String commandName = displayedCommandNames.get(selectedCommandName);
+        DriverCommand command = commandCatalog.getCommand(commandName);
 
         if (command == null) {
             JOptionPane.showMessageDialog(
                     this,
-                    "Cannot load command: " + selectedCommandName,
+                    "Cannot load command: " + commandName,
                     "Command loading error",
                     JOptionPane.ERROR_MESSAGE
             );
@@ -154,7 +173,30 @@ public class CommandCatalogWindow extends JFrame implements WindowComponent, Sub
             }
         }
 
-        commandCatalog.addCommand(commandName, currentCommand);
+        List<String> tags = askForTags();
+        commandCatalog.addCommand(commandName, currentCommand, tags);
+    }
+
+    private List<String> askForTags() {
+        String tagsText = JOptionPane.showInputDialog(
+                this,
+                "Command tags separated by commas:",
+                ""
+        );
+
+        List<String> tags = new ArrayList<>();
+
+        if (tagsText == null || tagsText.trim().isEmpty()) {
+            return tags;
+        }
+
+        for (String tag : tagsText.split(",")) {
+            if (!tag.trim().isEmpty()) {
+                tags.add(tag.trim());
+            }
+        }
+
+        return tags;
     }
 
     @Override

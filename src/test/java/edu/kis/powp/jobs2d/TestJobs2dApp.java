@@ -237,9 +237,14 @@ public class TestJobs2dApp {
     private static CommandCatalog createCommandCatalog() {
         CommandCatalog commandCatalog = new CommandCatalog();
 
-        commandCatalog.addCommand("TopSecretCommand", CompoundCommandFactory.createTopSecretCommand());
-        commandCatalog.addCommand("KiteCommand", CompoundCommandFactory.createKiteCommand());
-        commandCatalog.addCommand("Immutable Rectangle", ImmutableCompoundCommandFactory.getRectangle(0, 0, 100, 150));
+        commandCatalog.addCommand("TopSecretCommand", CompoundCommandFactory.createTopSecretCommand(),
+                java.util.Arrays.asList("secret", "basic"));
+
+        commandCatalog.addCommand("KiteCommand", CompoundCommandFactory.createKiteCommand(),
+                java.util.Arrays.asList("kite", "basic"));
+
+        commandCatalog.addCommand("Immutable Rectangle", ImmutableCompoundCommandFactory.getRectangle(0, 0, 100, 150),
+                java.util.Arrays.asList("rectangle", "basic"));
 
         return commandCatalog;
     }
