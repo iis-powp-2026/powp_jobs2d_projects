@@ -1,10 +1,8 @@
 package edu.kis.powp.jobs2d.command.manager;
 
-import java.util.Iterator;
 import java.util.List;
 
 
-import edu.kis.powp.jobs2d.command.CompoundCommand;
 import edu.kis.powp.jobs2d.command.DriverCommand;
 import edu.kis.powp.jobs2d.command.ImmutableCompoundCommand;
 import edu.kis.powp.observer.Publisher;
@@ -48,6 +46,7 @@ public class CommandManager {
 
     public synchronized void clearCurrentCommand() {
         currentCommand = null;
+        changePublisher.notifyObservers();
     }
 
     public synchronized String getCurrentCommandString() {
