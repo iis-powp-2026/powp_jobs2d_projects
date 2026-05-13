@@ -146,6 +146,10 @@ public class TestJobs2dApp {
 
         animatedDriver = new RealTimeDriver(driver, 1, 1, "Real-Time Driver 10x speed");
         DriverFeature.addDriver(animatedDriver.toString(), animatedDriver);
+
+        UsageMonitoringDriver monitoredDriver = new UsageMonitoringDriver(driver);
+        monitoredDriver.addListener(new UsageLogger());
+        DriverFeature.addDriver("Monitored", monitoredDriver);
     }
 
     private static void setupWindows(Application application) {
@@ -176,6 +180,9 @@ public class TestJobs2dApp {
                 (ActionEvent e) -> logger.setLevel(Level.SEVERE));
         application.addComponentMenuElement(Logger.class, "OFF logging", (ActionEvent e) -> logger.setLevel(Level.OFF));
     }
+
+
+
 
     /**
      * Launch the application.
