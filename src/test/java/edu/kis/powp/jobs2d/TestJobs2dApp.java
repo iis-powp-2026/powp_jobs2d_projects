@@ -105,7 +105,7 @@ public class TestJobs2dApp {
         DriverFeature.addDriver("Line Simulator", driver);
         DriverFeature.getDriverManager().setCurrentDriver(driver);
 
-        driver = new BoundsDriver(driver, new Rectangle(-50, -50, 200, 200));
+        driver = new BoundsDriver(driver);
         DriverFeature.addDriver("Line Simulator with boundaries", driver);
         DriverFeature.updateDriverInfo();
 
