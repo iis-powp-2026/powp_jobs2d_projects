@@ -6,10 +6,7 @@ import edu.kis.powp.jobs2d.drivers.RecordingDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
 import edu.kis.powp.jobs2d.drivers.logger.TrackingLoggerDriver;
 import edu.kis.powp.jobs2d.drivers.packet_composite.CompositeDriver;
-import edu.kis.powp.jobs2d.drivers.transformations.FlipTransformer;
 import edu.kis.powp.jobs2d.drivers.transformations.TransformingDriver;
-
-import java.sql.Driver;
 
 public interface DriverVisitor {
     public void visit(CompositeDriver driver);
