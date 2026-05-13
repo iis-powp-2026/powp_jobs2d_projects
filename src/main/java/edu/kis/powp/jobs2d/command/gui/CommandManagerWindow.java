@@ -9,17 +9,22 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JTextArea;
+import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import edu.kis.legacy.drawer.panel.DrawPanelController;
+import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.gui.WindowComponent;
 import edu.kis.powp.jobs2d.command.ICompoundCommand;
 import edu.kis.powp.jobs2d.command.io.CommandImporter;
 import edu.kis.powp.jobs2d.command.io.CommandImporterFactory;
 import edu.kis.powp.jobs2d.command.manager.CommandManager;
+import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
+import edu.kis.powp.jobs2d.drivers.transformations.CoordinateTransformer;
+import edu.kis.powp.jobs2d.drivers.transformations.ScaleTransformer;
+import edu.kis.powp.jobs2d.drivers.transformations.TransformingDriver;
+import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
+import edu.kis.powp.jobs2d.features.CommandsFeature;
 import edu.kis.powp.observer.Subscriber;
 
 public class CommandManagerWindow extends JFrame implements WindowComponent {
@@ -31,12 +36,14 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
     private String observerListString;
     private JTextArea observerListField;
 
+    private JPanel previewPanel;
+
     /**
      * 
      */
     private static final long serialVersionUID = 9204679248304669948L;
 
-    public CommandManagerWindow(CommandManager commandManager) {
+    public CommandManagerWindow(CommandManager commandManager, CommandPreviewPanel commandPreviewPanel) {
         this.setTitle("Command Manager");
         this.setSize(400, 400);
         Container content = this.getContentPane();
@@ -51,7 +58,7 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 1;
         c.gridx = 0;
-        c.weighty = 1;
+        c.weighty = 0;
         content.add(observerListField, c);
         updateObserverListField();
 
@@ -60,16 +67,24 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 1;
         c.gridx = 0;
-        c.weighty = 1;
+        c.weighty = 0;
         content.add(currentCommandField, c);
         updateCurrentCommandField();
+
+        previewPanel = new JPanel();
+        commandPreviewPanel.initialize(previewPanel,commandManager);
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx = 1;
+        c.gridx = 0;
+        c.weighty = 1;
+        content.add(previewPanel, c);
 
         JButton btnImportCommands = new JButton("Import command");
         btnImportCommands.addActionListener((ActionEvent e) -> this.importCommands());
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 1;
         c.gridx = 0;
-        c.weighty = 1;
+        c.weighty = 0;
         content.add(btnImportCommands, c);
 
         JButton btnClearCommand = new JButton("Clear command");
@@ -77,7 +92,7 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 1;
         c.gridx = 0;
-        c.weighty = 1;
+        c.weighty = 0;
         content.add(btnClearCommand, c);
 
         JButton btnClearObservers = new JButton("Delete observers");
@@ -85,7 +100,7 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 1;
         c.gridx = 0;
-        c.weighty = 1;
+        c.weighty = 0;
         content.add(btnClearObservers, c);
     }
 

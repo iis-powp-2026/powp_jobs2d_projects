@@ -2,7 +2,6 @@ package edu.kis.powp.jobs2d;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,7 +10,7 @@ import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.Application;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
-import edu.kis.powp.jobs2d.command.gui.CommandPreviewWindow;
+import edu.kis.powp.jobs2d.command.gui.CommandPreviewPanel;
 import edu.kis.powp.jobs2d.drivers.RealTimeDriver;
 import edu.kis.powp.jobs2d.drivers.RecordingDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
@@ -152,20 +151,23 @@ public class TestJobs2dApp {
 
     private static void setupWindows(Application application) {
 
-        CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager());
+        DrawPanelController previewDrawPanelController = new DrawPanelController();
+        CommandManagerWindow commandManager = getCommandManagerWindow(previewDrawPanelController);
         application.addWindowComponent("Command Manager", commandManager);
 
         CommandManagerWindowCommandChangeObserver windowObserver = new CommandManagerWindowCommandChangeObserver(
                 commandManager);
         CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(windowObserver);
+    }
 
-        DrawPanelController previewDrawPanelController = new DrawPanelController();
+    private static CommandManagerWindow getCommandManagerWindow(DrawPanelController previewDrawPanelController) {
         VisitableDriver driver = new LineDriverAdapter(previewDrawPanelController, LineFactory.getBasicLine(), "basic");
         CoordinateTransformer scaleDown = new ScaleTransformer(0.5, 0.5);
         VisitableDriver previewDriver = new TransformingDriver(driver, scaleDown, "previewDriver");
+        CommandPreviewPanel commandPreview = new CommandPreviewPanel(previewDrawPanelController,previewDriver);
 
-        CommandPreviewWindow commandPreview = new CommandPreviewWindow(CommandsFeature.getDriverCommandManager(),previewDrawPanelController,previewDriver);
-        application.addWindowComponent("Command Preview", commandPreview);
+        CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager(),commandPreview);
+        return commandManager;
     }
 
     /**
