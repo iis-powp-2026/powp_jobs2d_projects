@@ -17,6 +17,10 @@ public class OperateToCommand implements DriverCommand {
         this.posY = posY;
     }
 
+    public OperateToCommand(OperateToCommand copy) {
+        this(copy.posX, copy.posY);
+    }
+
     @Override
     public void execute(VisitableDriver driver) {
         driver.operateTo(posX, posY);
