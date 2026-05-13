@@ -25,7 +25,7 @@ import edu.kis.powp.jobs2d.features.RecordingFeature;
 import edu.kis.powp.jobs2d.events.SelectToggleRecordingOptionListener;
 import edu.kis.powp.jobs2d.events.SelectClearRecordingOptionListener;
 import edu.kis.powp.jobs2d.features.FeaturesManager;
-import edu.kis.powp.jobs2d.drivers.ClickDriver;
+import edu.kis.powp.jobs2d.drivers.MouseClickToDriverCall;
 
 public class TestJobs2dApp {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -156,7 +156,7 @@ public class TestJobs2dApp {
     }
 
     private static void setupMouseHandler(Application application) {
-        new ClickDriver(application.getFreePanel());
+        new MouseClickToDriverCall(application.getFreePanel());
     }
 
     /**

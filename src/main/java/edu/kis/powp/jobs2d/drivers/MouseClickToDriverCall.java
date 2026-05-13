@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class ClickDriver extends MouseAdapter {
+public class MouseClickToDriverCall extends MouseAdapter {
 
     private static class Point {
         private int x;
@@ -28,7 +28,7 @@ public class ClickDriver extends MouseAdapter {
         }
     }
 
-    public ClickDriver(JPanel panel) {
+    public MouseClickToDriverCall(JPanel panel) {
         panel.addMouseListener(this);
     }
 
