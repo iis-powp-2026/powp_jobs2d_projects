@@ -18,6 +18,11 @@ public enum PaperFormat implements ICanvas {
     }
 
     @Override
+    public int[] clampToBounds(int x, int y) {
+        return canvas.clampToBounds(x, y);
+    }
+
+    @Override
     public ICompoundCommand toCommand() {
         return canvas.toCommand();
     }

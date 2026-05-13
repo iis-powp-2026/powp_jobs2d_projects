@@ -43,6 +43,19 @@ public class RectangleCanvas implements ICanvas {
     }
 
     @Override
+    public int[] clampToBounds(int x, int y) {
+        int halfWidth = width / 2;
+        int halfHeight = height / 2;
+        int minX = -halfWidth + margin;
+        int maxX = halfWidth - margin;
+        int minY = -halfHeight + margin;
+        int maxY = halfHeight - margin;
+        int cx = Math.max(minX, Math.min(maxX, x));
+        int cy = Math.max(minY, Math.min(maxY, y));
+        return new int[] { cx, cy };
+    }
+
+    @Override
     public ICompoundCommand toCommand() {
         return ShapeCommandFactory.fromRectangle(width, height, margin);
     }

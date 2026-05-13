@@ -40,6 +40,28 @@ public class CircleCanvas implements ICanvas {
     }
 
     @Override
+    public int[] clampToBounds(int x, int y) {
+        if (contains(x, y)) {
+            return new int[] { x, y };
+        }
+        int effectiveRadius = radius - margin;
+        if (effectiveRadius <= 0) {
+            return new int[] { centerX, centerY };
+        }
+        double dx = x - centerX;
+        double dy = y - centerY;
+        double dist = Math.hypot(dx, dy);
+        if (dist < 1e-9) {
+            return new int[] { centerX + effectiveRadius, centerY };
+        }
+        double scale = effectiveRadius / dist;
+        return new int[] {
+                (int) Math.round(centerX + dx * scale),
+                (int) Math.round(centerY + dy * scale)
+        };
+    }
+
+    @Override
     public ICompoundCommand toCommand() {
         return ShapeCommandFactory.fromCircle(centerX, centerY, radius, margin);
     }

@@ -19,6 +19,17 @@ public interface ICanvas {
     boolean contains(int x, int y);
 
     /**
+     * Returns the nearest point that lies in the drawable area (same predicate as
+     * {@link #contains(int, int)}). If the input is already inside, it is returned
+     * unchanged. Used by drivers that must not send the device outside the canvas.
+     *
+     * @param x requested x-coordinate
+     * @param y requested y-coordinate
+     * @return two-element array {@code [x, y]} with clamped coordinates
+     */
+    int[] clampToBounds(int x, int y);
+
+    /**
      * @return CompoundCommand which draws the canvas guides
      */
     ICompoundCommand toCommand();
