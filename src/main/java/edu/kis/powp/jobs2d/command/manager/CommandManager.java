@@ -7,12 +7,13 @@ import java.util.List;
 import edu.kis.powp.jobs2d.command.CompoundCommand;
 import edu.kis.powp.jobs2d.command.DriverCommand;
 import edu.kis.powp.jobs2d.command.ImmutableCompoundCommand;
+import edu.kis.powp.jobs2d.command.gui.ICommandManager;
 import edu.kis.powp.observer.Publisher;
 
 /**
  * Driver command Manager.
  */
-public class CommandManager {
+public class CommandManager implements ICommandManager {
     private DriverCommand currentCommand = null;
 
     private Publisher changePublisher = new Publisher();
