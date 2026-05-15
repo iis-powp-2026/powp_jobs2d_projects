@@ -15,7 +15,7 @@ import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
  * Recording can be temporarily disabled (used during playback).
  */
 public class RecordingDriver implements VisitableDriver {
-    
+
     private final List<DriverCommand> recorded = new ArrayList<>();
     private boolean recordingEnabled = true;
 

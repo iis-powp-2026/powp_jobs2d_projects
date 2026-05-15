@@ -105,9 +105,7 @@ public class TestJobs2dApp {
         DriverFeature.addDriver("Special line Simulator", driver);
         DriverFeature.updateDriverInfo();
 
-        TrackingLoggerDriver TrackingLoggerDriver = new TrackingLoggerDriver();
         CompositeDriver basicCompositeDriver = new CompositeDriver("Basic & Log Composite Driver");
-        basicCompositeDriver.addDriver(TrackingLoggerDriver);
         basicCompositeDriver.addDriver(driver);
         DriverFeature.addDriver(basicCompositeDriver.toString(), basicCompositeDriver);
 
@@ -132,7 +130,6 @@ public class TestJobs2dApp {
 
         CompositeDriver chaosCompositeDriver = new CompositeDriver("Chaos Composite Driver");
         chaosCompositeDriver.addDriver(driver);
-        chaosCompositeDriver.addDriver(TrackingLoggerDriver);
         chaosCompositeDriver.addDriver(scaledDownDriver);
         DriverFeature.addDriver(chaosCompositeDriver.toString(), chaosCompositeDriver);
 
@@ -156,48 +153,16 @@ public class TestJobs2dApp {
     private static void setupExtensions(Application application) {
         var driverManager = DriverFeature.getDriverManager();
 
-
         TrackingLoggerDriver loggerExtension = new TrackingLoggerDriver();
-        application.addComponentMenuElementWithCheckBox(
-                DriverFeature.class,
-                "Extension: Tracking Logger",
-                new SelectToggleExtensionOptionListener(
-                        driverManager,
-                        "tracking-logger",
-                        loggerExtension,
-                        false
-                ),
-                false
-        );
-
+        DriverFeature.addExtension("Extension: Tracking Logger", "tracking-logger", loggerExtension);
 
         UsageMonitorDriver usageMonitorExtension = new UsageMonitorDriver();
         usageMonitorExtension.getPublisher().addSubscriber(new LoggerUsageSubscriber(usageMonitorExtension));
-        application.addComponentMenuElementWithCheckBox(
-                DriverFeature.class,
-                "Extension: Usage Monitor",
-                new SelectToggleExtensionOptionListener(
-                        driverManager,
-                        "usage-monitor",
-                        usageMonitorExtension,
-                        false
-                ),
-                false
-        );
+        DriverFeature.addExtension("Extension: Usage Monitor", "usage-monitor", usageMonitorExtension);
 
         RecordingDriver recordingExtension = new RecordingDriver();
         RecordingFeature.setup(recordingExtension);
-        application.addComponentMenuElementWithCheckBox(
-                DriverFeature.class,
-                "Extension: Recording",
-                new SelectToggleExtensionOptionListener(
-                        driverManager,
-                        "recording",
-                        recordingExtension,
-                        false
-                ),
-                false
-        );
+        DriverFeature.addExtension("Extension: Recording", "recording", recordingExtension);
     }
 
 
