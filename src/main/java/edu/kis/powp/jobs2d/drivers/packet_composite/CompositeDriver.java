@@ -20,18 +20,6 @@ public class CompositeDriver implements VisitableDriver {
         this("Composite Driver");
     }
 
-    public CompositeDriver(String name, VisitableDriver baseDriver, Collection<VisitableDriver> extensions) {
-        this(name);
-
-        if (baseDriver != null) {
-            drivers.add(baseDriver);
-        }
-
-        if (extensions != null) {
-            drivers.addAll(extensions);
-        }
-    }
-
     public void addDriver(VisitableDriver driver) {
         if(drivers == null) {
             throw new IllegalArgumentException("Drivers cannot be null");

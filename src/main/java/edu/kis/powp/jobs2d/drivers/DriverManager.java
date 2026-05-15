@@ -66,11 +66,15 @@ public class DriverManager {
             return new CompositeDriver("Empty driver");
         }
 
-        return new CompositeDriver(
-                "Active Driver + Extensions",
-                baseDriver,
-                extensions.values()
-        );
+        CompositeDriver composite = new CompositeDriver("Active Driver + Extensions");
+
+        if (baseDriver != null) {
+            composite.getDrivers().add(baseDriver);
+        }
+
+        composite.getDrivers().addAll(extensions.values());
+
+        return composite;
     }
 
 
