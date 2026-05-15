@@ -1,12 +1,13 @@
 package edu.kis.powp.jobs2d.drivers.usage;
 
-import edu.kis.powp.jobs2d.Job2dDriver;
+
+import edu.kis.powp.jobs2d.drivers.visitor.DriverVisitor;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 import edu.kis.powp.observer.Publisher;
-import edu.kis.powp.jobs2d.drivers.visitor.DriverVisitor;
 
-public class UsageMonitorDriver implements VisitableDriver, Job2dDriver, IUsageMonitor {
-    private final Job2dDriver innerDriver;
+
+public class UsageMonitorDriver implements VisitableDriver, IUsageMonitor {
+    private final VisitableDriver innerDriver;
 
     private final Publisher publisher = new Publisher();
 
@@ -15,12 +16,11 @@ public class UsageMonitorDriver implements VisitableDriver, Job2dDriver, IUsageM
     private double headDistance = 0;
     private double operatingDistance = 0;
 
-
     public UsageMonitorDriver() {
         this.innerDriver = null;
     }
 
-    public UsageMonitorDriver(Job2dDriver innerDriver) {
+    public UsageMonitorDriver(VisitableDriver innerDriver) {
         this.innerDriver = innerDriver;
     }
 
@@ -61,10 +61,14 @@ public class UsageMonitorDriver implements VisitableDriver, Job2dDriver, IUsageM
     }
 
     @Override
-    public double getHeadDistance() { return headDistance; }
+    public double getHeadDistance() {
+        return headDistance;
+    }
 
     @Override
-    public double getOperatingDistance() { return operatingDistance; }
+    public double getOperatingDistance() {
+        return operatingDistance;
+    }
 
     @Override
     public String toString() {
@@ -73,6 +77,10 @@ public class UsageMonitorDriver implements VisitableDriver, Job2dDriver, IUsageM
                 : "Usage Monitor (extension)";
     }
 
+
+    public VisitableDriver getInnerDriver() {
+        return innerDriver;
+    }
 
     @Override
     public void accept(DriverVisitor visitor) {
