@@ -15,24 +15,11 @@ import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
  * Recording can be temporarily disabled (used during playback).
  */
 public class RecordingDriver implements VisitableDriver {
-
-    private VisitableDriver target;
+    
     private final List<DriverCommand> recorded = new ArrayList<>();
     private boolean recordingEnabled = true;
 
-    public RecordingDriver() { this.target = null; }
-
-    public RecordingDriver(VisitableDriver initialTarget) {
-        this.target = initialTarget;
-    }
-
-    public synchronized void setTarget(VisitableDriver target) {
-        this.target = target;
-    }
-
-    public synchronized VisitableDriver getTarget() {
-        return target;
-    }
+    public RecordingDriver() {}
 
     /**
      * Enable or disable recording of subsequent driver calls.
@@ -60,10 +47,6 @@ public class RecordingDriver implements VisitableDriver {
         if (recordingEnabled) {
             recorded.add(new SetPositionCommand(x, y));
         }
-        if (target != null) {
-            target.setPosition(x, y);
-        }
-
     }
 
     @Override
@@ -71,17 +54,11 @@ public class RecordingDriver implements VisitableDriver {
         if (recordingEnabled) {
             recorded.add(new OperateToCommand(x, y));
         }
-        if (target != null) {
-            target.operateTo(x, y);
-        }
-
     }
 
     @Override
     public synchronized String toString() {
-        return target != null
-                ? "RecordingDriver -> " + target
-                : "Recording Driver (extension)";
+        return "Recording Driver (extension)";
     }
 
 
