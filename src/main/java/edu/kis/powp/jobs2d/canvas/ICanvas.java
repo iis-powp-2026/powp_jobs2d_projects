@@ -19,6 +19,14 @@ public interface ICanvas {
     boolean contains(int x, int y);
 
     /**
+     * Clips the line
+     * @param x1,y1 first point
+     * @param x2,y2 second point
+     * @return New line with clipped coordinates
+     */
+    int[] clip(int x1, int y1, int x2, int y2);
+
+    /**
      * @return CompoundCommand which draws the canvas guides
      */
     ICompoundCommand toCommand();

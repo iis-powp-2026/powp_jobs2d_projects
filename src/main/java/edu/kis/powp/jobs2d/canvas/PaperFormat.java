@@ -18,6 +18,11 @@ public enum PaperFormat implements ICanvas {
     }
 
     @Override
+    public int[] clip(int x1, int y1, int x2, int y2) {
+        return canvas.clip(x1, y1, x2, y2);
+    }
+
+    @Override
     public ICompoundCommand toCommand() {
         return canvas.toCommand();
     }

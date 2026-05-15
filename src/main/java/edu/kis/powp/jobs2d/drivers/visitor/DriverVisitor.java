@@ -1,5 +1,6 @@
 package edu.kis.powp.jobs2d.drivers.visitor;
 
+import edu.kis.powp.jobs2d.drivers.BoundsDriver;
 import edu.kis.powp.jobs2d.drivers.RealTimeDriver;
 import edu.kis.powp.jobs2d.drivers.RecordingDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
@@ -14,4 +15,5 @@ public interface DriverVisitor {
     public void visit(RealTimeDriver driver);
     public void visit(RecordingDriver driver);
     public void visit(TransformingDriver driver);
+    public void visit(BoundsDriver driver);
 }
