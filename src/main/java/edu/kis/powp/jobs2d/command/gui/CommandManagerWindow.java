@@ -32,7 +32,7 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
     private JTextArea observerListField;
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 9204679248304669948L;
 
@@ -87,6 +87,14 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         c.gridx = 0;
         c.weighty = 1;
         content.add(btnClearObservers, c);
+
+        JButton btnEditCommand = new JButton("Edit command");
+        btnEditCommand.addActionListener((ActionEvent e) -> this.openCommandEditor());
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx = 1;
+        c.gridx = 0;
+        c.weighty = 1;
+        content.add(btnEditCommand, c);
     }
 
     private void clearCommand() {
@@ -140,6 +148,10 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
             observerListString = "No observers loaded";
 
         observerListField.setText(observerListString);
+    }
+
+    private void openCommandEditor() {
+        new ComplexCommandEditor(commandManager).setVisible(true);
     }
 
     @Override
