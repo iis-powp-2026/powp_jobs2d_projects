@@ -193,6 +193,12 @@ public class TestJobs2dApp {
                                 limitSubscriber.setMaxSize((Integer) spinner.getValue());
                         });
                 }
+                historyWindow.addLoadButtonListener(e -> {
+                        edu.kis.powp.jobs2d.features.history.HistoryEntry selected = historyWindow.getSelectedHistoryEntry();
+                        if (selected != null && selected.getCommand() != null) {
+                                CommandsFeature.getDriverCommandManager().setCurrentCommand(selected.getCommand());
+                        }
+                });
                 application.addWindowComponent("History", historyWindow);
 
                 HistoryWindowObserver historyWindowObserver = new HistoryWindowObserver(historyWindow);

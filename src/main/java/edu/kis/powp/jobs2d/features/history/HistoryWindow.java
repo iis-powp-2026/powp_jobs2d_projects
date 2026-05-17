@@ -10,14 +10,15 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 
 import edu.kis.powp.appbase.gui.WindowComponent;
 
 public class HistoryWindow extends JFrame implements WindowComponent {
 
     private HistoryManager historyManager;
-    private JTextArea historyField;
+    private javax.swing.JList<HistoryEntry> historyListUI;
+    private javax.swing.DefaultListModel<HistoryEntry> listModel;
+    private JButton btnLoadCommand;
     private javax.swing.JSpinner limitSpinner;
 
     private static final long serialVersionUID = 1L;
@@ -32,9 +33,9 @@ public class HistoryWindow extends JFrame implements WindowComponent {
 
         GridBagConstraints c = new GridBagConstraints();
 
-        historyField = new JTextArea("");
-        historyField.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(historyField);
+        listModel = new javax.swing.DefaultListModel<>();
+        historyListUI = new javax.swing.JList<>(listModel);
+        JScrollPane scrollPane = new JScrollPane(historyListUI);
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 1;
         c.gridx = 0;
@@ -49,6 +50,9 @@ public class HistoryWindow extends JFrame implements WindowComponent {
         limitSpinner = new javax.swing.JSpinner(
                 new javax.swing.SpinnerNumberModel(10, 1, 1000, 1));
         bottomPanel.add(limitSpinner);
+
+        btnLoadCommand = new JButton("Load command");
+        bottomPanel.add(btnLoadCommand);
 
         JButton btnClearHistory = new JButton("Clear history");
         btnClearHistory.addActionListener((ActionEvent e) -> this.clearHistory());
@@ -75,16 +79,20 @@ public class HistoryWindow extends JFrame implements WindowComponent {
         limitSpinner.addChangeListener(listener);
     }
 
+    public HistoryEntry getSelectedHistoryEntry() {
+        return historyListUI.getSelectedValue();
+    }
+
+    public void addLoadButtonListener(java.awt.event.ActionListener listener) {
+        btnLoadCommand.addActionListener(listener);
+    }
+
     public void updateHistoryField() {
+        listModel.clear();
         List<HistoryEntry> historyList = historyManager.getHistoryList();
-        StringBuilder historyString = new StringBuilder();
-        for (int i = 0; i < historyList.size(); i++) {
-            historyString.append(historyList.get(i).toString()).append(System.lineSeparator());
+        for (HistoryEntry entry : historyList) {
+            listModel.addElement(entry);
         }
-        if (historyList.isEmpty()) {
-            historyString.append("No history");
-        }
-        historyField.setText(historyString.toString());
     }
 
     @Override
