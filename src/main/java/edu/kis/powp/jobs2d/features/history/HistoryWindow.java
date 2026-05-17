@@ -18,6 +18,7 @@ public class HistoryWindow extends JFrame implements WindowComponent {
 
     private HistoryManager historyManager;
     private JTextArea historyField;
+    private javax.swing.JSpinner limitSpinner;
 
     private static final long serialVersionUID = 1L;
 
@@ -45,18 +46,8 @@ public class HistoryWindow extends JFrame implements WindowComponent {
         javax.swing.JLabel limitLabel = new javax.swing.JLabel("Limit:");
         bottomPanel.add(limitLabel);
 
-        javax.swing.JSpinner limitSpinner = new javax.swing.JSpinner(
+        limitSpinner = new javax.swing.JSpinner(
                 new javax.swing.SpinnerNumberModel(10, 1, 1000, 1));
-        edu.kis.powp.jobs2d.features.history.SizeLimitHistorySubscriber limitSubscriber = edu.kis.powp.jobs2d.features.HistoryFeature
-                .getSizeLimitSubscriber();
-        if (limitSubscriber != null) {
-            limitSpinner.setValue(limitSubscriber.getMaxSize());
-        }
-        limitSpinner.addChangeListener(e -> {
-            if (limitSubscriber != null) {
-                limitSubscriber.setMaxSize((Integer) limitSpinner.getValue());
-            }
-        });
         bottomPanel.add(limitSpinner);
 
         JButton btnClearHistory = new JButton("Clear history");
@@ -74,6 +65,14 @@ public class HistoryWindow extends JFrame implements WindowComponent {
 
     private void clearHistory() {
         historyManager.clearHistory();
+    }
+
+    public void setLimitValue(int value) {
+        limitSpinner.setValue(value);
+    }
+
+    public void addLimitChangeListener(javax.swing.event.ChangeListener listener) {
+        limitSpinner.addChangeListener(listener);
     }
 
     public void updateHistoryField() {
