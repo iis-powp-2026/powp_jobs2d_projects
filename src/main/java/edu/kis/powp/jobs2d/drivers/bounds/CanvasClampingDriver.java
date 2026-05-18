@@ -1,8 +1,8 @@
 package edu.kis.powp.jobs2d.drivers.bounds;
 
+import java.awt.Point;
 import java.util.Objects;
 import java.util.function.Supplier;
-import java.util.logging.Logger;
 
 import edu.kis.powp.jobs2d.canvas.ICanvas;
 import edu.kis.powp.jobs2d.drivers.visitor.DriverVisitor;
@@ -10,42 +10,41 @@ import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 
 public class CanvasClampingDriver implements VisitableDriver {
 
-    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-
     private final VisitableDriver innerDriver;
     private final Supplier<ICanvas> canvasSupplier;
+    private final MissingCanvasStrategy missingCanvasStrategy;
     private final String name;
-    private boolean loggedMissingCanvas;
 
     public CanvasClampingDriver(VisitableDriver innerDriver, Supplier<ICanvas> canvasSupplier, String name) {
+        this(innerDriver, canvasSupplier, name, new LoggingPassThroughMissingCanvasStrategy());
+    }
+
+    public CanvasClampingDriver(VisitableDriver innerDriver, Supplier<ICanvas> canvasSupplier, String name,
+            MissingCanvasStrategy missingCanvasStrategy) {
         this.innerDriver = Objects.requireNonNull(innerDriver, "innerDriver");
         this.canvasSupplier = Objects.requireNonNull(canvasSupplier, "canvasSupplier");
         this.name = Objects.requireNonNull(name, "name");
+        this.missingCanvasStrategy = Objects.requireNonNull(missingCanvasStrategy, "missingCanvasStrategy");
     }
 
     @Override
     public void setPosition(int x, int y) {
-        int[] p = clamp(x, y);
-        innerDriver.setPosition(p[0], p[1]);
+        Point p = clamp(x, y);
+        innerDriver.setPosition(p.x, p.y);
     }
 
     @Override
     public void operateTo(int x, int y) {
-        int[] p = clamp(x, y);
-        innerDriver.operateTo(p[0], p[1]);
+        Point p = clamp(x, y);
+        innerDriver.operateTo(p.x, p.y);
     }
 
-    private int[] clamp(int x, int y) {
+    private Point clamp(int x, int y) {
         ICanvas canvas = canvasSupplier.get();
         if (canvas == null) {
-            if (!loggedMissingCanvas) {
-                logger.info("CanvasClampingDriver (\"" + name + "\"): no canvas format selected — "
-                        + "coordinates pass through without clamping. Choose a format in the Canvas menu.");
-                loggedMissingCanvas = true;
-            }
-            return new int[] { x, y };
+            return missingCanvasStrategy.handleMissingCanvas(x, y, name);
         }
-        loggedMissingCanvas = false;
+        missingCanvasStrategy.handleCanvasAvailable(name);
         return canvas.clampToBounds(x, y);
     }
 

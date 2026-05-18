@@ -1,5 +1,7 @@
 package edu.kis.powp.jobs2d.canvas;
 
+import java.awt.Point;
+
 import edu.kis.powp.jobs2d.command.ICompoundCommand;
 
 /**
@@ -25,9 +27,9 @@ public interface ICanvas {
      *
      * @param x requested x-coordinate
      * @param y requested y-coordinate
-     * @return two-element array {@code [x, y]} with clamped coordinates
+     * @return point with clamped coordinates
      */
-    int[] clampToBounds(int x, int y);
+    Point clampToBounds(int x, int y);
 
     /**
      * @return CompoundCommand which draws the canvas guides
