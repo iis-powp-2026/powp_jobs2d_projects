@@ -245,6 +245,7 @@ public class TestJobs2dApp {
                 FeaturesManager.registerFeature(new CommandsFeature());
                 FeaturesManager.registerFeature(new DriverFeature());
                 FeaturesManager.registerFeature(new CanvasFeature());
+                FeaturesManager.registerFeature(new RecordingFeature());
                 FeaturesManager.registerFeature(new MouseInteractionFeature());
                 FeaturesManager.registerFeature(new DeviceUsageFeature());
 
@@ -253,7 +254,6 @@ public class TestJobs2dApp {
                 FeaturesManager.setupAllFeatures(app);
 
                 setupDrivers(app);
-                RecordingFeature.setup(DriverFeature.getDriverManager());
                 setupPresetTests(app);
                 setupCommandTests(app);
                 setupLogger(app);

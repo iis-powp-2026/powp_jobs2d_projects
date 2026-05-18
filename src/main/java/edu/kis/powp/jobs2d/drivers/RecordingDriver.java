@@ -11,32 +11,14 @@ import edu.kis.powp.jobs2d.drivers.visitor.DriverVisitor;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 
 /**
- * Decorator driver that records all calls as command objects.
- * Recording can be temporarily disabled (used during playback).
+ * VisitableDriver that records driver calls as commands only (no drawing).
+ * Intended to be composed with a real device driver using {@link edu.kis.powp.jobs2d.drivers.packet_composite.CompositeDriver}.
  */
 public class RecordingDriver implements VisitableDriver {
 
-    private VisitableDriver target;
     private final List<DriverCommand> recorded = new ArrayList<>();
     private boolean recordingEnabled = true;
 
-    public RecordingDriver(VisitableDriver initialTarget) {
-        this.target = initialTarget;
-    }
-
-    public synchronized void setTarget(VisitableDriver target) {
-        this.target = target;
-    }
-
-    public synchronized VisitableDriver getTarget() {
-        return target;
-    }
-
-    /**
-     * Enable or disable recording of subsequent driver calls.
-     * When disabled, setPosition/operateTo will still delegate to the target
-     * but won't add commands to recorded list.
-     */
     public synchronized void setRecordingEnabled(boolean enabled) {
         this.recordingEnabled = enabled;
     }
@@ -58,7 +40,6 @@ public class RecordingDriver implements VisitableDriver {
         if (recordingEnabled) {
             recorded.add(new SetPositionCommand(x, y));
         }
-        target.setPosition(x, y);
     }
 
     @Override
@@ -66,12 +47,11 @@ public class RecordingDriver implements VisitableDriver {
         if (recordingEnabled) {
             recorded.add(new OperateToCommand(x, y));
         }
-        target.operateTo(x, y);
     }
 
     @Override
     public synchronized String toString() {
-        return "RecordingDriver -> " + target;
+        return "Command recording";
     }
 
     @Override
