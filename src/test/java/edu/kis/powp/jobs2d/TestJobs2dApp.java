@@ -2,7 +2,6 @@ package edu.kis.powp.jobs2d;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -72,6 +71,8 @@ public class TestJobs2dApp {
                 new SelectTransformCommandOptionListener(new FlipTransformer(false, true), "Flip Y"));
         application.addTest("FullNameGetter visitor test",
                 new SelectFullNameGetterVisitorTestListener(new FullNameGetterVisitor()));
+
+        application.addTest("Show commands history", new CommandsHistoryOptionListener());
 
         RecordingDriver rec = RecordingFeature.getRecordingDriver();
         boolean initial = rec.isRecordingEnabled();

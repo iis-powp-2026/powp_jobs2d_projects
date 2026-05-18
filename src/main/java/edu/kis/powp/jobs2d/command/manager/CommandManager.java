@@ -1,13 +1,10 @@
 package edu.kis.powp.jobs2d.command.manager;
 
-import java.util.Iterator;
-import java.util.List;
-
-
-import edu.kis.powp.jobs2d.command.CompoundCommand;
 import edu.kis.powp.jobs2d.command.DriverCommand;
 import edu.kis.powp.jobs2d.command.ImmutableCompoundCommand;
 import edu.kis.powp.observer.Publisher;
+
+import java.util.List;
 
 /**
  * Driver command Manager.
@@ -15,7 +12,12 @@ import edu.kis.powp.observer.Publisher;
 public class CommandManager {
     private DriverCommand currentCommand = null;
 
+    private final CommandsHistoryObserver historyObserver = new CommandsHistoryObserver();
     private Publisher changePublisher = new Publisher();
+
+    public CommandManager() {
+        changePublisher.addSubscriber(historyObserver);
+    }
 
     /**
      * Set current command.
@@ -59,5 +61,9 @@ public class CommandManager {
 
     public Publisher getChangePublisher() {
         return changePublisher;
+    }
+
+    public List<CommandsHistoryObserver.HistoryRecord> getHistory() {
+        return historyObserver.getHistory();
     }
 }
