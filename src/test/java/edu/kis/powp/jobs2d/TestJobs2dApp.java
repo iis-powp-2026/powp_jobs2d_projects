@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import edu.kis.legacy.drawer.panel.DrawPanelController;
 import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.Application;
+import edu.kis.powp.jobs2d.canvas.ICanvas;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
 import edu.kis.powp.jobs2d.command.gui.CommandPreviewObserver;
@@ -219,10 +220,31 @@ public class TestJobs2dApp {
                                 "Preview Transform: Scaled 0.5x");
                 commandPreview.setPreviewDriver(scaledDownDriver);
 
+                VisitableDriver backgroundDriver = new LineDriverAdapter(previewDrawController, CanvasFeature.getGuidesLineType(),
+                                "background");
+                VisitableDriver scaledDownBackgroundDriver = new TransformingDriver(backgroundDriver, scaleDown,
+                                "Preview Transform: Scaled 0.5x Background");
+                commandPreview.setBackgroundDriver(scaledDownBackgroundDriver);
+
                 CommandPreviewObserver previewObserver = new CommandPreviewObserver(
                                 CommandsFeature.getDriverCommandManager(),
                                 commandPreview);
                 CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(previewObserver);
+
+                CanvasFeature.getChangePublisher().addSubscriber(() -> {
+                        ICanvas canvas = CanvasFeature.getCanvas();
+                        if (canvas != null) {
+                                commandPreview.setBackgroundCommand(canvas.toCommand());
+                        } else {
+                                commandPreview.setBackgroundCommand(null);
+                        }
+                        commandPreview.updatePreview(CommandsFeature.getDriverCommandManager().getCurrentCommand());
+                });
+
+                ICanvas initialCanvas = CanvasFeature.getCanvas();
+                if (initialCanvas != null) {
+                        commandPreview.setBackgroundCommand(initialCanvas.toCommand());
+                }
         }
 
         /**
