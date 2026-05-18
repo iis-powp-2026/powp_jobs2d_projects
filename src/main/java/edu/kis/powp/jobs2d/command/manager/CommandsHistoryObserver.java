@@ -9,13 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 // TODO:
-//  history limit size - DP,
+//  [x] history limit size - DP,
 //  [x] command execution time,
-//  clearing history -DP,
+//  [x] clearing history -DP,
 //  tests -DR, 
 //  some getter to get history -DR
 
 public class CommandsHistoryObserver implements Subscriber {
+
     public static class HistoryRecord {
         private DriverCommand command;
 
@@ -45,11 +46,25 @@ public class CommandsHistoryObserver implements Subscriber {
     }
 
     private List<HistoryRecord> history = new ArrayList<>();
+    private int maxSize = 10;
 
     @Override
     public void update() {
         DriverCommand command = CommandsFeature.getDriverCommandManager().getCurrentCommand();
+        if (history.size() >= maxSize) {
+            history.remove(0);
+        }
         history.add(new HistoryRecord(command, Instant.now()));
     }
 
+    public void setMaxSize(int maxSize) {
+        this.maxSize = maxSize;
+        while (history.size() >= maxSize) {
+            history.remove(0);
+        }
+    }
+
+    public int getMaxSize() {
+        return this.maxSize;
+    }
 }
