@@ -9,8 +9,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 
-public class RealTimeDriver implements VisitableDriver {
-    private final VisitableDriver innerDriver;
+public class RealTimeDriver implements DriverDecorator {
+    private VisitableDriver innerDriver;
     private final int operationToDelayMs;
     private final int setPositionDelayMs;
     private final String name;
@@ -31,8 +31,14 @@ public class RealTimeDriver implements VisitableDriver {
         this.name = name;
     }
 
+    @Override
     public VisitableDriver getInnerDriver() {
         return innerDriver;
+    }
+
+    @Override
+    public void setInnerDriver(VisitableDriver driver) {
+        this.innerDriver = driver;
     }
 
     @Override

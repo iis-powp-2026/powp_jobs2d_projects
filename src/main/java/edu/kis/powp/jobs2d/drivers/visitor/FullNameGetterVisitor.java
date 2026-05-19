@@ -1,6 +1,5 @@
 package edu.kis.powp.jobs2d.drivers.visitor;
 
-
 import edu.kis.powp.jobs2d.drivers.RealTimeDriver;
 import edu.kis.powp.jobs2d.drivers.RecordingDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
