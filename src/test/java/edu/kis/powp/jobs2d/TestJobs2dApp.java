@@ -1,15 +1,16 @@
 package edu.kis.powp.jobs2d;
 
-import java.awt.EventQueue;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import edu.kis.legacy.drawer.panel.DrawPanelController;
 import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.Application;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
+import edu.kis.powp.jobs2d.drivers.BoundsDriver;
+import edu.kis.powp.jobs2d.command.manager.CommandPreviewChangeObserver;
 import edu.kis.powp.jobs2d.drivers.RealTimeDriver;
 import edu.kis.powp.jobs2d.drivers.RecordingDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
@@ -24,6 +25,8 @@ import edu.kis.powp.jobs2d.events.SelectLoadRecordedMacroOptionListener;
 import edu.kis.powp.jobs2d.events.SelectClearPanelOptionListener;
 import edu.kis.powp.jobs2d.events.SelectToggleRecordingOptionListener;
 import edu.kis.powp.jobs2d.events.SelectClearRecordingOptionListener;
+import edu.kis.powp.jobs2d.features.FeaturesManager;
+import edu.kis.powp.jobs2d.drivers.MouseClickToDriverCall;
 
 public class TestJobs2dApp {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -58,6 +61,7 @@ public class TestJobs2dApp {
         application.addTest("Clear panel", new SelectClearPanelOptionListener());
         application.addTest("Run command", new SelectRunCurrentCommandOptionListener(DriverFeature.getDriverManager()));
         application.addTest("Count current command", new SelectCountCommandsOptionListener());
+        application.addTest("Deep copy of current command", new SelectDeepCopyCommandOptionListener());
 
         application.addTest("Check current command bounds", new SelectCheckCanvasBoundsOptionListener());
         application.addTest("Transform current command: Scale 2x",
@@ -101,6 +105,10 @@ public class TestJobs2dApp {
         VisitableDriver driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
         DriverFeature.addDriver("Line Simulator", driver);
         DriverFeature.getDriverManager().setCurrentDriver(driver);
+
+        driver = new BoundsDriver(driver);
+        DriverFeature.addDriver("Line Simulator with boundaries", driver);
+        DriverFeature.updateDriverInfo();
 
         driver = new LineDriverAdapter(drawerController, LineFactory.getSpecialLine(), "special");
         DriverFeature.addDriver("Special line Simulator", driver);
@@ -153,14 +161,22 @@ public class TestJobs2dApp {
     }
 
     private static void setupWindows(Application application) {
-
+            
+        DrawPanelController previewDrawPanelController = new DrawPanelController();
+        VisitableDriver driver = new LineDriverAdapter(previewDrawPanelController, LineFactory.getBasicLine(), "basic");
+        CoordinateTransformer scaleDown = new ScaleTransformer(0.5, 0.5);
+        VisitableDriver previewDriver = new TransformingDriver(driver, scaleDown, "previewDriver");
         CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager());
+        
         application.addWindowComponent("Command Manager", commandManager);
-
-        CommandManagerWindowCommandChangeObserver windowObserver = new CommandManagerWindowCommandChangeObserver(
-                commandManager);
+        commandManager.initializePreviewPanel(previewDrawPanelController);
+        
+        CommandPreviewChangeObserver commandPreviewChangeObserver = new CommandPreviewChangeObserver(previewDrawPanelController, previewDriver, CommandsFeature.getDriverCommandManager());
+        CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(commandPreviewChangeObserver);
+        CommandManagerWindowCommandChangeObserver windowObserver = new CommandManagerWindowCommandChangeObserver(commandManager);
         CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(windowObserver);
     }
+
 
     /**
      * Setup menu for adjusting logging settings.
@@ -183,6 +199,9 @@ public class TestJobs2dApp {
 
 
 
+    private static void setupMouseHandler(Application application) {
+        new MouseClickToDriverCall(application.getFreePanel());
+    }
 
     /**
      * Launch the application.
@@ -209,6 +228,7 @@ public class TestJobs2dApp {
                 setupCommandTests(app);
                 setupLogger(app);
                 setupWindows(app);
+                setupMouseHandler(app);
 
                 app.setVisibility(true);
             }

@@ -1,6 +1,7 @@
 package edu.kis.powp.jobs2d.drivers.visitor;
 
 
+import edu.kis.powp.jobs2d.drivers.BoundsDriver;
 import edu.kis.powp.jobs2d.drivers.RealTimeDriver;
 import edu.kis.powp.jobs2d.drivers.RecordingDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
@@ -45,6 +46,12 @@ public class FullNameGetterVisitor implements DriverVisitor {
 
     @Override
     public void visit(TransformingDriver driver) {
+        builder.append(driver.toString());
+        driver.getInnerDriver().accept(this);
+    }
+
+    @Override
+    public void visit(BoundsDriver driver) {
         builder.append(driver.toString());
         driver.getInnerDriver().accept(this);
     }
