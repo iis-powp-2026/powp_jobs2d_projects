@@ -75,6 +75,8 @@ public class TestJobs2dApp {
         application.addTest("FullNameGetter visitor test",
                 new SelectFullNameGetterVisitorTestListener(new FullNameGetterVisitor()));
 
+        application.addTest("Show commands history", new CommandsHistoryOptionListener());
+
         RecordingDriver rec = RecordingFeature.getRecordingDriver();
         boolean initial = rec.isRecordingEnabled();
 
