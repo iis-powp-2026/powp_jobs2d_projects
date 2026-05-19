@@ -25,20 +25,22 @@ public class DriverManager {
     }
 
     public synchronized void addExtension(VisitableDriver extension) {
-        if (extension instanceof DriverDecorator) {
-            decorators.add((DriverDecorator) extension);
-        } else {
-            extensionsComposite.addDriver(extension);
-        }
+        extensionsComposite.addDriver(extension);
+        changePublisher.notifyObservers();
+    }
+
+    public synchronized void addDecorator(DriverDecorator decorator) {
+        decorators.add(decorator);
         changePublisher.notifyObservers();
     }
 
     public synchronized void removeExtension(VisitableDriver extension) {
-        if (extension instanceof DriverDecorator) {
-            decorators.remove(extension);
-        } else {
-            extensionsComposite.removeDriver(extension);
-        }
+        extensionsComposite.removeDriver(extension);
+        changePublisher.notifyObservers();
+    }
+
+    public synchronized void removeDecorator(DriverDecorator decorator) {
+        decorators.remove(decorator);
         changePublisher.notifyObservers();
     }
 
