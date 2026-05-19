@@ -3,13 +3,13 @@ package edu.kis.powp.jobs2d.features;
 import edu.kis.powp.jobs2d.Job2dDriver;
 import edu.kis.powp.jobs2d.drivers.visitor.DriverVisitor;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
-
-import java.util.ArrayList;
-import java.util.List;
+import edu.kis.powp.observer.Publisher;
+import edu.kis.powp.observer.Subscriber;
 
 public class UsageMonitoringDriver implements VisitableDriver {
 
     private final Job2dDriver driver;
+    private final Publisher publisher = new Publisher();
 
     private int lastX;
     private int lastY;
@@ -18,28 +18,24 @@ public class UsageMonitoringDriver implements VisitableDriver {
     private double totalDistance = 0;
     private double operationDistance = 0;
 
-
-    private final List<UsageListener> listeners = new ArrayList<>();
-
     public UsageMonitoringDriver(Job2dDriver driver) {
         this.driver = driver;
     }
 
-
-    public void addListener(UsageListener listener) {
-        listeners.add(listener);
+    public void addSubscriber(Subscriber subscriber) {
+        publisher.addSubscriber(subscriber);
     }
 
-    private void notifyListeners() {
-        for (UsageListener l : listeners) {
-            l.usageChanged(totalDistance, operationDistance);
-        }
+    public void clearSubscribers() {
+        publisher.clearObservers();
     }
 
+    public Publisher getPublisher() {
+        return publisher;
+    }
 
     @Override
     public void setPosition(int x, int y) {
-
         if (!initialized) {
             lastX = x;
             lastY = y;
@@ -49,13 +45,11 @@ public class UsageMonitoringDriver implements VisitableDriver {
         }
 
         totalDistance += distance(lastX, lastY, x, y);
-
-
         lastX = x;
         lastY = y;
 
         driver.setPosition(x, y);
-        notifyListeners();
+        publisher.notifyObservers();
     }
 
     @Override
@@ -68,19 +62,23 @@ public class UsageMonitoringDriver implements VisitableDriver {
             driver.operateTo(x, y);
             return;
         }
-        System.out.println("MOVE: " + lastX + "," + lastY + " -> " + x + "," + y);
 
         double d = distance(lastX, lastY, x, y);
-
         totalDistance += d;
         operationDistance += d;
-
-
         lastX = x;
         lastY = y;
 
         driver.operateTo(x, y);
-        notifyListeners();
+        publisher.notifyObservers();
+    }
+
+    public double getTotalDistance() {
+        return totalDistance;
+    }
+
+    public double getOperationDistance() {
+        return operationDistance;
     }
 
     private double distance(int x1, int y1, int x2, int y2) {

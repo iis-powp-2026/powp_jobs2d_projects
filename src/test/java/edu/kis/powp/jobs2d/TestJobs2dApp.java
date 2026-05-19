@@ -2,7 +2,6 @@ package edu.kis.powp.jobs2d;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -148,7 +147,8 @@ public class TestJobs2dApp {
         DriverFeature.addDriver(animatedDriver.toString(), animatedDriver);
 
         UsageMonitoringDriver monitoredDriver = new UsageMonitoringDriver(driver);
-        monitoredDriver.addListener(new UsageLogger());
+        UsageLogger usageLogger = new UsageLogger(monitoredDriver);
+        monitoredDriver.addSubscriber(usageLogger);
         DriverFeature.addDriver("Monitored", monitoredDriver);
     }
 
