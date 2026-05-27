@@ -29,15 +29,8 @@ public class JsonCommandImporter implements CommandImporter {
             JsonObject obj = element.getAsJsonObject();
             String type = obj.get("type").getAsString();
 
-            if (!obj.has("x") && !obj.has("posX")) {
-                throw new IllegalArgumentException("Missing 'x' or 'posX' coordinate in command: " + type);
-            }
-            if (!obj.has("y") && !obj.has("posY")) {
-                throw new IllegalArgumentException("Missing 'y' or 'posY' coordinate in command: " + type);
-            }
-
-            int x = obj.has("x") ? obj.get("x").getAsInt() : obj.get("posX").getAsInt();
-            int y = obj.has("y") ? obj.get("y").getAsInt() : obj.get("posY").getAsInt();
+            int x = getCoordinate(obj, type, "x", "posX").getAsInt();
+            int y = getCoordinate(obj, type, "y", "posY").getAsInt();
 
             if ("SetPositionCommand".equals(type)) {
                 commandList.add(new SetPositionCommand(x, y));
@@ -49,5 +42,14 @@ public class JsonCommandImporter implements CommandImporter {
         }
 
         return new CompoundCommand(commandList);
+    }
+
+    private JsonElement getCoordinate(JsonObject json, String type, String name, String fallback) {
+        boolean hasOriginal = json.has(name);
+        if (!hasOriginal && !json.has(fallback)) {
+            throw new IllegalArgumentException("Missing '" + name + "' or '" + fallback + "' coordinate in command: " + type);
+        }
+
+        return hasOriginal ? json.get(name) : json.get(fallback);
     }
 }
