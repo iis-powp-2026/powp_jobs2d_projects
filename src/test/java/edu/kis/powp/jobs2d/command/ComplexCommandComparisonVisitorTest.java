@@ -1,23 +1,18 @@
 package edu.kis.powp.jobs2d.command;
 
+import edu.kis.powp.jobs2d.command.visitor.ComplexCommandComparisonVisitor;
+import org.junit.jupiter.api.Test;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import edu.kis.powp.jobs2d.command.visitor.ComplexCommandComparisonVisitor;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ComplexCommandComparisonVisitorTest {
 
-    public static void main(String[] args) {
-        shouldCompareEqualNestedCommands();
-        shouldDetectDifferentCoordinates();
-        shouldDetectDifferentOrder();
-        shouldDetectDifferentNesting();
-        shouldCompareCompoundAndImmutableAsEqualWhenEquivalent();
-
-        System.out.println("TEST PASSED");
-    }
-
-    private static void shouldCompareEqualNestedCommands() {
+    @Test
+    void shouldCompareEqualNestedCommands() {
         ICompoundCommand left = buildNestedSquare();
         ICompoundCommand right = buildNestedSquare();
 
@@ -25,7 +20,8 @@ public class ComplexCommandComparisonVisitorTest {
                 "Equivalent nested commands should be equal");
     }
 
-    private static void shouldDetectDifferentCoordinates() {
+    @Test
+    void shouldDetectDifferentCoordinates() {
         ICompoundCommand left = buildNestedSquare();
 
         CompoundCommand inner = new CompoundCommand();
@@ -40,7 +36,8 @@ public class ComplexCommandComparisonVisitorTest {
                 "Commands with different coordinates should not be equal");
     }
 
-    private static void shouldDetectDifferentOrder() {
+    @Test
+    void shouldDetectDifferentOrder() {
         CompoundCommand left = new CompoundCommand();
         left.addCommand(new SetPositionCommand(0, 0));
         left.addCommand(new OperateToCommand(10, 0));
@@ -53,7 +50,8 @@ public class ComplexCommandComparisonVisitorTest {
                 "Commands with different order should not be equal");
     }
 
-    private static void shouldDetectDifferentNesting() {
+    @Test
+    void shouldDetectDifferentNesting() {
         CompoundCommand flat = new CompoundCommand();
         flat.addCommand(new SetPositionCommand(1, 1));
         flat.addCommand(new OperateToCommand(2, 2));
@@ -68,7 +66,8 @@ public class ComplexCommandComparisonVisitorTest {
                 "Commands with different nesting should not be equal");
     }
 
-    private static void shouldCompareCompoundAndImmutableAsEqualWhenEquivalent() {
+    @Test
+    void shouldCompareCompoundAndImmutableAsEqualWhenEquivalent() {
         CompoundCommand mutable = new CompoundCommand(
                 new ArrayList<>(Arrays.asList(new SetPositionCommand(10, 10), new OperateToCommand(20, 20))),
                 "mutable");
@@ -81,7 +80,7 @@ public class ComplexCommandComparisonVisitorTest {
                 "Equivalent mutable and immutable compounds should be equal");
     }
 
-    private static ICompoundCommand buildNestedSquare() {
+    private ICompoundCommand buildNestedSquare() {
         CompoundCommand inner = new CompoundCommand();
         inner.addCommand(new SetPositionCommand(10, 10));
         inner.addCommand(new OperateToCommand(20, 10));
@@ -90,18 +89,6 @@ public class ComplexCommandComparisonVisitorTest {
         outer.addCommand(inner);
         outer.addCommand(new OperateToCommand(20, 20));
         return outer;
-    }
-
-    private static void assertTrue(boolean condition, String message) {
-        if (!condition) {
-            throw new AssertionError(message);
-        }
-    }
-
-    private static void assertFalse(boolean condition, String message) {
-        if (condition) {
-            throw new AssertionError(message);
-        }
     }
 }
 
