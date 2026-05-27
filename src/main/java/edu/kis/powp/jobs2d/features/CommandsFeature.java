@@ -45,6 +45,7 @@ public class CommandsFeature implements IFeature {
         commandCatalog.addCommand("KiteCommand", CompoundCommandFactory.createKiteCommand());
         commandCatalog.addCommand("Immutable Rectangle",
                 ImmutableCompoundCommandFactory.getRectangle(0, 0, 100, 150));
+        commandCatalog.addCommand("Nested Square", CompoundCommandFactory.createNestedSquare());
 
         return commandCatalog;
     }
