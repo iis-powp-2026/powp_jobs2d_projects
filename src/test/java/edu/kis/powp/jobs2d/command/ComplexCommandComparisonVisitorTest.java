@@ -8,6 +8,7 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import edu.kis.powp.jobs2d.command.visitor.ComplexCommandComparisonVisitor.CompoundComparisonMode;
 
 public class ComplexCommandComparisonVisitorTest {
 
@@ -64,6 +65,33 @@ public class ComplexCommandComparisonVisitorTest {
 
         assertFalse(ComplexCommandComparisonVisitor.areEqual(flat, nested),
                 "Commands with different nesting should not be equal");
+    }
+
+    @Test
+    void flattenModeIgnoresNesting() {
+        CompoundCommand nested = (CompoundCommand) buildNestedSquare();
+
+        CompoundCommand flat = new CompoundCommand();
+        flat.addCommand(new SetPositionCommand(10, 10));
+        flat.addCommand(new OperateToCommand(20, 10));
+        flat.addCommand(new OperateToCommand(20, 20));
+
+        assertTrue(ComplexCommandComparisonVisitor.areEqual(nested, flat, CompoundComparisonMode.FLATTEN),
+                "Flatten mode should consider nested and flattened sequences equivalent");
+    }
+
+    @Test
+    void implementationTypeModeDetectsDifferentConcreteTypes() {
+        CompoundCommand mutable = new CompoundCommand(
+                new ArrayList<>(Arrays.asList(new SetPositionCommand(10, 10), new OperateToCommand(20, 20))),
+                "mutable");
+
+        ImmutableCompoundCommand immutable = new ImmutableCompoundCommand(
+                "immutable",
+                new ArrayList<>(Arrays.asList(new SetPositionCommand(10, 10), new OperateToCommand(20, 20))));
+
+        assertFalse(ComplexCommandComparisonVisitor.areEqual(mutable, immutable, CompoundComparisonMode.IMPLEMENTATION_TYPE),
+                "Implementation-type mode should detect different concrete compound implementations");
     }
 
     @Test

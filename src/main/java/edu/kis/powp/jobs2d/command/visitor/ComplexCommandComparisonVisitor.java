@@ -12,7 +12,22 @@ import edu.kis.powp.jobs2d.command.SetPositionCommand;
 
 public class ComplexCommandComparisonVisitor implements ICommandVisitor {
 
+    public enum CompoundComparisonMode {
+        STRUCTURAL,
+        FLATTEN,
+        IMPLEMENTATION_TYPE
+    }
+
     private final List<String> signature = new ArrayList<>();
+    private final CompoundComparisonMode mode;
+
+    public ComplexCommandComparisonVisitor() {
+        this(CompoundComparisonMode.STRUCTURAL);
+    }
+
+    public ComplexCommandComparisonVisitor(CompoundComparisonMode mode) {
+        this.mode = mode == null ? CompoundComparisonMode.STRUCTURAL : mode;
+    }
 
     @Override
     public void visit(SetPositionCommand command) {
@@ -26,11 +41,34 @@ public class ComplexCommandComparisonVisitor implements ICommandVisitor {
 
     @Override
     public void visit(ICompoundCommand command) {
-        signature.add("COMPOUND_START");
-        for (DriverCommand child : (Iterable<DriverCommand>) command::iterator) {
-            child.accept(this);
+        switch (mode) {
+            case STRUCTURAL:
+                signature.add("COMPOUND_START");
+                for (DriverCommand child : (Iterable<DriverCommand>) command::iterator) {
+                    child.accept(this);
+                }
+                signature.add("COMPOUND_END");
+                break;
+            case FLATTEN:
+                for (DriverCommand child : (Iterable<DriverCommand>) command::iterator) {
+                    child.accept(this);
+                }
+                break;
+            case IMPLEMENTATION_TYPE:
+                signature.add("COMPOUND_TYPE:" + command.getClass().getSimpleName());
+                signature.add("COMPOUND_START");
+                for (DriverCommand child : (Iterable<DriverCommand>) command::iterator) {
+                    child.accept(this);
+                }
+                signature.add("COMPOUND_END");
+                break;
+            default:
+                signature.add("COMPOUND_START");
+                for (DriverCommand child : (Iterable<DriverCommand>) command::iterator) {
+                    child.accept(this);
+                }
+                signature.add("COMPOUND_END");
         }
-        signature.add("COMPOUND_END");
     }
 
     /**
@@ -48,9 +86,18 @@ public class ComplexCommandComparisonVisitor implements ICommandVisitor {
     }
 
     /**
-     * Compares two complex commands by structure, command type, order and coordinates.
+     * Compares two complex commands by structure, command type, order and coordinates using the default
+     * compound-handling mode (STRUCTURAL).
      */
     public static boolean areEqual(ICompoundCommand left, ICompoundCommand right) {
+        return areEqual(left, right, CompoundComparisonMode.STRUCTURAL);
+    }
+
+    /**
+     * Compares two complex commands by structure, command type, order and coordinates using the provided
+     * compound-handling mode.
+     */
+    public static boolean areEqual(ICompoundCommand left, ICompoundCommand right, CompoundComparisonMode mode) {
         if (left == right) {
             return true;
         }
@@ -58,8 +105,8 @@ public class ComplexCommandComparisonVisitor implements ICommandVisitor {
             return false;
         }
 
-        ComplexCommandComparisonVisitor leftVisitor = new ComplexCommandComparisonVisitor();
-        ComplexCommandComparisonVisitor rightVisitor = new ComplexCommandComparisonVisitor();
+        ComplexCommandComparisonVisitor leftVisitor = new ComplexCommandComparisonVisitor(mode);
+        ComplexCommandComparisonVisitor rightVisitor = new ComplexCommandComparisonVisitor(mode);
 
         left.accept(leftVisitor);
         right.accept(rightVisitor);
