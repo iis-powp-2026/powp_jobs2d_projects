@@ -95,8 +95,6 @@ public class TestJobs2dApp {
         DrawPanelController drawerController = DrawerFeature.getDrawerController();
         VisitableDriver driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
 
-        // Decorate the default driver
-        driver = DeviceUsageFeature.decorateDriver(driver);
 
         DriverFeature.addDriver("Line Simulator", driver);
         DriverFeature.getDriverManager().setCurrentDriver(driver);
