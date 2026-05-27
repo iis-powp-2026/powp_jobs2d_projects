@@ -1,19 +1,19 @@
 package edu.kis.powp.jobs2d.command;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
 public class DeepCopyTest {
 
     public static void main(String[] args) {
 
         CompoundCommand innerOriginal = new CompoundCommand(
-                new ArrayList<>(Arrays.asList(new SetPositionCommand(1, 1))), "inner");
+                new ArrayList<>(List.of(new SetPositionCommand(1, 1))), "inner");
 
         CompoundCommand outerOriginal = new CompoundCommand(
-                new ArrayList<>(Arrays.asList(innerOriginal, new OperateToCommand(2, 2))), "outer");
+                new ArrayList<>(List.of(innerOriginal, new OperateToCommand(2, 2))), "outer");
 
-        CompoundCommand outerCopy = (CompoundCommand) outerOriginal.deepCopy();
+        CompoundCommand outerCopy = outerOriginal.deepCopy();
 
         if (outerOriginal == outerCopy)
             throw new AssertionError("Outer compound must be a new object");
