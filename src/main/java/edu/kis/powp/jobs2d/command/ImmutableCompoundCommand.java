@@ -7,6 +7,7 @@ import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 public class ImmutableCompoundCommand implements ICompoundCommand {
     private List<DriverCommand> commands;
@@ -19,11 +20,7 @@ public class ImmutableCompoundCommand implements ICompoundCommand {
      * @param commands list of the commands
      */
     public ImmutableCompoundCommand(String name, List<DriverCommand> commands) {
-        if (name == null) {
-            this.name = "ImmutableCompoundCommand";
-        } else {
-            this.name = name;
-        }
+        this.name = Objects.requireNonNullElse(name, "ImmutableCompoundCommand");
         this.commands = new ArrayList<>();
         for (DriverCommand cmd : commands) {
             this.commands.add(cmd.deepCopy());
