@@ -5,7 +5,7 @@ import java.util.List;
 
 public class CommandsHistory {
     private final List<HistoryRecord> history = new ArrayList<>();
-    private Integer maxSize = 50;
+    private Integer maxSize;
 
     public CommandsHistory(int maxSize) {
         this.maxSize = maxSize;

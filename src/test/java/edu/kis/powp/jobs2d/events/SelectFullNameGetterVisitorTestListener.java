@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 public class SelectFullNameGetterVisitorTestListener implements ActionListener {
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    private FullNameGetterVisitor visitor = null;
+    private FullNameGetterVisitor visitor;
 
     public SelectFullNameGetterVisitorTestListener(FullNameGetterVisitor fullNameGetterVisitor) {
         visitor = fullNameGetterVisitor;
