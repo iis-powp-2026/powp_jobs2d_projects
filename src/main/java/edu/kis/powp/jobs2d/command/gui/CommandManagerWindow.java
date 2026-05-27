@@ -22,14 +22,13 @@ import edu.kis.legacy.drawer.panel.DrawPanelController;
 
 public class CommandManagerWindow extends JFrame implements WindowComponent {
 
-    private CommandManager commandManager;
+    private final CommandManager commandManager;
 
-    private JTextArea currentCommandField;
+    private final JTextArea currentCommandField;
 
-    private String observerListString;
-    private JTextArea observerListField;
+    private final JTextArea observerListField;
 
-    private JPanel previewPanel;
+    private final JPanel previewPanel;
 
     /**
      *
@@ -142,15 +141,20 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
     }
 
     private void updateObserverListField() {
-        observerListString = "";
         List<Subscriber> commandChangeSubscribers = commandManager.getChangePublisher().getSubscribers();
-        for (Subscriber observer : commandChangeSubscribers) {
-            observerListString += observer.toString() + System.lineSeparator();
+        if (commandChangeSubscribers.isEmpty()) {
+            observerListField.setText("No observers loaded");
+            return;
         }
-        if (commandChangeSubscribers.isEmpty())
-            observerListString = "No observers loaded";
 
-        observerListField.setText(observerListString);
+        StringBuilder observerListBuilder = new StringBuilder();
+        for (Subscriber observer : commandChangeSubscribers) {
+            observerListBuilder
+                    .append(observer)
+                    .append(System.lineSeparator());
+        }
+
+        observerListField.setText(observerListBuilder.toString());
     }
 
     @Override
