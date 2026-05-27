@@ -1,7 +1,5 @@
 package edu.kis.powp.jobs2d.command.history;
 
-import edu.kis.powp.jobs2d.features.CommandsFeature;
-
 import java.util.ArrayList;
 import java.util.List;
 

@@ -21,11 +21,6 @@ import edu.kis.powp.jobs2d.drivers.visitor.FullNameGetterVisitor;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 import edu.kis.powp.jobs2d.events.*;
 import edu.kis.powp.jobs2d.features.*;
-import edu.kis.powp.jobs2d.events.SelectLoadRecordedMacroOptionListener;
-import edu.kis.powp.jobs2d.events.SelectClearPanelOptionListener;
-import edu.kis.powp.jobs2d.events.SelectToggleRecordingOptionListener;
-import edu.kis.powp.jobs2d.events.SelectClearRecordingOptionListener;
-import edu.kis.powp.jobs2d.features.FeaturesManager;
 import edu.kis.powp.jobs2d.drivers.MouseClickToDriverCall;
 
 public class TestJobs2dApp {

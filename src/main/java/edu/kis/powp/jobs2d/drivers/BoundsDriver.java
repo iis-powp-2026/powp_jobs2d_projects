@@ -5,8 +5,6 @@ import edu.kis.powp.jobs2d.drivers.visitor.DriverVisitor;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 import edu.kis.powp.jobs2d.features.CanvasFeature;
 
-import java.awt.*;
-
 public class BoundsDriver implements VisitableDriver {
 
     private final VisitableDriver innerDriver;
