@@ -133,7 +133,7 @@ public class DeviceManagementWindow extends JFrame implements WindowComponent, D
         usageLabel.setText(String.format("Total Usage: %.2f", totalUsage));
 
         if (operationalUsageLevel >= (maxOperationalUsageLevel * 0.1)) {
-            operationalUsageProgressBar.setForeground(null); // Reset to default
+            operationalUsageProgressBar.setForeground(null);
         } else {
             operationalUsageProgressBar.setForeground(Color.RED);
         }

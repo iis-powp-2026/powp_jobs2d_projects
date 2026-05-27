@@ -1,29 +1,27 @@
 package edu.kis.powp.jobs2d.features;
 
 import edu.kis.powp.appbase.Application;
-import edu.kis.powp.jobs2d.drivers.DeviceUsageDriverDecorator;
 import edu.kis.powp.jobs2d.drivers.DeviceUsageManager;
-import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 import edu.kis.powp.jobs2d.gui.DeviceManagementWindow;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Feature that provides per-driver DeviceUsageManager instances and a window to manage them.
+ * UI feature that manages the DeviceManagementWindow and registers managers for UI display.
  */
 public class DeviceUsageFeature implements IFeature {
 
     private static DeviceManagementWindow deviceManagementWindow;
-    private static final Map<String, DeviceUsageManager> managers = new ConcurrentHashMap<>();
+    private static final Map<String, DeviceUsageManager> pendingManagers = new ConcurrentHashMap<>();
 
     @Override
     public void setup(Application application) {
         deviceManagementWindow = new DeviceManagementWindow();
-
-        for (Map.Entry<String, DeviceUsageManager> e : managers.entrySet()) {
+        for (Map.Entry<String, DeviceUsageManager> e : pendingManagers.entrySet()) {
             deviceManagementWindow.registerManager(e.getValue(), e.getKey());
         }
+        pendingManagers.clear();
 
         application.addComponentMenu(DeviceUsageFeature.class, "Device Usage");
         application.addComponentMenuElement(DeviceUsageFeature.class, "Open Device Manager",
@@ -35,40 +33,26 @@ public class DeviceUsageFeature implements IFeature {
     }
 
     /**
-     * Create a DeviceUsageManager for given driver, wrap driver into DeviceUsageDriverDecorator and register the manager
-     * under provided name (shown in DeviceManagementWindow).
+     * Register a DeviceUsageManager in the UI. If the UI is not yet created, store it for later registration.
      *
-     * @param driver driver to decorate
-     * @param name   name to register the manager under (should be unique or descriptive)
-     * @return decorated driver
+     * @param manager manager to register
+     * @param name    display name
      */
-    public static VisitableDriver decorateDriver(VisitableDriver driver, String name) {
-        DeviceUsageManager mgr = new DeviceUsageManager();
-        VisitableDriver decorated = new DeviceUsageDriverDecorator(driver, mgr);
-
-        String key = (name != null) ? name : decorated.toString();
-        managers.put(key, mgr);
-
+    public static void registerManager(DeviceUsageManager manager, String name) {
+        if (manager == null || name == null) return;
         if (deviceManagementWindow != null) {
-            deviceManagementWindow.registerManager(mgr, key);
+            deviceManagementWindow.registerManager(manager, name);
+        } else {
+            pendingManagers.put(name, manager);
         }
-
-        return decorated;
-    }
-
-    /**
-     * Backward-compatible decorateDriver: use driver's toString() as name.
-     */
-    public static VisitableDriver decorateDriver(VisitableDriver driver) {
-        return decorateDriver(driver, driver != null ? driver.toString() : "unknown-driver");
-    }
-
-    public static DeviceManagementWindow getDeviceManagementWindow() {
-        return deviceManagementWindow;
     }
 
     @Override
     public String getName() {
         return "Device Usage";
+    }
+
+    public static DeviceManagementWindow getDeviceManagementWindow() {
+        return deviceManagementWindow;
     }
 }

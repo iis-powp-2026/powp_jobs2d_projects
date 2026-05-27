@@ -5,6 +5,7 @@ import edu.kis.powp.appbase.Application;
 import edu.kis.powp.jobs2d.drivers.CurrentDriverInfoObserver;
 import edu.kis.powp.jobs2d.drivers.DriverManager;
 import edu.kis.powp.jobs2d.drivers.SelectDriverMenuOptionListener;
+import edu.kis.powp.jobs2d.drivers.DeviceUsageRegistrar;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 import edu.kis.powp.jobs2d.events.SelectToggleExtensionOptionListener;
 
@@ -44,16 +45,16 @@ public class DriverFeature implements IFeature {
     }
 
     /**
-     * Add driver to context, create button in driver menu.
+     * Add driver to context and create menu entry.
      *
-     * @param name   Button name.
-     * @param driver VisitableDriver object.
+     * @param name   menu label
+     * @param driver visitable driver
      */
     public static void addDriver(String name, VisitableDriver driver) {
         try {
-            driver = edu.kis.powp.jobs2d.features.DeviceUsageFeature.decorateDriver(driver, name);
+            driver = DeviceUsageRegistrar.decorateAndRegister(driver, name);
         } catch (Throwable t) {
-            // ignore if DeviceUsageFeature not available
+            // ignored
         }
 
         SelectDriverMenuOptionListener listener = new SelectDriverMenuOptionListener(driver, driverManager);
