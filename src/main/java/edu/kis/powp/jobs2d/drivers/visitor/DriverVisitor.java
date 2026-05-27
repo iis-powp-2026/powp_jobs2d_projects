@@ -9,11 +9,11 @@ import edu.kis.powp.jobs2d.drivers.packet_composite.CompositeDriver;
 import edu.kis.powp.jobs2d.drivers.transformations.TransformingDriver;
 
 public interface DriverVisitor {
-    public void visit(CompositeDriver driver);
-    public void visit(LineDriverAdapter adapter);
-    public void visit(TrackingLoggerDriver driver);
-    public void visit(RealTimeDriver driver);
-    public void visit(RecordingDriver driver);
-    public void visit(TransformingDriver driver);
-    public void visit(BoundsDriver driver);
+    void visit(CompositeDriver driver);
+    void visit(LineDriverAdapter adapter);
+    void visit(TrackingLoggerDriver driver);
+    void visit(RealTimeDriver driver);
+    void visit(RecordingDriver driver);
+    void visit(TransformingDriver driver);
+    void visit(BoundsDriver driver);
 }
