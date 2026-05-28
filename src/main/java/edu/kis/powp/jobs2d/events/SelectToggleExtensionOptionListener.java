@@ -15,7 +15,7 @@ public class SelectToggleExtensionOptionListener implements ActionListener {
     private final DriverManager driverManager;
     private final String extensionName;
     private final VisitableDriver extension;
-    
+
     private Runnable onEnableAction = () -> {};
     private Runnable onDisableAction = () -> {};
 

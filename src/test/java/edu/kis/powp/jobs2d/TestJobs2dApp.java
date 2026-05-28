@@ -197,9 +197,20 @@ public class TestJobs2dApp {
                 commandManager);
         CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(windowObserver);
 
-        // Connect Device Usage window visibility to extension toggle
         if (usageMonitorListener != null) {
-            usageMonitorListener.setDeviceManagementWindow(deviceManagementWindow);
+            usageMonitorListener.setOnEnableAction(() -> {
+                DeviceUsageRegistrar.setUsageMonitoringEnabled(true);
+                if (deviceManagementWindow != null) {
+                    deviceManagementWindow.setVisible(true);
+                }
+            });
+
+            usageMonitorListener.setOnDisableAction(() -> {
+                DeviceUsageRegistrar.setUsageMonitoringEnabled(false);
+                if (deviceManagementWindow != null) {
+                    deviceManagementWindow.setVisible(false);
+                }
+            });
         }
 
         DrawPanelController previewDrawController = new DrawPanelController();
