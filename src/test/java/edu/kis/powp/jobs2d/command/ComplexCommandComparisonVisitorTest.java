@@ -1,6 +1,7 @@
 package edu.kis.powp.jobs2d.command;
 
 import edu.kis.powp.jobs2d.command.visitor.ComplexCommandComparisonVisitor;
+import edu.kis.powp.jobs2d.command.visitor.CompoundVisitStrategy;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -19,6 +20,36 @@ public class ComplexCommandComparisonVisitorTest {
 
         assertTrue(ComplexCommandComparisonVisitor.areEqual(left, right),
                 "Equivalent nested commands should be equal");
+    }
+
+    @Test
+    void shouldAllowInjectedCustomStrategy() {
+        CompoundVisitStrategy customStrategy = new CompoundVisitStrategy() {
+            @Override
+            public void preCompoundVisit(ICompoundCommand command, ComplexCommandComparisonVisitor visitor) {
+                // no-op
+            }
+
+            @Override
+            public void postCompoundVisit(ICompoundCommand command, ComplexCommandComparisonVisitor visitor) {
+                // no-op
+            }
+        };
+
+        ICompoundCommand nested = buildNestedSquare();
+        CompoundCommand flat = new CompoundCommand();
+        flat.addCommand(new SetPositionCommand(10, 10));
+        flat.addCommand(new OperateToCommand(20, 10));
+        flat.addCommand(new OperateToCommand(20, 20));
+
+        ComplexCommandComparisonVisitor leftVisitor = new ComplexCommandComparisonVisitor(customStrategy);
+        ComplexCommandComparisonVisitor rightVisitor = new ComplexCommandComparisonVisitor(customStrategy);
+
+        nested.accept(leftVisitor);
+        flat.accept(rightVisitor);
+
+        assertTrue(leftVisitor.getSignature().equals(rightVisitor.getSignature()),
+                "Custom injected strategy should be usable outside the visitor implementation");
     }
 
     @Test
@@ -119,5 +150,3 @@ public class ComplexCommandComparisonVisitorTest {
         return outer;
     }
 }
-
-

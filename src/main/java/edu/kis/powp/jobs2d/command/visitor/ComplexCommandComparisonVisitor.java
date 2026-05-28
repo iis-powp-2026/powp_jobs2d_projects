@@ -9,60 +9,12 @@ import edu.kis.powp.jobs2d.command.ICompoundCommand;
 import edu.kis.powp.jobs2d.command.OperateToCommand;
 import edu.kis.powp.jobs2d.command.SetPositionCommand;
 
-
 public class ComplexCommandComparisonVisitor implements ICommandVisitor {
 
-    private interface CompoundVisitStrategy {
-        void visit(ICompoundCommand command, ComplexCommandComparisonVisitor visitor);
-    }
-
     public enum CompoundComparisonMode {
-        STRUCTURAL {
-            @Override
-            CompoundVisitStrategy createStrategy() {
-                return new StructuralCompoundVisitStrategy();
-            }
-        },
-        FLATTEN {
-            @Override
-            CompoundVisitStrategy createStrategy() {
-                return new FlattenCompoundVisitStrategy();
-            }
-        },
-        IMPLEMENTATION_TYPE {
-            @Override
-            CompoundVisitStrategy createStrategy() {
-                return new ImplementationTypeCompoundVisitStrategy();
-            }
-        };
-
-        abstract CompoundVisitStrategy createStrategy();
-    }
-
-    private static final class StructuralCompoundVisitStrategy implements CompoundVisitStrategy {
-        @Override
-        public void visit(ICompoundCommand command, ComplexCommandComparisonVisitor visitor) {
-            visitor.addCompoundBoundary();
-            visitor.visitChildren(command);
-            visitor.addCompoundBoundary();
-        }
-    }
-
-    private static final class FlattenCompoundVisitStrategy implements CompoundVisitStrategy {
-        @Override
-        public void visit(ICompoundCommand command, ComplexCommandComparisonVisitor visitor) {
-            visitor.visitChildren(command);
-        }
-    }
-
-    private static final class ImplementationTypeCompoundVisitStrategy implements CompoundVisitStrategy {
-        @Override
-        public void visit(ICompoundCommand command, ComplexCommandComparisonVisitor visitor) {
-            visitor.signature.add("COMPOUND_TYPE:" + command.getClass().getSimpleName());
-            visitor.addCompoundBoundary();
-            visitor.visitChildren(command);
-            visitor.addCompoundBoundary();
-        }
+        STRUCTURAL,
+        FLATTEN,
+        IMPLEMENTATION_TYPE
     }
 
     private final List<String> signature = new ArrayList<>();
@@ -73,8 +25,13 @@ public class ComplexCommandComparisonVisitor implements ICommandVisitor {
     }
 
     public ComplexCommandComparisonVisitor(CompoundComparisonMode mode) {
-        CompoundComparisonMode selectedMode = mode == null ? CompoundComparisonMode.STRUCTURAL : mode;
-        this.compoundVisitStrategy = selectedMode.createStrategy();
+        this(CompoundVisitStrategyFactory.create(mode));
+    }
+
+    public ComplexCommandComparisonVisitor(CompoundVisitStrategy compoundVisitStrategy) {
+        this.compoundVisitStrategy = compoundVisitStrategy == null
+                ? CompoundVisitStrategyFactory.create(CompoundComparisonMode.STRUCTURAL)
+                : compoundVisitStrategy;
     }
 
     @Override
@@ -89,7 +46,9 @@ public class ComplexCommandComparisonVisitor implements ICommandVisitor {
 
     @Override
     public void visit(ICompoundCommand command) {
-        compoundVisitStrategy.visit(command, this);
+        compoundVisitStrategy.preCompoundVisit(command, this);
+        visitChildren(command);
+        compoundVisitStrategy.postCompoundVisit(command, this);
     }
 
     /**
@@ -106,8 +65,25 @@ public class ComplexCommandComparisonVisitor implements ICommandVisitor {
         return Collections.unmodifiableList(new ArrayList<>(signature));
     }
 
-    private void addCompoundBoundary() {
+    /**
+     * Public helper for strategies that want to emit a compound start boundary.
+     */
+    public void addCompoundStartBoundary() {
         signature.add("COMPOUND_START");
+    }
+
+    /**
+     * Public helper for strategies that want to emit a compound end boundary.
+     */
+    public void addCompoundEndBoundary() {
+        signature.add("COMPOUND_END");
+    }
+
+    /**
+     * Public helper for strategies that want to emit a compound implementation marker.
+     */
+    public void addCompoundTypeBoundary(ICompoundCommand command) {
+        signature.add("COMPOUND_TYPE:" + command.getClass().getSimpleName());
     }
 
     private void visitChildren(ICompoundCommand command) {
@@ -145,4 +121,3 @@ public class ComplexCommandComparisonVisitor implements ICommandVisitor {
         return leftVisitor.getSignature().equals(rightVisitor.getSignature());
     }
 }
-
