@@ -12,21 +12,69 @@ import edu.kis.powp.jobs2d.command.SetPositionCommand;
 
 public class ComplexCommandComparisonVisitor implements ICommandVisitor {
 
+    private interface CompoundVisitStrategy {
+        void visit(ICompoundCommand command, ComplexCommandComparisonVisitor visitor);
+    }
+
     public enum CompoundComparisonMode {
-        STRUCTURAL,
-        FLATTEN,
-        IMPLEMENTATION_TYPE
+        STRUCTURAL {
+            @Override
+            CompoundVisitStrategy createStrategy() {
+                return new StructuralCompoundVisitStrategy();
+            }
+        },
+        FLATTEN {
+            @Override
+            CompoundVisitStrategy createStrategy() {
+                return new FlattenCompoundVisitStrategy();
+            }
+        },
+        IMPLEMENTATION_TYPE {
+            @Override
+            CompoundVisitStrategy createStrategy() {
+                return new ImplementationTypeCompoundVisitStrategy();
+            }
+        };
+
+        abstract CompoundVisitStrategy createStrategy();
+    }
+
+    private static final class StructuralCompoundVisitStrategy implements CompoundVisitStrategy {
+        @Override
+        public void visit(ICompoundCommand command, ComplexCommandComparisonVisitor visitor) {
+            visitor.addCompoundBoundary();
+            visitor.visitChildren(command);
+            visitor.addCompoundBoundary();
+        }
+    }
+
+    private static final class FlattenCompoundVisitStrategy implements CompoundVisitStrategy {
+        @Override
+        public void visit(ICompoundCommand command, ComplexCommandComparisonVisitor visitor) {
+            visitor.visitChildren(command);
+        }
+    }
+
+    private static final class ImplementationTypeCompoundVisitStrategy implements CompoundVisitStrategy {
+        @Override
+        public void visit(ICompoundCommand command, ComplexCommandComparisonVisitor visitor) {
+            visitor.signature.add("COMPOUND_TYPE:" + command.getClass().getSimpleName());
+            visitor.addCompoundBoundary();
+            visitor.visitChildren(command);
+            visitor.addCompoundBoundary();
+        }
     }
 
     private final List<String> signature = new ArrayList<>();
-    private final CompoundComparisonMode mode;
+    private final CompoundVisitStrategy compoundVisitStrategy;
 
     public ComplexCommandComparisonVisitor() {
         this(CompoundComparisonMode.STRUCTURAL);
     }
 
     public ComplexCommandComparisonVisitor(CompoundComparisonMode mode) {
-        this.mode = mode == null ? CompoundComparisonMode.STRUCTURAL : mode;
+        CompoundComparisonMode selectedMode = mode == null ? CompoundComparisonMode.STRUCTURAL : mode;
+        this.compoundVisitStrategy = selectedMode.createStrategy();
     }
 
     @Override
@@ -41,34 +89,7 @@ public class ComplexCommandComparisonVisitor implements ICommandVisitor {
 
     @Override
     public void visit(ICompoundCommand command) {
-        switch (mode) {
-            case STRUCTURAL:
-                signature.add("COMPOUND_START");
-                for (DriverCommand child : (Iterable<DriverCommand>) command::iterator) {
-                    child.accept(this);
-                }
-                signature.add("COMPOUND_END");
-                break;
-            case FLATTEN:
-                for (DriverCommand child : (Iterable<DriverCommand>) command::iterator) {
-                    child.accept(this);
-                }
-                break;
-            case IMPLEMENTATION_TYPE:
-                signature.add("COMPOUND_TYPE:" + command.getClass().getSimpleName());
-                signature.add("COMPOUND_START");
-                for (DriverCommand child : (Iterable<DriverCommand>) command::iterator) {
-                    child.accept(this);
-                }
-                signature.add("COMPOUND_END");
-                break;
-            default:
-                signature.add("COMPOUND_START");
-                for (DriverCommand child : (Iterable<DriverCommand>) command::iterator) {
-                    child.accept(this);
-                }
-                signature.add("COMPOUND_END");
-        }
+        compoundVisitStrategy.visit(command, this);
     }
 
     /**
@@ -83,6 +104,16 @@ public class ComplexCommandComparisonVisitor implements ICommandVisitor {
      */
     public List<String> getSignature() {
         return Collections.unmodifiableList(new ArrayList<>(signature));
+    }
+
+    private void addCompoundBoundary() {
+        signature.add("COMPOUND_START");
+    }
+
+    private void visitChildren(ICompoundCommand command) {
+        for (DriverCommand child : (Iterable<DriverCommand>) command::iterator) {
+            child.accept(this);
+        }
     }
 
     /**
