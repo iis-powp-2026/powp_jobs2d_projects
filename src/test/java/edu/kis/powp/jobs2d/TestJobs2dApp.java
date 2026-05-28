@@ -161,7 +161,8 @@ public class TestJobs2dApp {
         UsageMonitorDriver usageMonitorExtension = new UsageMonitorDriver();
         usageMonitorExtension.getPublisher().addSubscriber(new LoggerUsageSubscriber(usageMonitorExtension));
         usageMonitorListener = new SelectToggleExtensionOptionListener(driverManager, "usage-monitor", usageMonitorExtension, false);
-        DriverFeature.addExtensionWithListener("Extension: Usage Monitor", "usage-monitor", usageMonitorExtension, usageMonitorListener);
+
+        application.addComponentMenuElementWithCheckBox(DriverFeature.class, "Extension: Usage Monitor", usageMonitorListener, false);
 
         RecordingDriver recordingExtension = new RecordingDriver();
         RecordingFeature.setup(recordingExtension);
