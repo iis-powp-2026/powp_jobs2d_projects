@@ -26,6 +26,14 @@ public class DeviceUsageDriverDecorator implements VisitableDriver {
 
     @Override
     public synchronized void operateTo(int x, int y) {
+        // Only track usage if usage monitoring is enabled (i.e., usage-monitor extension is active)
+        if (!DeviceUsageRegistrar.isUsageMonitoringEnabled()) {
+            this.currentX = x;
+            this.currentY = y;
+            innerDriver.operateTo(x, y);
+            return;
+        }
+
         if (manager.isOutOfOperationalUsage()) {
             manager.notifySubscribers("REACHED_MAX_OPERATIONAL_USAGE");
             return;

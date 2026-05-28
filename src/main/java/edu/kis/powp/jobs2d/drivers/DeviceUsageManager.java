@@ -65,6 +65,17 @@ public class DeviceUsageManager implements DeviceUsagePublisher {
         notifyUsageUpdate(operationalUsageLevel, maxOperationalUsageLevel, totalUsage);
     }
 
+    /**
+     * Reset all usage counters to initial state.
+     * Useful when usage monitoring extension is disabled.
+     */
+    public synchronized void reset() {
+        this.operationalUsageLevel = maxOperationalUsageLevel;
+        this.totalUsage = 0.0;
+        this.lowOperationalUsageNotified = false;
+        notifyUsageUpdate(operationalUsageLevel, maxOperationalUsageLevel, totalUsage);
+    }
+
     @Override
     public synchronized void addSubscriber(DeviceUsageSubscriber subscriber) {
         subscribers.add(subscriber);

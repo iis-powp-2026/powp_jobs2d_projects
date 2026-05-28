@@ -13,7 +13,9 @@ import edu.kis.powp.appbase.Application;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
 import edu.kis.powp.jobs2d.drivers.usage.LoggerUsageSubscriber;
+import edu.kis.powp.jobs2d.gui.DeviceManagementWindow;
 import edu.kis.powp.jobs2d.drivers.RealTimeDriver;
+import edu.kis.powp.jobs2d.drivers.DeviceUsageRegistrar;
 import edu.kis.powp.jobs2d.drivers.RecordingDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
 import edu.kis.powp.jobs2d.drivers.logger.TrackingLoggerDriver;
@@ -37,6 +39,7 @@ import edu.kis.powp.jobs2d.command.gui.CommandCatalogWindow;
 
 public class TestJobs2dApp {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private static SelectToggleExtensionOptionListener usageMonitorListener;
 
     /**
      * Setup test concerning preset figures in context.
@@ -145,6 +148,7 @@ public class TestJobs2dApp {
 
     /**
      * Setup independent, optional driver extensions.
+     * Stores extension listeners for later configuration in setupWindows.
      *
      * @param application Application context.
      */
@@ -156,7 +160,8 @@ public class TestJobs2dApp {
 
         UsageMonitorDriver usageMonitorExtension = new UsageMonitorDriver();
         usageMonitorExtension.getPublisher().addSubscriber(new LoggerUsageSubscriber(usageMonitorExtension));
-        DriverFeature.addExtension("Extension: Usage Monitor", "usage-monitor", usageMonitorExtension);
+        usageMonitorListener = new SelectToggleExtensionOptionListener(driverManager, "usage-monitor", usageMonitorExtension, false);
+        DriverFeature.addExtensionWithListener("Extension: Usage Monitor", "usage-monitor", usageMonitorExtension, usageMonitorListener);
 
         RecordingDriver recordingExtension = new RecordingDriver();
         RecordingFeature.setup(recordingExtension);
@@ -164,7 +169,20 @@ public class TestJobs2dApp {
     }
 
 
-    private static void setupWindows(Application application) {
+    /**
+     * Setup Device Management Window early (before drivers are added).
+     * This ensures that when drivers are registered, the window is ready to receive managers.
+     */
+    private static DeviceManagementWindow setupDeviceManagementWindow(Application application) {
+        DeviceManagementWindow deviceManagementWindow = new DeviceManagementWindow();
+        DeviceUsageRegistrar.setDeviceManagementWindow(deviceManagementWindow);
+        application.addWindowComponent("Device Usage", deviceManagementWindow);
+        // Initially hide Device Usage window since extension starts disabled
+        deviceManagementWindow.setVisible(false);
+        return deviceManagementWindow;
+    }
+
+    private static void setupWindows(Application application, DeviceManagementWindow deviceManagementWindow) {
 
         CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager());
         application.addWindowComponent("Command Manager", commandManager);
@@ -179,7 +197,10 @@ public class TestJobs2dApp {
                 commandManager);
         CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(windowObserver);
 
-
+        // Connect Device Usage window visibility to extension toggle
+        if (usageMonitorListener != null) {
+            usageMonitorListener.setDeviceManagementWindow(deviceManagementWindow);
+        }
 
         DrawPanelController previewDrawController = new DrawPanelController();
 
@@ -244,18 +265,20 @@ public class TestJobs2dApp {
                 FeaturesManager.registerFeature(new DriverFeature());
                 FeaturesManager.registerFeature(new CanvasFeature());
                 FeaturesManager.registerFeature(new MouseInteractionFeature());
-                FeaturesManager.registerFeature(new DeviceUsageFeature());
 
                 // Automatycznie skonfiguruj wszystkie zarejestrowane funkcje
                 // To zastępuje ręczne wywołania setup dla każdej funkcji
                 FeaturesManager.setupAllFeatures(app);
+
+                // Initialize Device Management Window EARLY, before drivers are added
+                DeviceManagementWindow deviceManagementWindow = setupDeviceManagementWindow(app);
 
                 setupDrivers(app);
                 setupExtensions(app);
                 setupPresetTests(app);
                 setupCommandTests(app);
                 setupLogger(app);
-                setupWindows(app);
+                setupWindows(app, deviceManagementWindow);
 
                 app.setVisibility(true);
             }

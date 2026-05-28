@@ -46,13 +46,15 @@ public class DriverFeature implements IFeature {
 
     /**
      * Add driver to context and create menu entry.
+     * Driver is automatically registered in DeviceUsageRegistrar for usage tracking.
      *
      * @param name   menu label
      * @param driver visitable driver
      */
     public static void addDriver(String name, VisitableDriver driver) {
+        // Register driver for usage monitoring (without decorating yet)
         try {
-            driver = DeviceUsageRegistrar.decorateAndRegister(driver, name);
+            DeviceUsageRegistrar.registerDriver(driver, name);
         } catch (Throwable t) {
             // ignored
         }
@@ -83,6 +85,18 @@ public class DriverFeature implements IFeature {
                 extension,
                 false
         );
+        app.addComponentMenuElementWithCheckBox(DriverFeature.class, name, listener, false);
+    }
+
+    /**
+     * Add extension driver with pre-created listener for additional configuration.
+     *
+     * @param name      Button name displayed in the menu.
+     * @param key       Unique key identifying the extension in the driver manager.
+     * @param extension VisitableDriver extension object.
+     * @param listener  Pre-created SelectToggleExtensionOptionListener.
+     */
+    public static void addExtensionWithListener(String name, String key, VisitableDriver extension, SelectToggleExtensionOptionListener listener) {
         app.addComponentMenuElementWithCheckBox(DriverFeature.class, name, listener, false);
     }
 
