@@ -57,7 +57,7 @@ public class DeviceUsageRegistrar {
             return;
         }
 
-        DeviceUsageManager mgr = new DeviceUsageManager();
+        DeviceUsageManager mgr = DeviceUsageManagerFactory.createDefaultManager();
         String key = name;
         managers.put(key, mgr);
         driverToManagerMap.put(driver, mgr);
@@ -91,7 +91,7 @@ public class DeviceUsageRegistrar {
      */
     @Deprecated
     public static VisitableDriver decorateAndRegister(VisitableDriver driver, String name) {
-        DeviceUsageManager mgr = new DeviceUsageManager();
+        DeviceUsageManager mgr = DeviceUsageManagerFactory.createDefaultManager();
         VisitableDriver decorated = new DeviceUsageDriverDecorator(driver, mgr);
 
         String key = (name != null) ? name : decorated.toString();

@@ -59,8 +59,8 @@ public class DeviceManagementWindow extends JFrame implements WindowComponent, D
 
         content.add(new JLabel("Operational Usage Level:"), c);
 
-        operationalUsageProgressBar = new JProgressBar(0, 10000);
-        operationalUsageProgressBar.setValue(10000);
+        operationalUsageProgressBar = new JProgressBar(0, 100);
+        operationalUsageProgressBar.setValue(100);
         operationalUsageProgressBar.setStringPainted(true);
         content.add(operationalUsageProgressBar, c);
 

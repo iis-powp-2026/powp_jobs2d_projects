@@ -16,10 +16,6 @@ public class DeviceUsageManager implements DeviceUsagePublisher {
 
     private final List<DeviceUsageSubscriber> subscribers = new ArrayList<>();
 
-    public DeviceUsageManager() {
-        this(10000.0);
-    }
-
     public DeviceUsageManager(double maxOperationalUsageLevel) {
         this.maxOperationalUsageLevel = maxOperationalUsageLevel;
         this.operationalUsageLevel = maxOperationalUsageLevel;
