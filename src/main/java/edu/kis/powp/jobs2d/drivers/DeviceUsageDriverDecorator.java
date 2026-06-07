@@ -35,7 +35,6 @@ public class DeviceUsageDriverDecorator implements VisitableDriver {
         }
 
         if (manager.isOutOfOperationalUsage()) {
-            manager.notifySubscribers("REACHED_MAX_OPERATIONAL_USAGE");
             return;
         }
         double distance = Math.hypot(x - currentX, y - currentY);
@@ -62,6 +61,6 @@ public class DeviceUsageDriverDecorator implements VisitableDriver {
 
     @Override
     public void accept(DriverVisitor visitor) {
-        innerDriver.accept(visitor);
+        visitor.visit(this);
     }
 }

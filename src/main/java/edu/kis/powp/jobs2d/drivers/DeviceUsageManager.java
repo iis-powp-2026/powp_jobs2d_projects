@@ -12,6 +12,7 @@ public class DeviceUsageManager implements DeviceUsagePublisher {
     private double operationalUsageLevel;
     private double totalUsage = 0.0;
     private boolean lowOperationalUsageNotified = false;
+    private boolean reachedMaxUsageNotified = false;
 
     private final List<DeviceUsageSubscriber> subscribers = new ArrayList<>();
 
@@ -40,6 +41,10 @@ public class DeviceUsageManager implements DeviceUsagePublisher {
             notifySubscribers("LOW_OPERATIONAL_USAGE");
             lowOperationalUsageNotified = true;
         }
+        if (operationalUsageLevel <= 0 && !reachedMaxUsageNotified) {
+            notifySubscribers("REACHED_MAX_OPERATIONAL_USAGE");
+            reachedMaxUsageNotified = true;
+        }
     }
 
     public synchronized double getOperationalUsageLevel() {
@@ -57,6 +62,7 @@ public class DeviceUsageManager implements DeviceUsagePublisher {
     public synchronized void refill() {
         this.operationalUsageLevel = maxOperationalUsageLevel;
         this.lowOperationalUsageNotified = false;
+        this.reachedMaxUsageNotified = false;
         notifyUsageUpdate(operationalUsageLevel, maxOperationalUsageLevel, totalUsage);
     }
 
@@ -73,6 +79,7 @@ public class DeviceUsageManager implements DeviceUsagePublisher {
         this.operationalUsageLevel = maxOperationalUsageLevel;
         this.totalUsage = 0.0;
         this.lowOperationalUsageNotified = false;
+        this.reachedMaxUsageNotified = false;
         notifyUsageUpdate(operationalUsageLevel, maxOperationalUsageLevel, totalUsage);
     }
 
