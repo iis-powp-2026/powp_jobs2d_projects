@@ -169,20 +169,6 @@ public class TestJobs2dApp {
         DriverFeature.addExtension("Extension: Recording", "recording", recordingExtension);
     }
 
-
-    /**
-     * Setup Device Management Window early (before drivers are added).
-     * This ensures that when drivers are registered, the window is ready to receive managers.
-     */
-    private static DeviceManagementWindow setupDeviceManagementWindow(Application application) {
-        DeviceManagementWindow deviceManagementWindow = new DeviceManagementWindow();
-        DeviceUsageRegistrar.setDeviceManagementWindow(deviceManagementWindow);
-        application.addWindowComponent("Device Usage", deviceManagementWindow);
-        // Initially hide Device Usage window since extension starts disabled
-        deviceManagementWindow.setVisible(false);
-        return deviceManagementWindow;
-    }
-
     private static void setupWindows(Application application, DeviceManagementWindow deviceManagementWindow) {
 
         CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager());
@@ -277,20 +263,18 @@ public class TestJobs2dApp {
                 FeaturesManager.registerFeature(new DriverFeature());
                 FeaturesManager.registerFeature(new CanvasFeature());
                 FeaturesManager.registerFeature(new MouseInteractionFeature());
+                FeaturesManager.registerFeature(new DeviceUsageFeature());
 
                 // Automatycznie skonfiguruj wszystkie zarejestrowane funkcje
                 // To zastępuje ręczne wywołania setup dla każdej funkcji
                 FeaturesManager.setupAllFeatures(app);
-
-                // Initialize Device Management Window EARLY, before drivers are added
-                DeviceManagementWindow deviceManagementWindow = setupDeviceManagementWindow(app);
 
                 setupDrivers(app);
                 setupExtensions(app);
                 setupPresetTests(app);
                 setupCommandTests(app);
                 setupLogger(app);
-                setupWindows(app, deviceManagementWindow);
+                setupWindows(app, DeviceUsageFeature.getDeviceManagementWindow());
 
                 app.setVisibility(true);
             }

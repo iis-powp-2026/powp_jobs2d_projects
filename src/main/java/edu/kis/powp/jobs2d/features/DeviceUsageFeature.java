@@ -23,13 +23,11 @@ public class DeviceUsageFeature implements IFeature {
         }
         pendingManagers.clear();
 
+        application.addWindowComponent("Device Usage", deviceManagementWindow);
+
         application.addComponentMenu(DeviceUsageFeature.class, "Device Usage");
         application.addComponentMenuElement(DeviceUsageFeature.class, "Open Device Manager",
-                (e) -> {
-                    if (deviceManagementWindow != null) {
-                        deviceManagementWindow.setVisible(true);
-                    }
-                });
+                (e) -> deviceManagementWindow.HideIfVisibleAndShowIfHidden());
     }
 
     /**
