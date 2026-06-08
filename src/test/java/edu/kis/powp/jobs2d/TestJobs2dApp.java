@@ -18,6 +18,7 @@ import edu.kis.powp.jobs2d.drivers.RealTimeDriver;
 import edu.kis.powp.jobs2d.drivers.DeviceUsageRegistrar;
 import edu.kis.powp.jobs2d.drivers.RecordingDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
+import edu.kis.powp.jobs2d.drivers.bounds.CanvasClampingDriver;
 import edu.kis.powp.jobs2d.drivers.logger.TrackingLoggerDriver;
 import edu.kis.powp.jobs2d.drivers.packet_composite.CompositeDriver;
 import edu.kis.powp.jobs2d.drivers.transformations.*;
@@ -102,13 +103,16 @@ public class TestJobs2dApp {
         DriverFeature.addDriver("Line Simulator", driver);
         DriverFeature.getDriverManager().setCurrentDriver(driver);
 
+        VisitableDriver boundedLineInner = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
+        VisitableDriver canvasBoundedLine = new CanvasClampingDriver(
+                boundedLineInner,
+                CanvasFeature::getCanvas,
+                "Line Simulator (canvas-bounded)");
+        DriverFeature.addDriver(canvasBoundedLine.toString(), canvasBoundedLine);
+
         driver = new LineDriverAdapter(drawerController, LineFactory.getSpecialLine(), "special");
         DriverFeature.addDriver("Special line Simulator", driver);
         DriverFeature.updateDriverInfo();
-
-        CompositeDriver basicCompositeDriver = new CompositeDriver("Basic & Log Composite Driver");
-        basicCompositeDriver.addDriver(driver);
-        DriverFeature.addDriver(basicCompositeDriver.toString(), basicCompositeDriver);
 
         CoordinateTransformer scale = new ScaleTransformer(2.0, 2.0);
         VisitableDriver scaledDriver = new TransformingDriver(driver, scale, "Transform: Scaled 2x");
@@ -156,17 +160,16 @@ public class TestJobs2dApp {
         var driverManager = DriverFeature.getDriverManager();
 
         TrackingLoggerDriver loggerExtension = new TrackingLoggerDriver();
-        DriverFeature.addExtension("Extension: Tracking Logger", "tracking-logger", loggerExtension);
+        ExtensionsFeature.addExtension("Extension: Tracking Logger", "tracking-logger", loggerExtension, driverManager);
 
         UsageMonitorDriver usageMonitorExtension = new UsageMonitorDriver();
         usageMonitorExtension.getPublisher().addSubscriber(new LoggerUsageSubscriber(usageMonitorExtension));
-        usageMonitorListener = new SelectToggleExtensionOptionListener(driverManager, "usage-monitor", usageMonitorExtension, false);
 
-        application.addComponentMenuElementWithCheckBox(DriverFeature.class, "Extension: Usage Monitor", usageMonitorListener, false);
+        ExtensionsFeature.addExtension("Extension: Usage Monitor", "usage-monitor", usageMonitorExtension, driverManager);
 
         RecordingDriver recordingExtension = new RecordingDriver();
         RecordingFeature.setup(recordingExtension);
-        DriverFeature.addExtension("Extension: Recording", "recording", recordingExtension);
+        ExtensionsFeature.addExtension("Extension: Recording", "recording", recordingExtension, driverManager);
     }
 
     private static void setupWindows(Application application, DeviceManagementWindow deviceManagementWindow) {
@@ -174,6 +177,8 @@ public class TestJobs2dApp {
         CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager());
         application.addWindowComponent("Command Manager", commandManager);
 
+        ComplexCommandEditor complexCommandEditor = new ComplexCommandEditor(CommandsFeature.getDriverCommandManager());
+        application.addWindowComponent("Complex Command Editor", complexCommandEditor);
         CommandCatalogWindow commandCatalogWindow = new CommandCatalogWindow(
                 CommandsFeature.getDriverCommandManager(),
                 CommandsFeature.getCommandCatalog()
@@ -264,6 +269,7 @@ public class TestJobs2dApp {
                 FeaturesManager.registerFeature(new CanvasFeature());
                 FeaturesManager.registerFeature(new MouseInteractionFeature());
                 FeaturesManager.registerFeature(new DeviceUsageFeature());
+                FeaturesManager.registerFeature(new ExtensionsFeature());
 
                 // Automatycznie skonfiguruj wszystkie zarejestrowane funkcje
                 // To zastępuje ręczne wywołania setup dla każdej funkcji
