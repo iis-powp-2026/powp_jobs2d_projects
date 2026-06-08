@@ -29,6 +29,9 @@ public class DeviceManagementWindow extends JFrame implements WindowComponent, D
     private JLabel usageLabel;
     private JComboBox<String> driverSelector;
 
+    private static final int INITIAL_PROGRESS_BAR_MAX = 10000;
+    private static final int INITIAL_PROGRESS_BAR_VALUE = 10000;
+
     private final Map<String, DeviceUsageManager> managers = new LinkedHashMap<>();
     private String currentName = null;
 
@@ -59,8 +62,8 @@ public class DeviceManagementWindow extends JFrame implements WindowComponent, D
 
         content.add(new JLabel("Operational Usage Level:"), c);
 
-        operationalUsageProgressBar = new JProgressBar(0, 100);
-        operationalUsageProgressBar.setValue(100);
+        operationalUsageProgressBar = new JProgressBar(0, INITIAL_PROGRESS_BAR_MAX);
+        operationalUsageProgressBar.setValue(INITIAL_PROGRESS_BAR_VALUE);
         operationalUsageProgressBar.setStringPainted(true);
         content.add(operationalUsageProgressBar, c);
 
