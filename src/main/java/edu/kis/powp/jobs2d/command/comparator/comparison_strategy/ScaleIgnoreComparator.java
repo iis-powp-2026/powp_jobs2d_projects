@@ -7,7 +7,7 @@ import edu.kis.powp.jobs2d.command.comparator.command_trace.Point;
 import java.util.HashSet;
 import java.util.List;
 
-public class ShapeComparator implements ComparisonStrategy {
+public class ScaleIgnoreComparator implements ComparisonStrategy {
     @Override
     public boolean compare(CommandTrace traceA, CommandTrace traceB) {
         List<Line> linesA =  traceA.getLines();

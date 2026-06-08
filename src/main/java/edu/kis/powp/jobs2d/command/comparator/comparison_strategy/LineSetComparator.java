@@ -5,7 +5,7 @@ import edu.kis.powp.jobs2d.command.comparator.command_trace.Line;
 
 import java.util.HashSet;
 
-public class ResultComparator implements ComparisonStrategy {
+public class LineSetComparator implements ComparisonStrategy {
     @Override
     public boolean compare(CommandTrace traceA, CommandTrace traceB) {
         HashSet<Line> linesA =  new HashSet<>(traceA.getLines());

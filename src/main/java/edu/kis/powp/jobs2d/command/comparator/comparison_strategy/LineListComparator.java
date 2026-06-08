@@ -5,7 +5,7 @@ import edu.kis.powp.jobs2d.command.comparator.command_trace.Line;
 
 import java.util.List;
 
-public class SequenceComparator implements ComparisonStrategy {
+public class LineListComparator implements ComparisonStrategy {
 
     @Override
     public boolean compare(CommandTrace traceA, CommandTrace traceB) {
