@@ -18,21 +18,22 @@ public class ScaleIgnoreComparator implements ComparisonStrategy {
         int maxXChangeA = getMaxDifferenceX(linesA);
         int maxXChangeB = getMaxDifferenceX(linesB);
 
+        HashSet<Line> setA;
+        HashSet<Line> setB;
         if (maxXChangeA == maxXChangeB) {
-            HashSet<Line> setA = new HashSet<>(linesA);
-            HashSet<Line> setB = new HashSet<>(linesB);
-            return setA.equals(setB);
+            setA = new HashSet<>(linesA);
+            setB = new HashSet<>(linesB);
         }else{
-            HashSet<Line> setA = new HashSet<>();
-            HashSet<Line> setB = new HashSet<>();
+            setA = new HashSet<>();
+            setB = new HashSet<>();
             for(Line lineA : linesA){
                 setA.add(scaleLine(lineA, maxXChangeB));
             }
             for(Line lineB : linesB){
                 setB.add(scaleLine(lineB, maxXChangeA));
             }
-            return setA.equals(setB);
         }
+        return setA.equals(setB);
 
     }
 
