@@ -1,6 +1,5 @@
 package edu.kis.powp.jobs2d.command.comparator.command_trace;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CommandTrace {
@@ -11,14 +10,6 @@ public class CommandTrace {
     }
 
     public List<Line> getLines() {
-        return lines;
-    }
-
-    public List<Line> normalize() {
-        List<Line> lines = new ArrayList<Line>();
-        for (Line line : lines) {
-            lines.add(line);
-
-        }
+        return List.copyOf(lines);
     }
 }
