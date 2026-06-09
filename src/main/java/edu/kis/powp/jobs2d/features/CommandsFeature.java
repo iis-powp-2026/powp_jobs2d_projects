@@ -1,6 +1,7 @@
 package edu.kis.powp.jobs2d.features;
 
 import edu.kis.powp.appbase.Application;
+import edu.kis.powp.jobs2d.command.manager.CommandHistory;
 import edu.kis.powp.jobs2d.command.manager.CommandManager;
 import edu.kis.powp.jobs2d.command.manager.LoggerCommandChangeObserver;
 import edu.kis.powp.jobs2d.command.io.CommandImporterFactory;
@@ -8,11 +9,16 @@ import edu.kis.powp.jobs2d.command.io.JsonCommandImporterProvider;
 import edu.kis.powp.jobs2d.command.catalog.CommandCatalog;
 import edu.kis.powp.jobs2d.command.CompoundCommandFactory;
 import edu.kis.powp.jobs2d.command.ImmutableCompoundCommandFactory;
+import edu.kis.powp.jobs2d.command.manager.CommandHistoryObserver;
+
+import java.util.List;
 
 public class CommandsFeature implements IFeature {
 
     private static CommandManager commandManager;
     private static final CommandCatalog commandCatalog = setUpCommandCatalog();
+    private static CommandHistoryObserver historyObserver;
+    private static CommandHistory commandHistory;
 
     @Override
     public void setup(Application application) {
@@ -29,6 +35,10 @@ public class CommandsFeature implements IFeature {
 
         LoggerCommandChangeObserver loggerObserver = new LoggerCommandChangeObserver();
         commandManager.getChangePublisher().addSubscriber(loggerObserver);
+
+        commandHistory = new CommandHistory();
+        historyObserver = new CommandHistoryObserver(commandHistory);
+        commandManager.getChangePublisher().addSubscriber(historyObserver);
 
         CommandImporterFactory.registerProvider(new JsonCommandImporterProvider());
     }
@@ -65,5 +75,14 @@ public class CommandsFeature implements IFeature {
      */
     public static CommandCatalog getCommandCatalog() {
         return commandCatalog;
+    }
+
+    /**
+     * Returns history of commands that have been set as current.
+     *
+     * @return immutable command history.
+     */
+    public static CommandHistory getCommandHistory() {
+        return commandHistory;
     }
 }

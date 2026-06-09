@@ -12,6 +12,7 @@ import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.Application;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
+import edu.kis.powp.jobs2d.command.manager.CommandManager;
 import edu.kis.powp.jobs2d.drivers.usage.LoggerUsageSubscriber;
 import edu.kis.powp.jobs2d.gui.DeviceManagementWindow;
 import edu.kis.powp.jobs2d.drivers.RealTimeDriver;
@@ -174,8 +175,15 @@ public class TestJobs2dApp {
 
     private static void setupWindows(Application application, DeviceManagementWindow deviceManagementWindow) {
 
-        CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager());
-        application.addWindowComponent("Command Manager", commandManager);
+        CommandManager manager = CommandsFeature.getDriverCommandManager();
+        manager.setDriverManager(DriverFeature.getDriverManager());
+        CommandManagerWindow window =
+                new CommandManagerWindow(
+                        manager,
+                        manager,
+                        CommandsFeature.getCommandHistory()
+                );
+        application.addWindowComponent("Command Manager", window);
 
         ComplexCommandEditor complexCommandEditor = new ComplexCommandEditor(CommandsFeature.getDriverCommandManager());
         application.addWindowComponent("Complex Command Editor", complexCommandEditor);
@@ -186,7 +194,7 @@ public class TestJobs2dApp {
         application.addWindowComponent("Command Catalog", commandCatalogWindow);
 
         CommandManagerWindowCommandChangeObserver windowObserver = new CommandManagerWindowCommandChangeObserver(
-                commandManager);
+                window);
         CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(windowObserver);
 
         if (usageMonitorListener != null) {

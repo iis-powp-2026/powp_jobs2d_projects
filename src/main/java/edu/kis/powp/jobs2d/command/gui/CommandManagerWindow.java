@@ -9,22 +9,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JTextArea;
+import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import edu.kis.powp.appbase.gui.WindowComponent;
 import edu.kis.powp.jobs2d.canvas.ICanvas;
 import edu.kis.powp.jobs2d.canvas.gui.CanvasPanel;
+import edu.kis.powp.jobs2d.command.DriverCommand;
 import edu.kis.powp.jobs2d.command.ICompoundCommand;
 import edu.kis.powp.jobs2d.command.io.CommandImporter;
 import edu.kis.powp.jobs2d.command.io.CommandImporterFactory;
 import edu.kis.powp.jobs2d.command.manager.CommandManager;
+import edu.kis.powp.jobs2d.command.manager.ICommandHistory;
+import edu.kis.powp.jobs2d.command.manager.ICommandRunner;
 import edu.kis.powp.jobs2d.features.CanvasFeature;
 import edu.kis.powp.observer.Subscriber;
 
@@ -32,22 +29,31 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
 
     private static final long serialVersionUID = 9204679248304669948L;
 
-    private CommandManager commandManager;
+    private final ICommandManager commandManager;
+    private ICommandRunner commandRunner;
+    private final ICommandHistory commandHistory;
 
     private JTextArea currentCommandField;
     private String observerListString;
     private JTextArea observerListField;
+    private DefaultListModel<String> historyModel;
+    private JList<String> historyList;
 
     private CanvasPanel canvasPanel;
     private JComboBox<ICanvas> canvasSelector;
 
-    public CommandManagerWindow(CommandManager commandManager) {
+    public CommandManagerWindow(ICommandManager commandManager,
+                                ICommandRunner commandRunner,
+                                ICommandHistory commandHistory) {
+
         this.setTitle("Command Manager");
         this.setSize(700, 700);
         Container content = this.getContentPane();
         content.setLayout(new GridBagLayout());
 
         this.commandManager = commandManager;
+        this.commandRunner = commandRunner;
+        this.commandHistory = commandHistory;
 
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.BOTH;
@@ -68,20 +74,46 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         content.add(currentCommandField, c);
         updateCurrentCommandField();
 
+        historyModel = new DefaultListModel<>();
+        historyList = new JList<>(historyModel);
+        JScrollPane historyScrollPane = new JScrollPane(historyList);
+
         c.weighty = 0.0;
         c.gridy = 2;
+        content.add(new JLabel("Command History"), c);
+
+        c.weighty = 0.2;
+        c.gridy = 3;
+        content.add(historyScrollPane, c);
+        updateHistoryField();
+
+        JButton loadHistoryButton = new JButton("Load from history");
+        loadHistoryButton.addActionListener(e -> loadSelectedHistoryCommand());
+        c.weighty = 0.0;
+        c.gridy = 4;
+        content.add(loadHistoryButton, c);
+
+        JButton btnRunCommand = new JButton("Run Command");
+        btnRunCommand.addActionListener(e -> {
+            commandRunner.run(commandManager.getCurrentCommand());
+        });
+        c.gridy = 5;
+        content.add(btnRunCommand, c);
+
+        c.weighty = 0.0;
+        c.gridy = 6;
         content.add(new JLabel("Preview canvas:"), c);
 
         canvasSelector = new JComboBox<>(buildCanvasModel());
         canvasSelector.setRenderer(new CanvasListRenderer());
         canvasSelector.setSelectedItem(CanvasFeature.getCanvas());
         canvasSelector.addActionListener(e -> onCanvasSelected());
-        c.gridy = 3;
+        c.gridy = 7;
         content.add(canvasSelector, c);
 
         canvasPanel = new CanvasPanel();
         c.weighty = 1.0;
-        c.gridy = 4;
+        c.gridy = 8;
         content.add(canvasPanel, c);
         syncCanvasFromFeature();
         updateCanvasPanelCommand();
@@ -93,17 +125,17 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         JButton btnImportCommands = new JButton("Import command");
         btnImportCommands.addActionListener((ActionEvent e) -> this.importCommands());
         c.weighty = 0.0;
-        c.gridy = 5;
+        c.gridy = 9;
         content.add(btnImportCommands, c);
 
         JButton btnClearCommand = new JButton("Clear command");
         btnClearCommand.addActionListener((ActionEvent e) -> this.clearCommand());
-        c.gridy = 6;
+        c.gridy = 10;
         content.add(btnClearCommand, c);
 
         JButton btnClearObservers = new JButton("Delete observers");
         btnClearObservers.addActionListener((ActionEvent e) -> this.deleteObservers());
-        c.gridy = 7;
+        c.gridy = 11;
         content.add(btnClearObservers, c);
     }
 
@@ -220,6 +252,35 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         } else {
             this.setVisible(true);
         }
+    }
+
+    /**
+     * Updates command history list.
+     */
+    public void updateHistoryField() {
+
+        historyModel.clear();
+
+        for (DriverCommand command : getHistoryCommands()) {
+            historyModel.addElement(command.toString());
+        }
+    }
+
+    private void loadSelectedHistoryCommand() {
+
+        int selectedIndex = historyList.getSelectedIndex();
+
+        if (selectedIndex < 0) {
+            return;
+        }
+
+        commandManager.setCurrentCommand(
+                getHistoryCommands().get(selectedIndex)
+        );
+    }
+
+    private List<DriverCommand> getHistoryCommands() {
+        return commandHistory.getHistory();
     }
 
 }
