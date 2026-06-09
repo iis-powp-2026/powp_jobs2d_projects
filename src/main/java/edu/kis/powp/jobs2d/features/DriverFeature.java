@@ -5,9 +5,13 @@ import edu.kis.powp.appbase.Application;
 import edu.kis.powp.jobs2d.drivers.CurrentDriverInfoObserver;
 import edu.kis.powp.jobs2d.drivers.DriverManager;
 import edu.kis.powp.jobs2d.drivers.SelectDriverMenuOptionListener;
+import edu.kis.powp.jobs2d.drivers.DeviceUsageRegistrar;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 import edu.kis.powp.jobs2d.events.SelectToggleExtensionOptionListener;
 
+/**
+ * Driver feature - holds driver manager and registers drivers in the application menu.
+ */
 public class DriverFeature implements IFeature {
 
     private static DriverManager driverManager = new DriverManager();
@@ -41,12 +45,20 @@ public class DriverFeature implements IFeature {
     }
 
     /**
-     * Add driver to context, create button in driver menu.
+     * Add driver to context and create menu entry.
+     * Driver is automatically registered in DeviceUsageRegistrar for usage tracking.
      *
-     * @param name   Button name.
-     * @param driver VisitableDriver object.
+     * @param name   menu label
+     * @param driver visitable driver
      */
     public static void addDriver(String name, VisitableDriver driver) {
+        // Register driver for usage monitoring (without decorating yet)
+        try {
+            DeviceUsageRegistrar.registerDriver(driver, name);
+        } catch (Throwable t) {
+            // ignored
+        }
+
         SelectDriverMenuOptionListener listener = new SelectDriverMenuOptionListener(driver, driverManager);
         app.addComponentMenuElement(DriverFeature.class, name, listener);
     }
@@ -58,6 +70,21 @@ public class DriverFeature implements IFeature {
         app.updateInfo(driverManager.getCurrentDriver().toString());
     }
 
-
-
+    /**
+     * Add extension driver to context, create toggle checkbox button in driver menu.
+     * Extension can be enabled or disabled at runtime by the user.
+     *
+     * @param name      Button name displayed in the menu.
+     * @param key       Unique key identifying the extension in the driver manager.
+     * @param extension VisitableDriver extension object.
+     */
+    public static void addExtension(String name, String key, VisitableDriver extension) {
+        SelectToggleExtensionOptionListener listener = new SelectToggleExtensionOptionListener(
+                driverManager,
+                key,
+                extension,
+                false
+        );
+        app.addComponentMenuElementWithCheckBox(DriverFeature.class, name, listener, false);
+    }
 }

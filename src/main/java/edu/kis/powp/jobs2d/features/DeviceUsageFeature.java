@@ -1,41 +1,48 @@
 package edu.kis.powp.jobs2d.features;
 
 import edu.kis.powp.appbase.Application;
-import edu.kis.powp.jobs2d.drivers.DeviceUsageDriverDecorator;
 import edu.kis.powp.jobs2d.drivers.DeviceUsageManager;
-import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 import edu.kis.powp.jobs2d.gui.DeviceManagementWindow;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * UI feature that manages the DeviceManagementWindow and registers managers for UI display.
+ */
 public class DeviceUsageFeature implements IFeature {
 
     private static DeviceManagementWindow deviceManagementWindow;
-    private static DeviceUsageManager deviceUsageManager;
+    private static final Map<String, DeviceUsageManager> pendingManagers = new ConcurrentHashMap<>();
 
     @Override
     public void setup(Application application) {
-        deviceUsageManager = new DeviceUsageManager();
-        deviceManagementWindow = new DeviceManagementWindow(deviceUsageManager);
-        
+        deviceManagementWindow = new DeviceManagementWindow();
+        for (Map.Entry<String, DeviceUsageManager> e : pendingManagers.entrySet()) {
+            deviceManagementWindow.registerManager(e.getValue(), e.getKey());
+        }
+        pendingManagers.clear();
+
+        application.addWindowComponent("Device Usage", deviceManagementWindow);
+
         application.addComponentMenu(DeviceUsageFeature.class, "Device Usage");
-        application.addComponentMenuElement(DeviceUsageFeature.class, "Open Device Manager", 
-                (e) -> {
-                    if (deviceManagementWindow != null) {
-                        deviceManagementWindow.setVisible(true);
-                    }
-                });
+        application.addComponentMenuElement(DeviceUsageFeature.class, "Open Device Manager",
+                (e) -> deviceManagementWindow.HideIfVisibleAndShowIfHidden());
     }
 
     /**
-     * Decorates the given driver with DeviceUsageDriverDecorator and connects it to the window.
-     * @param driver driver to decorate
-     * @return decorated driver
+     * Register a DeviceUsageManager in the UI. If the UI is not yet created, store it for later registration.
+     *
+     * @param manager manager to register
+     * @param name    display name
      */
-    public static VisitableDriver decorateDriver(VisitableDriver driver) {
-        return new DeviceUsageDriverDecorator(driver, deviceUsageManager);
-    }
-
-    public static DeviceUsageManager getDeviceUsageManager() {
-        return deviceUsageManager;
+    public static void registerManager(DeviceUsageManager manager, String name) {
+        if (manager == null || name == null) return;
+        if (deviceManagementWindow != null) {
+            deviceManagementWindow.registerManager(manager, name);
+        } else {
+            pendingManagers.put(name, manager);
+        }
     }
 
     @Override

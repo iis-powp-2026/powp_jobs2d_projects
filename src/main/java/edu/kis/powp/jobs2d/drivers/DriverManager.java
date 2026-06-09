@@ -16,6 +16,7 @@ import java.util.Objects;
 public class DriverManager {
 
     private VisitableDriver baseDriver;
+    private VisitableDriver decoratedBaseDriver; // Cached decorated version
     private final Map<String, VisitableDriver> extensions = new LinkedHashMap<>();
     private Publisher changePublisher = new Publisher();
 
@@ -24,6 +25,7 @@ public class DriverManager {
      */
     public synchronized void setCurrentDriver(VisitableDriver driver) {
         this.baseDriver = driver;
+        this.decoratedBaseDriver = null; // Clear cache when driver changes
         changePublisher.notifyObservers();
     }
 
@@ -38,6 +40,12 @@ public class DriverManager {
             throw new IllegalArgumentException("Extension driver must not be null.");
         }
         extensions.put(name, extension);
+
+        // Clear cached decorated driver when extension changes
+        if ("usage-monitor".equals(name)) {
+            decoratedBaseDriver = null;
+        }
+
         changePublisher.notifyObservers();
     }
 
@@ -48,6 +56,10 @@ public class DriverManager {
      */
     public synchronized void removeExtension(String name) {
         if (extensions.remove(name) != null) {
+            // Clear cached decorated driver when extension changes
+            if ("usage-monitor".equals(name)) {
+                decoratedBaseDriver = null;
+            }
             changePublisher.notifyObservers();
         }
     }
@@ -60,16 +72,39 @@ public class DriverManager {
 
     /**
      * @return Current driver as composite of base driver and all extension drivers.
+     * If "usage-monitor" extension is active, wraps the base driver with DeviceUsageDriverDecorator.
      */
     public synchronized VisitableDriver getCurrentDriver() {
-        if (baseDriver == null && extensions.isEmpty()) {
+        VisitableDriver activeDriver = baseDriver;
+
+        // Wrap base driver with DeviceUsageDriverDecorator if usage-monitor extension is active
+        if (baseDriver != null && hasExtension("usage-monitor")) {
+            // Use cached decorated driver if available
+            if (decoratedBaseDriver == null) {
+                // Get or create DeviceUsageManager for this driver
+                DeviceUsageManager manager = DeviceUsageRegistrar.getManagerForDriver(baseDriver);
+                if (manager != null) {
+                    decoratedBaseDriver = new DeviceUsageDriverDecorator(baseDriver, manager);
+                } else {
+                    // Fallback: should not happen if driver was registered properly
+                    activeDriver = baseDriver;
+                }
+            }
+            activeDriver = decoratedBaseDriver;
+        } else {
+            // usage-monitor not active, use base driver directly
+            activeDriver = baseDriver;
+            decoratedBaseDriver = null;
+        }
+
+        if (activeDriver == null && extensions.isEmpty()) {
             return new CompositeDriver("Empty driver");
         }
 
         CompositeDriver composite = new CompositeDriver("Active Driver + Extensions");
 
-        if (baseDriver != null) {
-            composite.getDrivers().add(baseDriver);
+        if (activeDriver != null) {
+            composite.getDrivers().add(activeDriver);
         }
 
         composite.getDrivers().addAll(extensions.values());

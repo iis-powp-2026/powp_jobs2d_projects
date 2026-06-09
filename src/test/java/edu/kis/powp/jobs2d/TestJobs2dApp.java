@@ -13,7 +13,9 @@ import edu.kis.powp.appbase.Application;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
 import edu.kis.powp.jobs2d.drivers.usage.LoggerUsageSubscriber;
+import edu.kis.powp.jobs2d.gui.DeviceManagementWindow;
 import edu.kis.powp.jobs2d.drivers.RealTimeDriver;
+import edu.kis.powp.jobs2d.drivers.DeviceUsageRegistrar;
 import edu.kis.powp.jobs2d.drivers.RecordingDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
 import edu.kis.powp.jobs2d.drivers.bounds.CanvasClampingDriver;
@@ -38,6 +40,7 @@ import edu.kis.powp.jobs2d.command.gui.CommandCatalogWindow;
 
 public class TestJobs2dApp {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private static SelectToggleExtensionOptionListener usageMonitorListener;
 
     /**
      * Setup test concerning preset figures in context.
@@ -96,8 +99,6 @@ public class TestJobs2dApp {
         DrawPanelController drawerController = DrawerFeature.getDrawerController();
         VisitableDriver driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
 
-        // Decorate the default driver
-        driver = DeviceUsageFeature.decorateDriver(driver);
 
         DriverFeature.addDriver("Line Simulator", driver);
         DriverFeature.getDriverManager().setCurrentDriver(driver);
@@ -151,6 +152,7 @@ public class TestJobs2dApp {
 
     /**
      * Setup independent, optional driver extensions.
+     * Stores extension listeners for later configuration in setupWindows.
      *
      * @param application Application context.
      */
@@ -162,6 +164,7 @@ public class TestJobs2dApp {
 
         UsageMonitorDriver usageMonitorExtension = new UsageMonitorDriver();
         usageMonitorExtension.getPublisher().addSubscriber(new LoggerUsageSubscriber(usageMonitorExtension));
+
         ExtensionsFeature.addExtension("Extension: Usage Monitor", "usage-monitor", usageMonitorExtension, driverManager);
 
         RecordingDriver recordingExtension = new RecordingDriver();
@@ -169,8 +172,7 @@ public class TestJobs2dApp {
         ExtensionsFeature.addExtension("Extension: Recording", "recording", recordingExtension, driverManager);
     }
 
-
-    private static void setupWindows(Application application) {
+    private static void setupWindows(Application application, DeviceManagementWindow deviceManagementWindow) {
 
         CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager());
         application.addWindowComponent("Command Manager", commandManager);
@@ -187,7 +189,21 @@ public class TestJobs2dApp {
                 commandManager);
         CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(windowObserver);
 
+        if (usageMonitorListener != null) {
+            usageMonitorListener.setOnEnableAction(() -> {
+                DeviceUsageRegistrar.setUsageMonitoringEnabled(true);
+                if (deviceManagementWindow != null) {
+                    deviceManagementWindow.setVisible(true);
+                }
+            });
 
+            usageMonitorListener.setOnDisableAction(() -> {
+                DeviceUsageRegistrar.setUsageMonitoringEnabled(false);
+                if (deviceManagementWindow != null) {
+                    deviceManagementWindow.setVisible(false);
+                }
+            });
+        }
 
         DrawPanelController previewDrawController = new DrawPanelController();
 
@@ -264,7 +280,7 @@ public class TestJobs2dApp {
                 setupPresetTests(app);
                 setupCommandTests(app);
                 setupLogger(app);
-                setupWindows(app);
+                setupWindows(app, DeviceUsageFeature.getDeviceManagementWindow());
 
                 app.setVisibility(true);
             }

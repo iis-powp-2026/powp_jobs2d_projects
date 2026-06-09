@@ -12,12 +12,9 @@ public class DeviceUsageManager implements DeviceUsagePublisher {
     private double operationalUsageLevel;
     private double totalUsage = 0.0;
     private boolean lowOperationalUsageNotified = false;
+    private boolean reachedMaxUsageNotified = false;
 
     private final List<DeviceUsageSubscriber> subscribers = new ArrayList<>();
-
-    public DeviceUsageManager() {
-        this(10000.0);
-    }
 
     public DeviceUsageManager(double maxOperationalUsageLevel) {
         this.maxOperationalUsageLevel = maxOperationalUsageLevel;
@@ -40,6 +37,10 @@ public class DeviceUsageManager implements DeviceUsagePublisher {
             notifySubscribers("LOW_OPERATIONAL_USAGE");
             lowOperationalUsageNotified = true;
         }
+        if (operationalUsageLevel <= 0 && !reachedMaxUsageNotified) {
+            notifySubscribers("REACHED_MAX_OPERATIONAL_USAGE");
+            reachedMaxUsageNotified = true;
+        }
     }
 
     public synchronized double getOperationalUsageLevel() {
@@ -57,11 +58,24 @@ public class DeviceUsageManager implements DeviceUsagePublisher {
     public synchronized void refill() {
         this.operationalUsageLevel = maxOperationalUsageLevel;
         this.lowOperationalUsageNotified = false;
+        this.reachedMaxUsageNotified = false;
         notifyUsageUpdate(operationalUsageLevel, maxOperationalUsageLevel, totalUsage);
     }
 
     public synchronized void service() {
         this.totalUsage = 0.0;
+        notifyUsageUpdate(operationalUsageLevel, maxOperationalUsageLevel, totalUsage);
+    }
+
+    /**
+     * Reset all usage counters to initial state.
+     * Useful when usage monitoring extension is disabled.
+     */
+    public synchronized void reset() {
+        this.operationalUsageLevel = maxOperationalUsageLevel;
+        this.totalUsage = 0.0;
+        this.lowOperationalUsageNotified = false;
+        this.reachedMaxUsageNotified = false;
         notifyUsageUpdate(operationalUsageLevel, maxOperationalUsageLevel, totalUsage);
     }
 

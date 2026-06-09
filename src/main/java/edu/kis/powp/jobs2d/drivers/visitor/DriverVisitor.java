@@ -7,6 +7,7 @@ import edu.kis.powp.jobs2d.drivers.bounds.CanvasClampingDriver;
 import edu.kis.powp.jobs2d.drivers.logger.TrackingLoggerDriver;
 import edu.kis.powp.jobs2d.drivers.packet_composite.CompositeDriver;
 import edu.kis.powp.jobs2d.drivers.transformations.TransformingDriver;
+import edu.kis.powp.jobs2d.drivers.DeviceUsageDriverDecorator;
 import edu.kis.powp.jobs2d.drivers.usage.UsageMonitorDriver;
 
 public interface DriverVisitor {
@@ -24,4 +25,6 @@ public interface DriverVisitor {
     public void visit(CanvasClampingDriver driver);
 
     public void visit(UsageMonitorDriver usageMonitorDriver);
+
+    public void visit(DeviceUsageDriverDecorator deviceUsageDriverDecorator);
 }
