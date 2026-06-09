@@ -117,4 +117,18 @@ public class CompoundCommandFactory {
         }
         return new CompoundCommand(commandList);
     }
+
+    /**
+     * Create a nested compound command (outer compound containing an inner compound and additional commands).
+     * Example used in tests: inner { SET(10,10), OPERATE(20,10) } then OPERATE(20,20) in outer.
+     *
+     * @return nested CompoundCommand
+     */
+    public static CompoundCommand createNestedSquare() {
+        CompoundCommand inner = new CompoundCommand();
+        inner.addCommand(new SetPositionCommand(10, 10));
+        inner.addCommand(new OperateToCommand(20, 10));
+
+        return create("NestedSquare", inner, new OperateToCommand(20, 20));
+    }
 }

@@ -33,8 +33,9 @@ public class ExtensionsFeature implements IFeature {
      * @param key       Unique key identifying the extension in the driver manager.
      * @param extension VisitableDriver extension object.
      * @param driverManager DriverManager used to register and toggle the extension.
+     * @return SelectToggleExtensionOptionListener for the added extension (useful for attaching additional actions).
      */
-    public static void addExtension(String name, String key, VisitableDriver extension, DriverManager driverManager) {
+    public static SelectToggleExtensionOptionListener addExtension(String name, String key, VisitableDriver extension, DriverManager driverManager) {
         if (app == null) {
             throw new IllegalStateException(
                     "Application is not initialized. Ensure ExtensionsFeature is registered before adding extensions."
@@ -47,5 +48,6 @@ public class ExtensionsFeature implements IFeature {
                 false
         );
         app.addComponentMenuElementWithCheckBox(ExtensionsFeature.class, name, listener, false);
+        return listener;
     }
 }

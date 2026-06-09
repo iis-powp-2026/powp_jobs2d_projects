@@ -2,6 +2,7 @@ package edu.kis.powp.jobs2d.features;
 
 import edu.kis.powp.appbase.Application;
 import edu.kis.powp.jobs2d.drivers.DeviceUsageManager;
+import edu.kis.powp.jobs2d.drivers.DeviceUsageRegistrar;
 import edu.kis.powp.jobs2d.gui.DeviceManagementWindow;
 
 import java.util.Map;
@@ -23,11 +24,8 @@ public class DeviceUsageFeature implements IFeature {
         }
         pendingManagers.clear();
 
-        application.addWindowComponent("Device Usage", deviceManagementWindow);
-
-        application.addComponentMenu(DeviceUsageFeature.class, "Device Usage");
-        application.addComponentMenuElement(DeviceUsageFeature.class, "Open Device Manager",
-                (e) -> deviceManagementWindow.HideIfVisibleAndShowIfHidden());
+        application.addWindowComponent("Device Management", deviceManagementWindow);
+        DeviceUsageRegistrar.setDeviceManagementWindow(deviceManagementWindow);
     }
 
     /**
