@@ -166,7 +166,7 @@ public class TestJobs2dApp {
         UsageMonitorDriver usageMonitorExtension = new UsageMonitorDriver();
         usageMonitorExtension.getPublisher().addSubscriber(new LoggerUsageSubscriber(usageMonitorExtension));
 
-        ExtensionsFeature.addExtension("Extension: Usage Monitor", "usage-monitor", usageMonitorExtension, driverManager);
+        usageMonitorListener = ExtensionsFeature.addExtension("Extension: Usage Monitor", "usage-monitor", usageMonitorExtension, driverManager);
 
         RecordingDriver recordingExtension = new RecordingDriver();
         RecordingFeature.setup(recordingExtension);
@@ -282,6 +282,8 @@ public class TestJobs2dApp {
                 // Automatycznie skonfiguruj wszystkie zarejestrowane funkcje
                 // To zastępuje ręczne wywołania setup dla każdej funkcji
                 FeaturesManager.setupAllFeatures(app);
+
+                DeviceUsageRegistrar.setDeviceManagementWindow(DeviceUsageFeature.getDeviceManagementWindow());
 
                 setupDrivers(app);
                 setupExtensions(app);
