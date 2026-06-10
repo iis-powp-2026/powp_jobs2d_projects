@@ -9,6 +9,7 @@ import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.Application;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
+import edu.kis.powp.jobs2d.command.gui.CommandsHistoryWindow;
 import edu.kis.powp.jobs2d.drivers.BoundsDriver;
 import edu.kis.powp.jobs2d.command.manager.CommandPreviewChangeObserver;
 import edu.kis.powp.jobs2d.drivers.RealTimeDriver;
@@ -138,8 +139,14 @@ public class TestJobs2dApp {
         VisitableDriver previewDriver = new TransformingDriver(driver, scaleDown, "previewDriver");
         VisitableDriver previewCanvasDriver = new TransformingDriver(canvasDriver, scaleDown, "previewCanvasDriver");
         CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager());
-        
+        CommandsHistoryWindow commandsHistoryWindow = new CommandsHistoryWindow(
+                CommandsFeature.getCommandsHistory(),
+                CommandsFeature.getDriverCommandManager()::setCurrentCommand
+        );
+
         application.addWindowComponent("Command Manager", commandManager);
+        application.addWindowComponent("Commands History Manager", commandsHistoryWindow);
+
         commandManager.initializePreviewPanel(previewDrawPanelController);
         
         CommandPreviewChangeObserver commandPreviewChangeObserver = new CommandPreviewChangeObserver(previewDrawPanelController, previewDriver, previewCanvasDriver, CommandsFeature.getDriverCommandManager());
