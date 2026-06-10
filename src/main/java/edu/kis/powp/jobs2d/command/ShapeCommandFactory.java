@@ -3,10 +3,9 @@ package edu.kis.powp.jobs2d.command;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.PathIterator;
-import java.awt.geom.Rectangle2D;
 
 public class ShapeCommandFactory {
-    private static ICompoundCommand fromShape(Shape shape) {
+    public static ICompoundCommand fromShape(Shape shape) {
         SimpleComplexCommandBuilder pathBuilder = new SimpleComplexCommandBuilder();
 
         PathIterator segments = shape.getPathIterator(null);
@@ -36,17 +35,6 @@ public class ShapeCommandFactory {
         }
 
         return pathBuilder.build();
-    }
-
-    public static ICompoundCommand fromRectangle(int width, int height, int margin) {
-        Shape rectangle =  new Rectangle2D.Double(
-                (double) -width / 2,
-                (double) -height / 2,
-                width - 2.0 * margin,
-                height - 2.0 * margin
-        );
-
-        return fromShape(rectangle);
     }
 
     public static ICompoundCommand fromCircle(int centerX, int centerY, int radius, int margin) {

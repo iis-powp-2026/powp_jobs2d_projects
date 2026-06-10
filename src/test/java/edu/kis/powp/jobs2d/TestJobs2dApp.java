@@ -1,6 +1,6 @@
 package edu.kis.powp.jobs2d;
 
-import java.awt.EventQueue;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,17 +13,20 @@ import edu.kis.powp.jobs2d.command.comparator.comparison_strategy.LineSetCompara
 import edu.kis.powp.jobs2d.command.comparator.comparison_strategy.ScaleIgnoreComparator;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
+import edu.kis.powp.jobs2d.command.gui.CommandsHistoryWindow;
+import edu.kis.powp.jobs2d.drivers.BoundsDriver;
 import edu.kis.powp.jobs2d.command.manager.CommandPreviewChangeObserver;
 import edu.kis.powp.jobs2d.drivers.RealTimeDriver;
-import edu.kis.powp.jobs2d.drivers.RecordingDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
-import edu.kis.powp.jobs2d.drivers.logger.TrackingLoggerDriver;
 import edu.kis.powp.jobs2d.drivers.packet_composite.CompositeDriver;
 import edu.kis.powp.jobs2d.drivers.transformations.*;
 import edu.kis.powp.jobs2d.drivers.visitor.FullNameGetterVisitor;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
+import edu.kis.powp.jobs2d.drivers.optionals.LoggingExtensionDriver;
 import edu.kis.powp.jobs2d.events.*;
 import edu.kis.powp.jobs2d.features.*;
+import edu.kis.powp.jobs2d.events.SelectLoadRecordedMacroOptionListener;
+import edu.kis.powp.jobs2d.events.SelectClearPanelOptionListener;
 import edu.kis.powp.jobs2d.drivers.MouseClickToDriverCall;
 
 public class TestJobs2dApp {
@@ -78,22 +81,8 @@ public class TestJobs2dApp {
                 new SelectCompareCommandsListener(new ComplexCommandComparator(new LineSetComparator())));
         application.addTest("Compare current command with previous command - ScaleIgnore",
                 new SelectCompareCommandsListener(new ComplexCommandComparator(new ScaleIgnoreComparator())));
+        application.addTest("Show commands history", new CommandsHistoryOptionListener());
 
-        RecordingDriver rec = RecordingFeature.getRecordingDriver();
-        boolean initial = rec.isRecordingEnabled();
-
-        application.addComponentMenuElementWithCheckBox(
-                DriverFeature.class,
-                "Recording",
-                new SelectToggleRecordingOptionListener(rec),
-                initial
-        );
-
-        application.addComponentMenuElement(
-                DriverFeature.class,
-                "Clear recording",
-                new SelectClearRecordingOptionListener()
-        );
     }
 
     /**
@@ -102,22 +91,18 @@ public class TestJobs2dApp {
      * @param application Application context.
      */
     private static void setupDrivers(Application application) {
-        VisitableDriver TrackingLoggerDriver = new TrackingLoggerDriver();
-        DriverFeature.addDriver("Tracking Logger driver", TrackingLoggerDriver);
-
         DrawPanelController drawerController = DrawerFeature.getDrawerController();
         VisitableDriver driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
         DriverFeature.addDriver("Line Simulator", driver);
         DriverFeature.getDriverManager().setCurrentDriver(driver);
 
+        driver = new BoundsDriver(driver);
+        DriverFeature.addDriver("Line Simulator with boundaries", driver);
+        DriverFeature.updateDriverInfo();
+
         driver = new LineDriverAdapter(drawerController, LineFactory.getSpecialLine(), "special");
         DriverFeature.addDriver("Special line Simulator", driver);
         DriverFeature.updateDriverInfo();
-
-        CompositeDriver basicCompositeDriver = new CompositeDriver("Basic & Log Composite Driver");
-        basicCompositeDriver.addDriver(TrackingLoggerDriver);
-        basicCompositeDriver.addDriver(driver);
-        DriverFeature.addDriver(basicCompositeDriver.toString(), basicCompositeDriver);
 
         CoordinateTransformer scale = new ScaleTransformer(2.0, 2.0);
         VisitableDriver scaledDriver = new TransformingDriver(driver, scale, "Transform: Scaled 2x");
@@ -140,7 +125,7 @@ public class TestJobs2dApp {
 
         CompositeDriver chaosCompositeDriver = new CompositeDriver("Chaos Composite Driver");
         chaosCompositeDriver.addDriver(driver);
-        chaosCompositeDriver.addDriver(TrackingLoggerDriver);
+        chaosCompositeDriver.addDriver(rotatedDriver);
         chaosCompositeDriver.addDriver(scaledDownDriver);
         DriverFeature.addDriver(chaosCompositeDriver.toString(), chaosCompositeDriver);
       
@@ -164,8 +149,14 @@ public class TestJobs2dApp {
         VisitableDriver previewDriver = new TransformingDriver(driver, scaleDown, "previewDriver");
         VisitableDriver previewCanvasDriver = new TransformingDriver(canvasDriver, scaleDown, "previewCanvasDriver");
         CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager());
-        
+        CommandsHistoryWindow commandsHistoryWindow = new CommandsHistoryWindow(
+                CommandsFeature.getCommandsHistory(),
+                CommandsFeature.getDriverCommandManager()::setCurrentCommand
+        );
+
         application.addWindowComponent("Command Manager", commandManager);
+        application.addWindowComponent("Commands History Manager", commandsHistoryWindow);
+
         commandManager.initializePreviewPanel(previewDrawPanelController);
         
         CommandPreviewChangeObserver commandPreviewChangeObserver = new CommandPreviewChangeObserver(previewDrawPanelController, previewDriver, previewCanvasDriver, CommandsFeature.getDriverCommandManager());
@@ -203,31 +194,32 @@ public class TestJobs2dApp {
      * Launch the application.
      */
     public static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                Application app = new Application("Jobs 2D");
+        EventQueue.invokeLater(() -> {
+            Application app = new Application("Jobs 2D");
 
-                // Przykład użycia automatycznego zarządzania funkcjami (features management)
-                // Zarejestruj funkcje, które mają być automatycznie skonfigurowane
-                FeaturesManager.registerFeature(new DrawerFeature());
-                FeaturesManager.registerFeature(new CommandsFeature());
-                FeaturesManager.registerFeature(new DriverFeature());
-                FeaturesManager.registerFeature(new CanvasFeature());
+            // Przykład użycia automatycznego zarządzania funkcjami (features management)
+            // Zarejestruj funkcje, które mają być automatycznie skonfigurowane
+            FeaturesManager.registerFeature(new DrawerFeature());
+            FeaturesManager.registerFeature(new CommandsFeature());
+            FeaturesManager.registerFeature(new DriverFeature());
+            FeaturesManager.registerFeature(new CanvasFeature());
+            FeaturesManager.registerFeature(new ExtensionsFeature());
 
-                // Automatycznie skonfiguruj wszystkie zarejestrowane funkcje
-                // To zastępuje ręczne wywołania setup dla każdej funkcji
-                FeaturesManager.setupAllFeatures(app);
+            // Automatycznie skonfiguruj wszystkie zarejestrowane funkcje
+            // To zastępuje ręczne wywołania setup dla każdej funkcji
+            FeaturesManager.setupAllFeatures(app);
 
-                setupDrivers(app);
-                RecordingFeature.setup(DriverFeature.getDriverManager());
-                setupPresetTests(app);
-                setupCommandTests(app);
-                setupLogger(app);
-                setupWindows(app);
-                setupMouseHandler(app);
+            setupDrivers(app);
+            RecordingFeature.setup(DriverFeature.getDriverManager());
+            ExtensionsFeature.addExtension("Tracking Logger", LoggingExtensionDriver::new);
+            ExtensionsFeature.setupRecordingExtension();
+            setupPresetTests(app);
+            setupCommandTests(app);
+            setupLogger(app);
+            setupWindows(app);
+            setupMouseHandler(app);
 
-                app.setVisibility(true);
-            }
+            app.setVisibility(true);
         });
     }
 

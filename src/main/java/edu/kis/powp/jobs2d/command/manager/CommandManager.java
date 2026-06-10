@@ -1,11 +1,10 @@
 package edu.kis.powp.jobs2d.command.manager;
 
-import java.util.List;
-
-
 import edu.kis.powp.jobs2d.command.DriverCommand;
 import edu.kis.powp.jobs2d.command.ImmutableCompoundCommand;
 import edu.kis.powp.observer.Publisher;
+
+import java.util.List;
 
 /**
  * Driver command Manager.

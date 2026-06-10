@@ -3,7 +3,7 @@ package edu.kis.powp.jobs2d.events;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import edu.kis.powp.jobs2d.drivers.RecordingDriver;
+import edu.kis.powp.jobs2d.drivers.optionals.RecordingDriver;
 import edu.kis.powp.jobs2d.features.DriverFeature;
 
 public class SelectToggleRecordingOptionListener implements ActionListener {
