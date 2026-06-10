@@ -1,25 +1,17 @@
 package edu.kis.powp.jobs2d.drivers;
 
 import edu.kis.powp.jobs2d.canvas.ICanvas;
-import edu.kis.powp.jobs2d.drivers.visitor.DriverVisitor;
+import edu.kis.powp.jobs2d.drivers.optionals.AbstractDecoratorDriver;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 import edu.kis.powp.jobs2d.features.CanvasFeature;
 
-import java.awt.*;
+public class BoundsDriver extends AbstractDecoratorDriver {
 
-public class BoundsDriver implements VisitableDriver {
-
-    private final VisitableDriver innerDriver;
     private int virtualX, virtualY;
     private int x, y;
 
     public BoundsDriver(VisitableDriver innerDriver) {
-        this.innerDriver = innerDriver;
-    }
-
-    @Override
-    public void accept(DriverVisitor visitor) {
-        visitor.visit(this);
+        super(innerDriver);
     }
 
     @Override
@@ -35,7 +27,7 @@ public class BoundsDriver implements VisitableDriver {
 
         if (clipped != null) {
             moveTo(clipped[0], clipped[1]);
-            innerDriver.operateTo(clipped[2], clipped[3]);
+            getTarget().operateTo(clipped[2], clipped[3]);
             x = clipped[2];
             y = clipped[3];
         }
@@ -47,13 +39,14 @@ public class BoundsDriver implements VisitableDriver {
 
     private void moveTo(int nx, int ny) {
         if (nx != x || ny != y) {
-            innerDriver.setPosition(nx, ny);
+            getTarget().setPosition(nx, ny);
             x = nx;
             y = ny;
         }
     }
 
-    public VisitableDriver getInnerDriver() {
-        return innerDriver;
+    @Override
+    public String toString() {
+        return "BoundsDriver -> " + getTarget();
     }
 }

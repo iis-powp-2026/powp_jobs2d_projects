@@ -1,7 +1,6 @@
 package edu.kis.powp.jobs2d.drivers;
 
-
-import edu.kis.powp.jobs2d.drivers.visitor.DriverVisitor;
+import edu.kis.powp.jobs2d.drivers.optionals.AbstractDecoratorDriver;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 
 import javax.swing.SwingUtilities;
@@ -9,8 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 
-public class RealTimeDriver implements VisitableDriver {
-    private final VisitableDriver innerDriver;
+public class RealTimeDriver extends AbstractDecoratorDriver {
     private final int operationToDelayMs;
     private final int setPositionDelayMs;
     private final String name;
@@ -21,18 +19,13 @@ public class RealTimeDriver implements VisitableDriver {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public RealTimeDriver(VisitableDriver innerDriver, int operationToDelayMs, int setPositionDelayMs, String name) {
+        super(innerDriver);
         if (operationToDelayMs <= 0 || setPositionDelayMs <= 0) {
             throw new IllegalArgumentException("Delay must be a positive integer (milliseconds)!");
         }
-
-        this.innerDriver = innerDriver;
         this.operationToDelayMs = operationToDelayMs;
         this.setPositionDelayMs = setPositionDelayMs;
         this.name = name;
-    }
-
-    public VisitableDriver getInnerDriver() {
-        return innerDriver;
     }
 
     @Override
@@ -43,7 +36,8 @@ public class RealTimeDriver implements VisitableDriver {
         currentX = x;
         currentY = y;
 
-        executor.submit(() -> moveRealTime(startX, startY, x, y, innerDriver::operateTo, operationToDelayMs));
+        VisitableDriver target = getTarget();
+        executor.submit(() -> moveRealTime(startX, startY, x, y, target::operateTo, operationToDelayMs));
     }
 
     @Override
@@ -54,9 +48,11 @@ public class RealTimeDriver implements VisitableDriver {
         currentX = x;
         currentY = y;
 
-        executor.submit(() -> moveRealTime(startX, startY, x, y, innerDriver::setPosition, setPositionDelayMs));
+        VisitableDriver target = getTarget();
+        executor.submit(() -> moveRealTime(startX, startY, x, y, target::setPosition, setPositionDelayMs));
     }
 
+    @SuppressWarnings("BusyWait") // intentional: paces animation step-by-step along the Bresenham line
     private void moveRealTime(int x0, int y0, int x1, int y1, BiConsumer<Integer, Integer> biConsumer, int delay) {
         int x = x0;
         int y = y0;
@@ -96,6 +92,7 @@ public class RealTimeDriver implements VisitableDriver {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
+
             }
         }
     }
@@ -103,10 +100,5 @@ public class RealTimeDriver implements VisitableDriver {
     @Override
     public String toString() {
         return name;
-    }
-
-    @Override
-    public void accept(DriverVisitor visitor) {
-        visitor.visit(this);
     }
 }
