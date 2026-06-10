@@ -17,6 +17,9 @@ public class ScaleIgnoreComparator implements ComparisonStrategy {
 
         int maxXChangeA = getMaxDifferenceX(linesA);
         int maxXChangeB = getMaxDifferenceX(linesB);
+        if (maxXChangeA == 0 && maxXChangeB == 0){
+            return true;
+        }
 
         HashSet<Line> setA;
         HashSet<Line> setB;

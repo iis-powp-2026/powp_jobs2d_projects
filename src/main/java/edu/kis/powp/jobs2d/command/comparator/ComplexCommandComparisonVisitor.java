@@ -8,7 +8,7 @@ import edu.kis.powp.jobs2d.command.comparator.command_trace.CommandTrace;
 import edu.kis.powp.jobs2d.command.comparator.command_trace.CommandTraceBuilder;
 import edu.kis.powp.jobs2d.command.visitor.ICommandVisitor;
 
-public class ComplexCommandComparationVisitor implements ICommandVisitor {
+public class ComplexCommandComparisonVisitor implements ICommandVisitor {
     private final CommandTraceBuilder commandTraceBuilder = new CommandTraceBuilder();
 
     @Override

@@ -9,20 +9,24 @@ public class CommandTraceBuilder {
 
     public CommandTraceBuilder() {}
 
-    public void setPos(int x, int y){
+    public CommandTraceBuilder setPos(int x, int y){
         lastPos = new Point(x, y);
+        return this;
     }
 
-    public void operateTo(int x, int y){
+    public CommandTraceBuilder operateTo(int x, int y){
         if (lastPos.getX() == x && lastPos.getY() == y){
-            return;
+            return this;
         }
         lines.add(new Line(lastPos,new Point(x, y)));
         lastPos = new Point(x, y);
+        return this;
     }
 
     public CommandTrace build() {
-        return new CommandTrace(lines);
+        var ret = new CommandTrace(lines);
+        lines.clear();
+        return ret;
     }
 
 }

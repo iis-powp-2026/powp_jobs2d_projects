@@ -12,8 +12,8 @@ public class ComplexCommandComparator {
     }
 
     public boolean compare(ICompoundCommand command1, ICompoundCommand command2) {
-        ComplexCommandComparationVisitor visitor1 = new ComplexCommandComparationVisitor();
-        ComplexCommandComparationVisitor visitor2 = new ComplexCommandComparationVisitor();
+        ComplexCommandComparisonVisitor visitor1 = new ComplexCommandComparisonVisitor();
+        ComplexCommandComparisonVisitor visitor2 = new ComplexCommandComparisonVisitor();
 
         command1.accept(visitor1);
         command2.accept(visitor2);

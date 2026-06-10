@@ -6,7 +6,7 @@ public class CommandTrace {
     private final List<Line> lines;
 
     public CommandTrace(List<Line> lines) {
-        this.lines = lines;
+        this.lines = List.copyOf(lines);
     }
 
     public List<Line> getLines() {
