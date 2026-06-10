@@ -1,12 +1,11 @@
 package edu.kis.powp.jobs2d.command.history;
 
-import edu.kis.powp.jobs2d.features.CommandsFeature;
-
-import java.util.ArrayList;
+import javax.swing.*;
+import java.util.Collections;
 import java.util.List;
 
 public class CommandsHistory {
-    private final List<HistoryRecord> history = new ArrayList<>();
+    private final DefaultListModel<HistoryRecord> historyModel = new DefaultListModel<>();
     private Integer maxSize = 50;
 
     public CommandsHistory(int maxSize) {
@@ -19,9 +18,8 @@ public class CommandsHistory {
 
     public void setMaxSize(int maxSize) {
         this.maxSize = maxSize;
-
-        while (history.size() >= maxSize) {
-            history.remove(0);
+        while (historyModel.size() >= maxSize) {
+            historyModel.remove(0);
         }
     }
 
@@ -29,7 +27,11 @@ public class CommandsHistory {
         return this.maxSize;
     }
 
+    public DefaultListModel<HistoryRecord> getHistoryModel() {
+        return historyModel;
+    }
+
     public List<HistoryRecord> getHistory() {
-        return history;
+        return Collections.list(historyModel.elements());
     }
 }
