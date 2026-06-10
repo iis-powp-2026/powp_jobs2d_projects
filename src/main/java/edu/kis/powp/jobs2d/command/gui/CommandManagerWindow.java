@@ -30,9 +30,6 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
 
     private final JPanel previewPanel;
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 9204679248304669948L;
 
     public CommandManagerWindow(CommandManager commandManager) {

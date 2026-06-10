@@ -6,10 +6,12 @@ import edu.kis.powp.appbase.Application;
 import edu.kis.powp.jobs2d.canvas.ICanvas;
 import edu.kis.powp.jobs2d.canvas.PaperFormat;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
+import edu.kis.powp.observer.Publisher;
 
 public class CanvasFeature implements IFeature {
     private static ICanvas currentFormat;
     private static ILine guidesLineType = LineFactory.getSpecialLine();
+    private static Publisher changePublisher = new Publisher();
 
     @Override
     public void setup(Application application) {
@@ -19,6 +21,10 @@ public class CanvasFeature implements IFeature {
     @Override
     public String getName() {
         return "Canvas";
+    }
+
+    public static Publisher getChangePublisher() {
+        return changePublisher;
     }
 
     public static void setupCanvasPlugin(Application application) {
@@ -58,5 +64,6 @@ public class CanvasFeature implements IFeature {
         format.toCommand().execute(new LineDriverAdapter(DrawerFeature.getDrawerController(), guidesLineType, "Canvas Guides"));
 
         currentFormat = format;
+        changePublisher.notifyObservers();
     }
 }

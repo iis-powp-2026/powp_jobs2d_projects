@@ -1,7 +1,7 @@
 package edu.kis.powp.jobs2d.features;
 
-import edu.kis.powp.jobs2d.drivers.EnsureRecordingDriverIsCurrent;
-import edu.kis.powp.jobs2d.drivers.RecordingDriver;
+import edu.kis.powp.jobs2d.drivers.optionals.EnsureRecordingDriverIsCurrent;
+import edu.kis.powp.jobs2d.drivers.optionals.RecordingDriver;
 import edu.kis.powp.jobs2d.drivers.DriverManager;
 
 public class RecordingFeature {

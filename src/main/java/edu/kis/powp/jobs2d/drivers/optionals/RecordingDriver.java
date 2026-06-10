@@ -1,4 +1,4 @@
-package edu.kis.powp.jobs2d.drivers;
+package edu.kis.powp.jobs2d.drivers.optionals;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,29 +6,21 @@ import java.util.List;
 import edu.kis.powp.jobs2d.command.DriverCommand;
 import edu.kis.powp.jobs2d.command.OperateToCommand;
 import edu.kis.powp.jobs2d.command.SetPositionCommand;
-import edu.kis.powp.jobs2d.drivers.visitor.DriverVisitor;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
+
+//DecoratorDriver extends VisitableDriver and adds getTarget/setTarget contract
 
 /**
  * Decorator driver that records all calls as command objects.
  * Recording can be temporarily disabled (used during playback).
  */
-public class RecordingDriver implements VisitableDriver {
+public class RecordingDriver extends AbstractDecoratorDriver {
 
-    private VisitableDriver target;
     private final List<DriverCommand> recorded = new ArrayList<>();
     private boolean recordingEnabled = true;
 
     public RecordingDriver(VisitableDriver initialTarget) {
-        this.target = initialTarget;
-    }
-
-    public synchronized void setTarget(VisitableDriver target) {
-        this.target = target;
-    }
-
-    public synchronized VisitableDriver getTarget() {
-        return target;
+        super(initialTarget);
     }
 
     /**
@@ -57,7 +49,7 @@ public class RecordingDriver implements VisitableDriver {
         if (recordingEnabled) {
             recorded.add(new SetPositionCommand(x, y));
         }
-        target.setPosition(x, y);
+        super.setPosition(x, y);
     }
 
     @Override
@@ -65,16 +57,11 @@ public class RecordingDriver implements VisitableDriver {
         if (recordingEnabled) {
             recorded.add(new OperateToCommand(x, y));
         }
-        target.operateTo(x, y);
+        super.operateTo(x, y);
     }
 
     @Override
     public synchronized String toString() {
-        return "RecordingDriver -> " + target;
-    }
-
-    @Override
-    public void accept(DriverVisitor visitor) {
-        visitor.visit(this);
+        return "RecordingDriver -> " + getTarget();
     }
 }

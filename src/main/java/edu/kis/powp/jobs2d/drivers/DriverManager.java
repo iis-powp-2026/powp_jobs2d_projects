@@ -1,7 +1,7 @@
 package edu.kis.powp.jobs2d.drivers;
 
 
-import edu.kis.powp.jobs2d.drivers.logger.TrackingLoggerDriver;
+import edu.kis.powp.jobs2d.drivers.optionals.TrackingLoggerDriver;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 import edu.kis.powp.observer.Publisher;
 
