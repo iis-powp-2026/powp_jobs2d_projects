@@ -7,6 +7,10 @@ import java.util.logging.Logger;
 import edu.kis.legacy.drawer.panel.DrawPanelController;
 import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.Application;
+import edu.kis.powp.jobs2d.command.comparator.ComplexCommandComparator;
+import edu.kis.powp.jobs2d.command.comparator.comparison_strategy.LineListComparator;
+import edu.kis.powp.jobs2d.command.comparator.comparison_strategy.LineSetComparator;
+import edu.kis.powp.jobs2d.command.comparator.comparison_strategy.ScaleIgnoreComparator;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
 import edu.kis.powp.jobs2d.command.gui.CommandsHistoryWindow;
@@ -71,6 +75,12 @@ public class TestJobs2dApp {
                 new SelectTransformCommandOptionListener(new FlipTransformer(false, true), "Flip Y"));
         application.addTest("FullNameGetter visitor test",
                 new SelectFullNameGetterVisitorTestListener(new FullNameGetterVisitor()));
+        application.addTest("Compare current command with previous command - LineList",
+                new SelectCompareCommandsListener(new ComplexCommandComparator(new LineListComparator())));
+        application.addTest("Compare current command with previous command - LineSet",
+                new SelectCompareCommandsListener(new ComplexCommandComparator(new LineSetComparator())));
+        application.addTest("Compare current command with previous command - ScaleIgnore",
+                new SelectCompareCommandsListener(new ComplexCommandComparator(new ScaleIgnoreComparator())));
         application.addTest("Show commands history", new CommandsHistoryOptionListener());
 
     }

@@ -11,6 +11,7 @@ import java.util.List;
  */
 public class CommandManager {
     private DriverCommand currentCommand = null;
+    private DriverCommand previousCommand = null;
 
     private Publisher changePublisher = new Publisher();
 
@@ -20,8 +21,13 @@ public class CommandManager {
      * @param commandList Set the command as current.
      */
     public synchronized void setCurrentCommand(DriverCommand commandList) {
+        previousCommand = currentCommand;
         this.currentCommand = commandList;
         changePublisher.notifyObservers();
+    }
+
+    public DriverCommand getPreviousCommand() {
+        return previousCommand;
     }
 
     /**
