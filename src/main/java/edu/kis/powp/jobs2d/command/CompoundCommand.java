@@ -1,5 +1,6 @@
 package edu.kis.powp.jobs2d.command;
 
+import edu.kis.powp.jobs2d.command.visitor.ICommandVisitor;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 
 import java.util.ArrayList;
@@ -137,5 +138,10 @@ public class CompoundCommand implements ICompoundCommand {
             copy.addCommand(cmd.deepCopy());
         }
         return copy;
+    }
+
+    @Override
+    public void accept(ICommandVisitor visitor) {
+        visitor.visit(this);
     }
 }

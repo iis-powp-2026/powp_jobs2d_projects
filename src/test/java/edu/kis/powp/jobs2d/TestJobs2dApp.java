@@ -30,20 +30,14 @@ import edu.kis.powp.jobs2d.events.SelectCountCommandsOptionListener;
 import edu.kis.powp.jobs2d.events.SelectFullNameGetterVisitorTestListener;
 import edu.kis.powp.jobs2d.events.SelectLoadImmutableRectangleCommandOptionListener;
 import edu.kis.powp.jobs2d.events.SelectLoadKiteCommandOptionListener;
+import edu.kis.powp.jobs2d.events.SelectLoadDeepCompoundCommandOptionListener;
 import edu.kis.powp.jobs2d.events.SelectLoadRecordedMacroOptionListener;
 import edu.kis.powp.jobs2d.events.SelectLoadSecretCommandOptionListener;
 import edu.kis.powp.jobs2d.events.SelectRunCurrentCommandOptionListener;
 import edu.kis.powp.jobs2d.events.SelectTestFigure2OptionListener;
 import edu.kis.powp.jobs2d.events.SelectTestFigureOptionListener;
 import edu.kis.powp.jobs2d.events.SelectTransformCommandOptionListener;
-import edu.kis.powp.jobs2d.features.CanvasFeature;
-import edu.kis.powp.jobs2d.features.CommandsFeature;
-import edu.kis.powp.jobs2d.features.DrawerFeature;
-import edu.kis.powp.jobs2d.features.DriverFeature;
-import edu.kis.powp.jobs2d.features.ExtensionFeature;
-import edu.kis.powp.jobs2d.features.FeaturesManager;
-import edu.kis.powp.jobs2d.features.RecordingFeature;
-import edu.kis.powp.jobs2d.features.MouseClickFeature;
+import edu.kis.powp.jobs2d.features.*;
 
 public class TestJobs2dApp {
         private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -55,9 +49,9 @@ public class TestJobs2dApp {
          */
         private static void setupPresetTests(Application application) {
                 SelectTestFigureOptionListener selectTestFigureOptionListener = new SelectTestFigureOptionListener(
-                                DriverFeature.getDriverManager());
+                        DriverFeature.getDriverManager());
                 SelectTestFigure2OptionListener selectTestFigure2OptionListener = new SelectTestFigure2OptionListener(
-                                DriverFeature.getDriverManager());
+                        DriverFeature.getDriverManager());
 
                 application.addTest("Figure Joe 1", selectTestFigureOptionListener);
                 application.addTest("Figure Joe 2", selectTestFigure2OptionListener);
@@ -71,31 +65,30 @@ public class TestJobs2dApp {
         private static void setupCommandTests(Application application) {
                 application.addTest("Load secret command", new SelectLoadSecretCommandOptionListener());
                 application.addTest("Load immutable rectangle command",
-                                new SelectLoadImmutableRectangleCommandOptionListener());
+                        new SelectLoadImmutableRectangleCommandOptionListener());
 
                 application.addTest("Load kite command", new SelectLoadKiteCommandOptionListener());
+                application.addTest("Load deep compound command", new SelectLoadDeepCompoundCommandOptionListener());
                 application.addTest("Load recorded macro", new SelectLoadRecordedMacroOptionListener());
 
                 application.addTest("Clear panel", new SelectClearPanelOptionListener());
-                application.addTest("Run command",
-                                new SelectRunCurrentCommandOptionListener(DriverFeature.getDriverManager()));
+                application.addTest("Run command", new SelectRunCurrentCommandOptionListener(DriverFeature.getDriverManager()));
                 application.addTest("Count current command", new SelectCountCommandsOptionListener());
 
                 application.addTest("Check current command bounds", new SelectCheckCanvasBoundsOptionListener());
                 application.addTest("Transform current command: Scale 2x",
-                                new SelectTransformCommandOptionListener(TransformerFactory.getScaleTransformer(2.0), "Scale 2x"));
+                        new SelectTransformCommandOptionListener(new ScaleTransformer(2.0, 2.0), "Scale 2x"));
                 application.addTest("Transform current command: Scale 0.5x",
-                                new SelectTransformCommandOptionListener(TransformerFactory.getScaleTransformer(TransformerFactory.DOUBLE_ZOOM_OUT), "Scale 0.5x"));
+                        new SelectTransformCommandOptionListener(new ScaleTransformer(0.5, 0.5), "Scale 0.5x"));
                 application.addTest("Transform current command: Rotate 45 degrees",
-                                new SelectTransformCommandOptionListener(new RotateTransformer(45.0),
-                                                "Rotate 45 degrees"));
+                        new SelectTransformCommandOptionListener(new RotateTransformer(45.0), "Rotate 45 degrees"));
                 application.addTest("Transform current command: Flip Y",
-                                new SelectTransformCommandOptionListener(new FlipTransformer(false, true), "Flip Y"));
+                        new SelectTransformCommandOptionListener(new FlipTransformer(false, true), "Flip Y"));
                 application.addTest("FullNameGetter visitor test",
-                                new SelectFullNameGetterVisitorTestListener(new FullNameGetterVisitor()));
+                        new SelectFullNameGetterVisitorTestListener(new FullNameGetterVisitor()));
 
                 application.addComponentMenuElement(DriverFeature.class, "Clear recording",
-                                new SelectClearRecordingOptionListener());
+                        new SelectClearRecordingOptionListener());
         }
 
         /**
@@ -114,59 +107,82 @@ public class TestJobs2dApp {
                 DriverFeature.addDriver("Special line Simulator", driver);
 
                 UsageMonitorDriver usageMonitorDriver = new UsageMonitorDriver();
-                usageMonitorDriver.getChangePublisher()
-                                .addSubscriber(new LoggerUsageMonitorSubscriber(usageMonitorDriver));
+                usageMonitorDriver.getChangePublisher().addSubscriber(new LoggerUsageMonitorSubscriber(usageMonitorDriver));
                 CompositeDriver monitoredDriverComposite = new CompositeDriver("Line Simulator with Usage Monitor");
                 monitoredDriverComposite
-                                .addDriver(new LineDriverAdapter(drawerController, LineFactory.getBasicLine(),
-                                                "basic"));
+                        .addDriver(new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic"));
                 monitoredDriverComposite.addDriver(usageMonitorDriver);
                 DriverFeature.addDriver(monitoredDriverComposite.toString(), monitoredDriverComposite);
 
                 DriverFeature.updateDriverInfo();
+
+                CoordinateTransformer scale = new ScaleTransformer(2.0, 2.0);
+                VisitableDriver scaledDriver = new TransformingDriver(driver, scale, "Transform: Scaled 2x");
+                DriverFeature.addDriver(scaledDriver.toString(), scaledDriver);
+
+                CoordinateTransformer scaleDown = new ScaleTransformer(0.5, 0.5);
+                VisitableDriver scaledDownDriver = new TransformingDriver(driver, scaleDown, "Transform: Scaled 0.5x");
+                DriverFeature.addDriver(scaledDownDriver.toString(), scaledDownDriver);
+
+                CoordinateTransformer flip = new FlipTransformer(false, true);
+                VisitableDriver flippedDriver = new TransformingDriver(driver, flip, "Transform: Flipped Y");
+                DriverFeature.addDriver(flippedDriver.toString(), flippedDriver);
+
+                CoordinateTransformer rotate = new RotateTransformer(45.0);
+                VisitableDriver rotatedDriver = new TransformingDriver(driver, rotate, "Transform: Rotated 45 degrees");
+                DriverFeature.addDriver(rotatedDriver.toString(), rotatedDriver);
+
+                VisitableDriver scaledAndRotatedDriver = new TransformingDriver(scaledDriver, rotate,
+                        "Transform: Scaled 2x & Rotated 45");
+                DriverFeature.addDriver(scaledAndRotatedDriver.toString(), scaledAndRotatedDriver);
+
+                CompositeDriver chaosCompositeDriver = new CompositeDriver("Chaos Composite Driver");
+                chaosCompositeDriver.addDriver(driver);
+                chaosCompositeDriver.addDriver(scaledDownDriver);
+                DriverFeature.addDriver(chaosCompositeDriver.toString(), chaosCompositeDriver);
+
+                driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
+                VisitableDriver animatedDriver = new RealTimeDriver(driver, 10, 10, "Real-Time Driver 1x speed");
+                DriverFeature.addDriver(animatedDriver.toString(), animatedDriver);
+
+                animatedDriver = new RealTimeDriver(driver, 5, 5, "Real-Time Driver 2x speed");
+                DriverFeature.addDriver(animatedDriver.toString(), animatedDriver);
+
+                animatedDriver = new RealTimeDriver(driver, 1, 1, "Real-Time Driver 10x speed");
+                DriverFeature.addDriver(animatedDriver.toString(), animatedDriver);
         }
 
         private static void setupExtensions() {
                 VisitableDriver loggerDriver = new TrackingLoggerDriver();
                 ExtensionFeature.addExtension("Logger", loggerDriver);
 
-                ExtensionFeature.addDecoratorExtension("Recording", RecordingFeature.getRecordingDriver());
-
-                TransformingDriver transformExt = new TransformingDriver(TransformerFactory.getScaleTransformer(2.0),
-                                "Transform: Scaled 2x");
-                ExtensionFeature.addDecoratorExtension("Scale 2x", transformExt);
-
-                TransformingDriver scaledDownDriver = new TransformingDriver(TransformerFactory.getScaleTransformer(TransformerFactory.DOUBLE_ZOOM_OUT),
-                                "Transform: Scaled 0.5x");
-                ExtensionFeature.addDecoratorExtension("Scale 0.5x", scaledDownDriver);
-
-                TransformingDriver flippedDriver = new TransformingDriver(new FlipTransformer(false, true),
-                                "Transform: Flipped Y");
-                ExtensionFeature.addDecoratorExtension("Flip Y", flippedDriver);
-
-                TransformingDriver rotatedDriver = new TransformingDriver(new RotateTransformer(45.0),
-                                "Transform: Rotated 45 degrees");
-                ExtensionFeature.addDecoratorExtension("Rotate 45 degrees", rotatedDriver);
-
-                RealTimeDriver realTime1x = new RealTimeDriver(10, 10, "Real-Time Driver 1x speed");
-                ExtensionFeature.addDecoratorExtension("Real-Time 1x", realTime1x);
-
-                RealTimeDriver realTime2x = new RealTimeDriver(5, 5, "Real-Time Driver 2x speed");
-                ExtensionFeature.addDecoratorExtension("Real-Time 2x", realTime2x);
-
-                RealTimeDriver realTime10x = new RealTimeDriver(1, 1, "Real-Time Driver 10x speed");
-                ExtensionFeature.addDecoratorExtension("Real-Time 10x", realTime10x);
+                RecordingDriver rec = RecordingFeature.getRecordingDriver();
+                ExtensionFeature.addMenuToggle("Recording", new SelectToggleRecordingOptionListener(rec),
+                        rec.isRecordingEnabled());
         }
 
         private static void setupWindows(Application application) {
 
-                CommandManagerWindow commandManager = new CommandManagerWindow(
-                                CommandsFeature.getDriverCommandManager());
+                CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager());
                 application.addWindowComponent("Command Manager", commandManager);
 
                 CommandManagerWindowCommandChangeObserver windowObserver = new CommandManagerWindowCommandChangeObserver(
-                                commandManager);
+                        commandManager);
                 CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(windowObserver);
+
+                CommandPreviewWindow commandPreview = new CommandPreviewWindow();
+                application.addWindowComponent("Command Preview", commandPreview);
+
+                DrawPanelController previewDrawController = commandPreview.getDrawPanelController();
+                VisitableDriver basicDriver = new LineDriverAdapter(previewDrawController, LineFactory.getBasicLine(), "basic");
+                CoordinateTransformer scaleDown = new ScaleTransformer(0.5, 0.5);
+                VisitableDriver scaledDownDriver = new TransformingDriver(basicDriver, scaleDown,
+                        "Preview Transform: Scaled 0.5x");
+                commandPreview.setPreviewDriver(scaledDownDriver);
+
+                CommandPreviewObserver previewObserver = new CommandPreviewObserver(CommandsFeature.getDriverCommandManager(),
+                        commandPreview);
+                CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(previewObserver);
         }
 
         /**
@@ -178,17 +194,14 @@ public class TestJobs2dApp {
 
                 application.addComponentMenu(Logger.class, "Logger", 0);
                 application.addComponentMenuElement(Logger.class, "Clear log",
-                                (ActionEvent e) -> application.flushLoggerOutput());
-                application.addComponentMenuElement(Logger.class, "Fine level",
-                                (ActionEvent e) -> logger.setLevel(Level.FINE));
-                application.addComponentMenuElement(Logger.class, "Info level",
-                                (ActionEvent e) -> logger.setLevel(Level.INFO));
+                        (ActionEvent e) -> application.flushLoggerOutput());
+                application.addComponentMenuElement(Logger.class, "Fine level", (ActionEvent e) -> logger.setLevel(Level.FINE));
+                application.addComponentMenuElement(Logger.class, "Info level", (ActionEvent e) -> logger.setLevel(Level.INFO));
                 application.addComponentMenuElement(Logger.class, "Warning level",
-                                (ActionEvent e) -> logger.setLevel(Level.WARNING));
+                        (ActionEvent e) -> logger.setLevel(Level.WARNING));
                 application.addComponentMenuElement(Logger.class, "Severe level",
-                                (ActionEvent e) -> logger.setLevel(Level.SEVERE));
-                application.addComponentMenuElement(Logger.class, "OFF logging",
-                                (ActionEvent e) -> logger.setLevel(Level.OFF));
+                        (ActionEvent e) -> logger.setLevel(Level.SEVERE));
+                application.addComponentMenuElement(Logger.class, "OFF logging", (ActionEvent e) -> logger.setLevel(Level.OFF));
         }
 
         /**
@@ -207,15 +220,13 @@ public class TestJobs2dApp {
                                 FeaturesManager.registerFeature(new ExtensionFeature());
                                 FeaturesManager.registerFeature(new CanvasFeature());
                                 FeaturesManager.registerFeature(new MouseClickFeature());
-                                FeaturesManager.registerFeature(new HistoryFeature());
-                                FeaturesManager.registerFeature(new PreviewFeature());
 
                                 // Automatycznie skonfiguruj wszystkie zarejestrowane funkcje
                                 // To zastępuje ręczne wywołania setup dla każdej funkcji
                                 FeaturesManager.setupAllFeatures(app);
 
                                 setupDrivers(app);
-                                RecordingFeature.setup();
+                                RecordingFeature.setup(DriverFeature.getDriverManager());
                                 setupExtensions();
                                 setupPresetTests(app);
                                 setupCommandTests(app);
@@ -226,4 +237,5 @@ public class TestJobs2dApp {
                         }
                 });
         }
+
 }

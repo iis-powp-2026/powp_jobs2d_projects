@@ -117,4 +117,21 @@ public class CompoundCommandFactory {
         }
         return new CompoundCommand(commandList);
     }
+
+    /**
+     * Create DeepCompoundCommand with all its predefined commands using SimpleComplexCommandBuilder.
+     *
+     * @return DeepCompoundCommand as CompoundCommand
+     */
+    public static CompoundCommand createDeepCompoundCommand() {
+        SimpleComplexCommandBuilder builder = new SimpleComplexCommandBuilder("Deep Compound Command");
+        
+        builder.addCommand(createKiteCommand());
+        builder.addCommand(ImmutableCompoundCommandFactory.getRectangle(10, 10, 50, 50));
+        
+        builder.setPosition(0, 0);
+        builder.operateTo(100, 100);
+        
+        return builder.build();
+    }
 }
