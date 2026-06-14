@@ -6,6 +6,8 @@ import edu.kis.powp.jobs2d.command.history.CommandsHistory;
 import edu.kis.powp.jobs2d.command.history.HistoryRecord;
 
 import javax.swing.*;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import java.awt.*;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -24,6 +26,21 @@ public class CommandsHistoryWindow extends JFrame implements WindowComponent {
     public CommandsHistoryWindow(CommandsHistory commandsHistory, Consumer<DriverCommand> commandSetter) {
         this.commandsHistory = commandsHistory;
         this.commandSetter = commandSetter;
+
+        commandsHistory.getHistoryModel().addListDataListener(new ListDataListener() {
+            @Override
+            public void intervalAdded(ListDataEvent e) {
+                if (isVisible()) refreshHistory();
+            }
+
+            @Override
+            public void intervalRemoved(ListDataEvent e) {
+                if (isVisible()) refreshHistory();
+            }
+
+            @Override
+            public void contentsChanged(ListDataEvent e) {}
+        });
 
         this.setTitle("Commands History");
         this.setSize(500, 600);

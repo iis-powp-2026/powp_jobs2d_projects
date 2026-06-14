@@ -33,19 +33,17 @@ public class CommandsFeature implements IFeature {
         CommandImporterFactory.registerProvider(new JsonCommandImporterProvider());
     }
 
-    private static final int COMMANDS_HISTORY_MAX_SIZE = 35;
+    private static final int COMMANDS_HISTORY_MAX_SIZE = 6;
 
-    public static void setupCommandsHistory()
-    {
+    public static void setupCommandsHistory() {
         commandsHistory = new CommandsHistory(COMMANDS_HISTORY_MAX_SIZE);
 
         AddCurrentCommandToHistoryObserver observer = new AddCurrentCommandToHistoryObserver(
-                commandsHistory.getHistory(),
+                commandsHistory.getHistoryModel(),
                 commandsHistory.getMaxSize()
         );
         commandManager.getChangePublisher().addSubscriber(observer);
     }
-
     /**
      * Get manager of application driver command.
      * 
