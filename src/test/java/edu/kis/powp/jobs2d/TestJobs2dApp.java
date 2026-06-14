@@ -14,15 +14,12 @@ import edu.kis.powp.jobs2d.command.comparator.comparison_strategy.ScaleIgnoreCom
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
 import edu.kis.powp.jobs2d.command.gui.CommandsHistoryWindow;
-import edu.kis.powp.jobs2d.drivers.BoundsDriver;
 import edu.kis.powp.jobs2d.command.manager.CommandPreviewChangeObserver;
-import edu.kis.powp.jobs2d.drivers.RealTimeDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
 import edu.kis.powp.jobs2d.drivers.packet_composite.CompositeDriver;
 import edu.kis.powp.jobs2d.drivers.transformations.*;
 import edu.kis.powp.jobs2d.drivers.visitor.FullNameGetterVisitor;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
-import edu.kis.powp.jobs2d.drivers.optionals.LoggingExtensionDriver;
 import edu.kis.powp.jobs2d.events.*;
 import edu.kis.powp.jobs2d.features.*;
 import edu.kis.powp.jobs2d.events.SelectLoadRecordedMacroOptionListener;
@@ -96,48 +93,22 @@ public class TestJobs2dApp {
         DriverFeature.addDriver("Line Simulator", driver);
         DriverFeature.getDriverManager().setCurrentDriver(driver);
 
-        driver = new BoundsDriver(driver);
-        DriverFeature.addDriver("Line Simulator with boundaries", driver);
-        DriverFeature.updateDriverInfo();
-
         driver = new LineDriverAdapter(drawerController, LineFactory.getSpecialLine(), "special");
         DriverFeature.addDriver("Special line Simulator", driver);
-        DriverFeature.updateDriverInfo();
-
-        CoordinateTransformer scale = new ScaleTransformer(2.0, 2.0);
-        VisitableDriver scaledDriver = new TransformingDriver(driver, scale, "Transform: Scaled 2x");
-        DriverFeature.addDriver(scaledDriver.toString(), scaledDriver);
 
         CoordinateTransformer scaleDown = new ScaleTransformer(0.5, 0.5);
         VisitableDriver scaledDownDriver = new TransformingDriver(driver, scaleDown, "Transform: Scaled 0.5x");
-        DriverFeature.addDriver(scaledDownDriver.toString(), scaledDownDriver);
-
-        CoordinateTransformer flip = new FlipTransformer(false, true);
-        VisitableDriver flippedDriver = new TransformingDriver(driver, flip, "Transform: Flipped Y");
-        DriverFeature.addDriver(flippedDriver.toString(), flippedDriver);
 
         CoordinateTransformer rotate = new RotateTransformer(45.0);
         VisitableDriver rotatedDriver = new TransformingDriver(driver, rotate, "Transform: Rotated 45 degrees");
-        DriverFeature.addDriver(rotatedDriver.toString(), rotatedDriver);
-
-        VisitableDriver scaledAndRotatedDriver = new TransformingDriver(scaledDriver, rotate, "Transform: Scaled 2x & Rotated 45");
-        DriverFeature.addDriver(scaledAndRotatedDriver.toString(), scaledAndRotatedDriver);
 
         CompositeDriver chaosCompositeDriver = new CompositeDriver("Chaos Composite Driver");
         chaosCompositeDriver.addDriver(driver);
         chaosCompositeDriver.addDriver(rotatedDriver);
         chaosCompositeDriver.addDriver(scaledDownDriver);
         DriverFeature.addDriver(chaosCompositeDriver.toString(), chaosCompositeDriver);
-      
+
         driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
-        VisitableDriver animatedDriver = new RealTimeDriver(driver, 10, 10, "Real-Time Driver 1x speed");
-        DriverFeature.addDriver(animatedDriver.toString(), animatedDriver);
-
-        animatedDriver = new RealTimeDriver(driver, 5, 5, "Real-Time Driver 2x speed");
-        DriverFeature.addDriver(animatedDriver.toString(), animatedDriver);
-
-        animatedDriver = new RealTimeDriver(driver, 1, 1, "Real-Time Driver 10x speed");
-        DriverFeature.addDriver(animatedDriver.toString(), animatedDriver);
 
         UsageMonitoringDriver monitoredDriver = new UsageMonitoringDriver(driver);
         UsageLogger usageLogger = new UsageLogger(monitoredDriver);
@@ -218,7 +189,6 @@ public class TestJobs2dApp {
 
             setupDrivers(app);
             RecordingFeature.setup(DriverFeature.getDriverManager());
-            ExtensionsFeature.addExtension("Tracking Logger", LoggingExtensionDriver::new);
             ExtensionsFeature.setupRecordingExtension();
             setupPresetTests(app);
             setupCommandTests(app);

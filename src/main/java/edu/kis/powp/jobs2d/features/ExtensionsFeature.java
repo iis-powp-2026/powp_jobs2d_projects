@@ -1,35 +1,37 @@
 package edu.kis.powp.jobs2d.features;
 
 import edu.kis.powp.appbase.Application;
-import edu.kis.powp.jobs2d.drivers.DriverChainUtils;
+import edu.kis.powp.jobs2d.drivers.BoundsDriver;
+import edu.kis.powp.jobs2d.drivers.RealTimeDriver;
 import edu.kis.powp.jobs2d.drivers.optionals.DecoratorDriver;
+import edu.kis.powp.jobs2d.drivers.optionals.LoggingExtensionDriver;
 import edu.kis.powp.jobs2d.drivers.optionals.RecordingDriver;
+import edu.kis.powp.jobs2d.drivers.transformations.RotateTransformer;
+import edu.kis.powp.jobs2d.drivers.transformations.ScaleTransformer;
+import edu.kis.powp.jobs2d.drivers.transformations.TransformingDriver;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 import edu.kis.powp.jobs2d.events.SelectClearRecordingOptionListener;
 import edu.kis.powp.jobs2d.events.SelectToggleRecordingOptionListener;
+import edu.kis.powp.observer.Subscriber;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.function.Function;
+import java.util.*;
 
-/**
- * Feature that provides optional extensions (add-ons) working independently
- * of the selected driver. Extensions are toggled via checkboxes in the
- * Extensions menu.
- * Extensions form a decorator chain. Each extension can be enabled/disabled
- * independently — disabling removes it from the chain like a linked-list node
- * removal, connecting its predecessor directly to its successor.
- */
-public class ExtensionsFeature implements IFeature {
+public class ExtensionsFeature implements IFeature, Subscriber {
 
     private static Application app;
-    private static final Map<String, DecoratorDriver> activeExtensions = new LinkedHashMap<>();
+    private static final Set<DecoratorDriver> extensionOrder = new LinkedHashSet<>();
+    private static final Set<DecoratorDriver> activeExtensions = new HashSet<>();
 
     @Override
     public void setup(Application application) {
         app = application;
         app.addComponentMenu(ExtensionsFeature.class, "Extensions");
+
+        DriverFeature.getDriverManager()
+                .getChangePublisher()
+                .addSubscriber(this);
     }
 
     @Override
@@ -37,40 +39,35 @@ public class ExtensionsFeature implements IFeature {
         return "Extensions";
     }
 
-    /**
-     * Registers a generic extension in the Extensions menu with a toggle checkbox.
-     * The factory receives the current driver and returns a new decorator wrapping it.
-     * Enabling inserts the decorator at the top of the chain; disabling removes it
-     * from anywhere in the chain (linked-list removal).
-     *
-     * @param name    Label shown in the Extensions menu.
-     * @param factory Constructor reference, e.g. {@code LoggingExtensionDriver::new}.
-     */
-    public static void addExtension(String name, Function<VisitableDriver, DecoratorDriver> factory) {
+    public static void addExtension(String name, DecoratorDriver driver) {
+        extensionOrder.add(driver);
         app.addComponentMenuElementWithCheckBox(
-                ExtensionsFeature.class,
-                name,
-                (ActionEvent e) -> {
-                    javax.swing.AbstractButton btn = (javax.swing.AbstractButton) e.getSource();
-                    if (btn.isSelected()) {
-                        enableExtension(name, factory);
-                    } else {
-                        disableExtension(name);
-                    }
-                    DriverFeature.updateDriverInfo();
-                },
-                false
+            ExtensionsFeature.class,
+            name,
+            (ActionEvent e) -> {
+                AbstractButton btn = (AbstractButton) e.getSource();
+                if (btn.isSelected()) {
+                    enableExtension(driver);
+                } else {
+                    disableExtension(driver);
+                }
+                DriverFeature.updateDriverInfo();
+            },
+            false
         );
     }
 
-    /**
-     * Add Recording extension checkbox and clear button to the Extensions menu.
-     * Must be called after RecordingFeature.setup().
-     */
     public static void setupRecordingExtension() {
         RecordingDriver rec = RecordingFeature.getRecordingDriver();
         boolean initial = rec.isRecordingEnabled();
 
+        ExtensionsFeature.addExtension("Tracking Logger", new LoggingExtensionDriver(null));
+        ExtensionsFeature.addExtension("2x scale", new TransformingDriver(null, new ScaleTransformer(2.0, 2.0), "2x scale"));
+        ExtensionsFeature.addExtension("0.5x scale", new TransformingDriver(null, new ScaleTransformer(0.5, 0.5), "0.5x scale"));
+        ExtensionsFeature.addExtension("Flip Y", new TransformingDriver(null, new ScaleTransformer(1., -1.), "Y Flip"));
+        ExtensionsFeature.addExtension("Rotated 45 deg", new TransformingDriver(null, new RotateTransformer(45.0), "Rot 45 deg"));
+        ExtensionsFeature.addExtension("Real-Time Driver 2x speed", new RealTimeDriver(null, 5, 5, "Real-Time Driver 2x speed"));
+        ExtensionsFeature.addExtension("Boundaries", new BoundsDriver(null));
         app.addComponentMenuElementWithCheckBox(
                 ExtensionsFeature.class,
                 "Recording",
@@ -85,35 +82,62 @@ public class ExtensionsFeature implements IFeature {
         );
     }
 
-    /**
-     * Inserts the extension decorator at the top of the current driver chain.
-     */
-    private static void enableExtension(String name, Function<VisitableDriver, DecoratorDriver> factory) {
-        if (activeExtensions.containsKey(name)) {
+    private static void enableExtension(DecoratorDriver driver) {
+        if (activeExtensions.contains(driver)) {
             return;
         }
-        VisitableDriver current = DriverFeature.getDriverManager().getCurrentDriver();
-        DecoratorDriver decorator = factory.apply(current);
-        activeExtensions.put(name, decorator);
-        DriverFeature.getDriverManager().setCurrentDriver(decorator);
+        activeExtensions.add(driver);
+        rebuild();
+    }
+
+    private static void disableExtension(DecoratorDriver driver) {
+        if (!activeExtensions.remove(driver)) {
+            return;
+        }
+        rebuild();
+    }
+
+    @Override
+    public void update() {
+        VisitableDriver currentDriver = DriverFeature.getDriverManager().getCurrentDriver();
+        if (currentDriver instanceof DecoratorDriver && activeExtensions.contains(currentDriver)) {
+            return;
+        }
+        rebuild(currentDriver);
+    }
+
+    private static void rebuild() {
+        VisitableDriver top = DriverFeature.getDriverManager().getCurrentDriver();
+        while (top instanceof DecoratorDriver && extensionOrder.contains(top)) {
+            top = ((DecoratorDriver) top).getTarget();
+        }
+        rebuild(top);
     }
 
     /**
-     * Removes the extension decorator from anywhere in the decorator chain,
-     * connecting its predecessor directly to its successor (linked-list removal).
-     * Works correctly even when other extensions are nested around it.
+     * Przebudowuje wszystkie rozszerzenia na podstawie aktualnego drivera.
+     *
+     * @param top Pierwszy driver, który nie jest rozszerzeniem.
      */
-    private static void disableExtension(String name) {
-        DecoratorDriver decorator = activeExtensions.remove(name);
-        if (decorator == null) {
-            return;
+    private static void rebuild(VisitableDriver top) {
+        DecoratorDriver first = null, previous = null;
+        for (DecoratorDriver extension : extensionOrder) {
+            if (!activeExtensions.contains(extension)) {
+                continue;
+            }
+            if (previous != null) {
+                previous.setTarget(extension);
+            } else {
+                first = extension;
+            }
+            previous = extension;
         }
-        VisitableDriver current = DriverFeature.getDriverManager().getCurrentDriver();
-        VisitableDriver newRoot = DriverChainUtils.removeFromChain(current, decorator);
-        if (newRoot != current) {
-            DriverFeature.getDriverManager().setCurrentDriver(newRoot);
+        if (first != null) {
+            previous.setTarget(top);
+            DriverFeature.getDriverManager().setCurrentDriver(first);
+        } else {
+            DriverFeature.getDriverManager().setCurrentDriver(top);
         }
-        // If newRoot == current, the decorator was in the middle of the chain —
-        // its predecessor's target was already updated by removeFromChain.
+        DriverFeature.updateDriverInfo();
     }
 }
