@@ -1,7 +1,6 @@
 package edu.kis.powp.jobs2d.drivers.optionals;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import edu.kis.powp.jobs2d.command.DriverCommand;
@@ -42,7 +41,7 @@ public class RecordingDriver extends AbstractDecoratorDriver {
     }
 
     public synchronized List<DriverCommand> getRecordedCommands() {
-        return Collections.unmodifiableList(new ArrayList<>(recorded));
+        return List.copyOf(recorded);
     }
 
     @Override

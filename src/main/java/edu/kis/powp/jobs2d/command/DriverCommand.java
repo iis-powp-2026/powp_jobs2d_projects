@@ -14,7 +14,7 @@ public interface DriverCommand {
      *
      * @param driver driver.
      */
-    public void execute(VisitableDriver driver);
+    void execute(VisitableDriver driver);
 
     /**
      * Accept a visitor (Visitor pattern). Concrete command classes

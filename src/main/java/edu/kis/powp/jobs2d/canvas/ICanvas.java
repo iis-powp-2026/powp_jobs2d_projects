@@ -9,6 +9,18 @@ import edu.kis.powp.jobs2d.command.ICompoundCommand;
 public interface ICanvas {
 
     /**
+     * Rounds the Liang-Barsky clipping algorithm results
+     */
+    static int[] roundClipResult(int x1, int y1, double tEnter, double tExit, int dx, int dy) {
+        return new int[] {
+                (int) Math.round(x1 + tEnter * dx),
+                (int) Math.round(y1 + tEnter * dy),
+                (int) Math.round(x1 + tExit * dx),
+                (int) Math.round(y1 + tExit * dy)
+        };
+    }
+
+    /**
      * Check whether the given point lies within the drawable area
      * (i.e. inside the canvas and not within the margin).
      *

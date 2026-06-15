@@ -1,6 +1,5 @@
 package edu.kis.powp.jobs2d.command;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -96,11 +95,7 @@ public class CompoundCommandFactory {
      * @return new named CompoundCommand
      */
     public static CompoundCommand create(String name, DriverCommand... commands) {
-        List<DriverCommand> commandList = new ArrayList<>();
-        for (DriverCommand cmd : commands) {
-            commandList.add(cmd);
-        }
-        return new CompoundCommand(commandList, name);
+        return new CompoundCommand(List.of(commands), name);
     }
 
     /**
@@ -111,10 +106,6 @@ public class CompoundCommandFactory {
      * @return new CompoundCommand
      */
     public static CompoundCommand create(DriverCommand... commands) {
-        List<DriverCommand> commandList = new ArrayList<>();
-        for (DriverCommand cmd : commands) {
-            commandList.add(cmd);
-        }
-        return new CompoundCommand(commandList);
+        return new CompoundCommand(List.of(commands));
     }
 }
