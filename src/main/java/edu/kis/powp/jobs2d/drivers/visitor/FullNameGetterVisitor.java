@@ -3,6 +3,7 @@ package edu.kis.powp.jobs2d.drivers.visitor;
 
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
 import edu.kis.powp.jobs2d.drivers.optionals.AbstractDecoratorDriver;
+import edu.kis.powp.jobs2d.drivers.optionals.RecordingDriver;
 import edu.kis.powp.jobs2d.drivers.optionals.TrackingLoggerDriver;
 import edu.kis.powp.jobs2d.drivers.packet_composite.CompositeDriver;
 
@@ -36,6 +37,11 @@ public class FullNameGetterVisitor implements DriverVisitor {
      */
     @Override
     public void visit(AbstractDecoratorDriver driver) {
+        builder.append(driver.toString());
+    }
+    
+    @Override
+    public void visit(RecordingDriver driver) {
         builder.append(driver.toString());
     }
 
