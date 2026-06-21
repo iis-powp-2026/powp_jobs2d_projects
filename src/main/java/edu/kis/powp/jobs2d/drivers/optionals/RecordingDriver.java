@@ -7,21 +7,19 @@ import edu.kis.powp.jobs2d.command.DriverCommand;
 import edu.kis.powp.jobs2d.command.OperateToCommand;
 import edu.kis.powp.jobs2d.command.SetPositionCommand;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
+import edu.kis.powp.jobs2d.drivers.visitor.DriverVisitor;
 
-//DecoratorDriver extends VisitableDriver and adds getTarget/setTarget contract
 
 /**
- * Decorator driver that records all calls as command objects.
+ * Driver that records all calls as command objects.
  * Recording can be temporarily disabled (used during playback).
  */
-public class RecordingDriver extends AbstractDecoratorDriver {
+public class RecordingDriver implements VisitableDriver {
 
     private final List<DriverCommand> recorded = new ArrayList<>();
     private boolean recordingEnabled = true;
 
-    public RecordingDriver(VisitableDriver initialTarget) {
-        super(initialTarget);
-    }
+    public RecordingDriver() {};
 
     /**
      * Enable or disable recording of subsequent driver calls.
@@ -49,7 +47,6 @@ public class RecordingDriver extends AbstractDecoratorDriver {
         if (recordingEnabled) {
             recorded.add(new SetPositionCommand(x, y));
         }
-        super.setPosition(x, y);
     }
 
     @Override
@@ -57,11 +54,15 @@ public class RecordingDriver extends AbstractDecoratorDriver {
         if (recordingEnabled) {
             recorded.add(new OperateToCommand(x, y));
         }
-        super.operateTo(x, y);
     }
 
     @Override
     public synchronized String toString() {
-        return "RecordingDriver -> " + getTarget();
+        return "RecordingDriver";
+    }
+
+    @Override
+    public void accept(DriverVisitor visitor) {
+        visitor.visit(this);
     }
 }
