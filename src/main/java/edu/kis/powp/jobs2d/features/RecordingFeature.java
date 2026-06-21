@@ -3,16 +3,24 @@ package edu.kis.powp.jobs2d.features;
 import edu.kis.powp.jobs2d.drivers.optionals.EnsureRecordingDriverIsCurrent;
 import edu.kis.powp.jobs2d.drivers.optionals.RecordingDriver;
 import edu.kis.powp.jobs2d.drivers.DriverManager;
+import edu.kis.powp.appbase.Application;
 
-public class RecordingFeature {
+public class RecordingFeature implements IFeature {
 
     private static RecordingDriver recordingDriver;
 
-    public static void setup(DriverManager driverManager) {
+    @Override
+    public String getName() {
+        return "Recording feature";
+    }
+
+    @Override
+    public void setup(Application application) {
         if (recordingDriver != null) {
             return;
         }
 
+        DriverManager driverManager = DriverFeature.getDriverManager();
         recordingDriver = new RecordingDriver(driverManager.getCurrentDriver());
 
         EnsureRecordingDriverIsCurrent subscriber = new EnsureRecordingDriverIsCurrent(driverManager, recordingDriver);
