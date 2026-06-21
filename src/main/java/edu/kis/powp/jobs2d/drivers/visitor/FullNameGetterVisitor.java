@@ -37,7 +37,6 @@ public class FullNameGetterVisitor implements DriverVisitor {
     @Override
     public void visit(AbstractDecoratorDriver driver) {
         builder.append(driver.toString());
-        driver.getTarget().accept(this);
     }
 
     public String getAndResetFullName() {
