@@ -16,7 +16,7 @@ public class RealTimeDriver extends AbstractDecoratorDriver {
     private volatile int currentX;
     private volatile int currentY;
 
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public RealTimeDriver(VisitableDriver innerDriver, int operationToDelayMs, int setPositionDelayMs, String name) {
         super(innerDriver);
@@ -98,7 +98,14 @@ public class RealTimeDriver extends AbstractDecoratorDriver {
     }
 
     @Override
+    public synchronized void setTarget(VisitableDriver target) {
+        executor.shutdownNow();
+        executor = Executors.newSingleThreadExecutor();
+        super.setTarget(target);
+    }
+
+    @Override
     public String toString() {
-        return name;
+        return name + " -> " + getTarget();
     }
 }

@@ -27,6 +27,6 @@ public class TransformingDriver extends AbstractDecoratorDriver {
 
     @Override
     public String toString() {
-        return name;
+        return name + " -> " + getTarget();
     }
 }
