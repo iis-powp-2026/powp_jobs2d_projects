@@ -1,5 +1,10 @@
 package edu.kis.powp.jobs2d;
 
+import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import edu.kis.legacy.drawer.panel.DrawPanelController;
 import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.Application;
@@ -15,16 +20,37 @@ import edu.kis.powp.jobs2d.drivers.MouseClickToDriverCall;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
 import edu.kis.powp.jobs2d.drivers.factory.ExtensionDriverFactory;
 import edu.kis.powp.jobs2d.drivers.packet_composite.CompositeDriver;
-import edu.kis.powp.jobs2d.drivers.transformations.*;
+import edu.kis.powp.jobs2d.drivers.transformations.CoordinateTransformer;
+import edu.kis.powp.jobs2d.drivers.transformations.FlipTransformer;
+import edu.kis.powp.jobs2d.drivers.transformations.RotateTransformer;
+import edu.kis.powp.jobs2d.drivers.transformations.ScaleTransformer;
+import edu.kis.powp.jobs2d.drivers.transformations.TransformingDriver;
 import edu.kis.powp.jobs2d.drivers.visitor.FullNameGetterVisitor;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
-import edu.kis.powp.jobs2d.events.*;
-import edu.kis.powp.jobs2d.features.*;
-
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import edu.kis.powp.jobs2d.events.CommandsHistoryOptionListener;
+import edu.kis.powp.jobs2d.events.SelectCheckCanvasBoundsOptionListener;
+import edu.kis.powp.jobs2d.events.SelectClearPanelOptionListener;
+import edu.kis.powp.jobs2d.events.SelectCompareCommandsListener;
+import edu.kis.powp.jobs2d.events.SelectCountCommandsOptionListener;
+import edu.kis.powp.jobs2d.events.SelectDeepCopyCommandOptionListener;
+import edu.kis.powp.jobs2d.events.SelectFullNameGetterVisitorTestListener;
+import edu.kis.powp.jobs2d.events.SelectLoadImmutableRectangleCommandOptionListener;
+import edu.kis.powp.jobs2d.events.SelectLoadKiteCommandOptionListener;
+import edu.kis.powp.jobs2d.events.SelectLoadRecordedMacroOptionListener;
+import edu.kis.powp.jobs2d.events.SelectLoadSecretCommandOptionListener;
+import edu.kis.powp.jobs2d.events.SelectRunCurrentCommandOptionListener;
+import edu.kis.powp.jobs2d.events.SelectTestFigure2OptionListener;
+import edu.kis.powp.jobs2d.events.SelectTestFigureOptionListener;
+import edu.kis.powp.jobs2d.events.SelectTransformCommandOptionListener;
+import edu.kis.powp.jobs2d.features.CanvasFeature;
+import edu.kis.powp.jobs2d.features.CommandsFeature;
+import edu.kis.powp.jobs2d.features.DrawerFeature;
+import edu.kis.powp.jobs2d.features.DriverFeature;
+import edu.kis.powp.jobs2d.features.ExtensionsFeature;
+import edu.kis.powp.jobs2d.features.FeaturesManager;
+import edu.kis.powp.jobs2d.features.RecordingFeature;
+import edu.kis.powp.jobs2d.features.UsageLogger;
+import edu.kis.powp.jobs2d.features.UsageMonitoringDriver;
 
 public class TestJobs2dApp {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -51,7 +77,8 @@ public class TestJobs2dApp {
      */
     private static void setupCommandTests(Application application) {
         application.addTest("Load secret command", new SelectLoadSecretCommandOptionListener());
-        application.addTest("Load immutable rectangle command", new SelectLoadImmutableRectangleCommandOptionListener());
+        application.addTest("Load immutable rectangle command",
+                new SelectLoadImmutableRectangleCommandOptionListener());
 
         application.addTest("Load kite command", new SelectLoadKiteCommandOptionListener());
         application.addTest("Load recorded macro", new SelectLoadRecordedMacroOptionListener());
@@ -91,7 +118,8 @@ public class TestJobs2dApp {
         ExtensionsFeature.addExtension("0.5x scale", ExtensionDriverFactory.createScaleDriver(0.5, "0.5x scale"));
         ExtensionsFeature.addExtension("Flip Y", ExtensionDriverFactory.createScaleDriver(1, -1, "Y Flip"));
         ExtensionsFeature.addExtension("Rotated 45 deg", ExtensionDriverFactory.createRotateDriver(45.0, "Rot 45 deg"));
-        ExtensionsFeature.addExtension("Real-Time Driver", ExtensionDriverFactory.createRealTimeDriver(5, "Real-Time Driver"));
+        ExtensionsFeature.addExtension("Real-Time Driver",
+                ExtensionDriverFactory.createRealTimeDriver(5, "Real-Time Driver"));
         ExtensionsFeature.addExtension("Boundaries", ExtensionDriverFactory.createBoundsDriver());
         ExtensionsFeature.setupRecordingExtension();
     }
@@ -131,31 +159,32 @@ public class TestJobs2dApp {
     }
 
     private static void setupWindows(Application application) {
-            
+
         DrawPanelController previewDrawPanelController = new DrawPanelController();
         VisitableDriver driver = new LineDriverAdapter(previewDrawPanelController, LineFactory.getBasicLine(), "basic");
-        VisitableDriver canvasDriver = new LineDriverAdapter(previewDrawPanelController, CanvasFeature.getGuidesLineType(), "Canvas Preview");
+        VisitableDriver canvasDriver = new LineDriverAdapter(previewDrawPanelController,
+                CanvasFeature.getGuidesLineType(), "Canvas Preview");
         CoordinateTransformer scaleDown = new ScaleTransformer(0.5, 0.5);
         VisitableDriver previewDriver = new TransformingDriver(driver, scaleDown, "previewDriver");
         VisitableDriver previewCanvasDriver = new TransformingDriver(canvasDriver, scaleDown, "previewCanvasDriver");
         CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager());
-        CommandsHistoryWindow commandsHistoryWindow = new CommandsHistoryWindow(
-                CommandsFeature.getCommandsHistory(),
-                CommandsFeature.getDriverCommandManager()::setCurrentCommand
-        );
+        CommandsHistoryWindow commandsHistoryWindow = new CommandsHistoryWindow(CommandsFeature.getCommandsHistory(),
+                CommandsFeature.getDriverCommandManager()::setCurrentCommand);
 
         application.addWindowComponent("Command Manager", commandManager);
         application.addWindowComponent("Commands History Manager", commandsHistoryWindow);
 
         commandManager.initializePreviewPanel(previewDrawPanelController);
-        
-        CommandPreviewChangeObserver commandPreviewChangeObserver = new CommandPreviewChangeObserver(previewDrawPanelController, previewDriver, previewCanvasDriver, CommandsFeature.getDriverCommandManager());
+
+        CommandPreviewChangeObserver commandPreviewChangeObserver = new CommandPreviewChangeObserver(
+                previewDrawPanelController, previewDriver, previewCanvasDriver,
+                CommandsFeature.getDriverCommandManager());
         CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(commandPreviewChangeObserver);
-        CommandManagerWindowCommandChangeObserver windowObserver = new CommandManagerWindowCommandChangeObserver(commandManager);
+        CommandManagerWindowCommandChangeObserver windowObserver = new CommandManagerWindowCommandChangeObserver(
+                commandManager);
         CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(windowObserver);
         CanvasFeature.getChangePublisher().addSubscriber(commandPreviewChangeObserver);
     }
-
 
     /**
      * Setup menu for adjusting logging settings.
@@ -175,8 +204,6 @@ public class TestJobs2dApp {
                 (ActionEvent e) -> logger.setLevel(Level.SEVERE));
         application.addComponentMenuElement(Logger.class, "OFF logging", (ActionEvent e) -> logger.setLevel(Level.OFF));
     }
-
-
 
     private static void setupMouseHandler(Application application) {
         new MouseClickToDriverCall(application.getFreePanel());
@@ -204,7 +231,6 @@ public class TestJobs2dApp {
 
             setupDrivers(app);
             setupExtensions();
-            ExtensionsFeature.setupRecordingExtension();
             setupPresetTests(app);
             setupCommandTests(app);
             setupLogger(app);
