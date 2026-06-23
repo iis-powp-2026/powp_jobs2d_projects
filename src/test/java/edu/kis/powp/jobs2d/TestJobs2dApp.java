@@ -204,7 +204,6 @@ public class TestJobs2dApp {
 
             setupDrivers(app);
             setupExtensions();
-            ExtensionsFeature.setupRecordingExtension();
             setupPresetTests(app);
             setupCommandTests(app);
             setupLogger(app);
