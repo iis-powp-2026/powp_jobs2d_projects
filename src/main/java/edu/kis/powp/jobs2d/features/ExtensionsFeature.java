@@ -1,14 +1,8 @@
 package edu.kis.powp.jobs2d.features;
 
 import edu.kis.powp.appbase.Application;
-import edu.kis.powp.jobs2d.drivers.BoundsDriver;
-import edu.kis.powp.jobs2d.drivers.RealTimeDriver;
 import edu.kis.powp.jobs2d.drivers.optionals.DecoratorDriver;
-import edu.kis.powp.jobs2d.drivers.optionals.LoggingExtensionDriver;
 import edu.kis.powp.jobs2d.drivers.optionals.RecordingDriver;
-import edu.kis.powp.jobs2d.drivers.transformations.RotateTransformer;
-import edu.kis.powp.jobs2d.drivers.transformations.ScaleTransformer;
-import edu.kis.powp.jobs2d.drivers.transformations.TransformingDriver;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 import edu.kis.powp.jobs2d.events.SelectClearRecordingOptionListener;
 import edu.kis.powp.jobs2d.events.SelectToggleRecordingOptionListener;
@@ -16,7 +10,9 @@ import edu.kis.powp.observer.Subscriber;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class ExtensionsFeature implements IFeature, Subscriber {
 
@@ -61,13 +57,6 @@ public class ExtensionsFeature implements IFeature, Subscriber {
         RecordingDriver rec = RecordingFeature.getRecordingDriver();
         boolean initial = rec.isRecordingEnabled();
 
-        ExtensionsFeature.addExtension("Tracking Logger", new LoggingExtensionDriver(null));
-        ExtensionsFeature.addExtension("2x scale", new TransformingDriver(null, new ScaleTransformer(2.0, 2.0), "2x scale"));
-        ExtensionsFeature.addExtension("0.5x scale", new TransformingDriver(null, new ScaleTransformer(0.5, 0.5), "0.5x scale"));
-        ExtensionsFeature.addExtension("Flip Y", new TransformingDriver(null, new ScaleTransformer(1., -1.), "Y Flip"));
-        ExtensionsFeature.addExtension("Rotated 45 deg", new TransformingDriver(null, new RotateTransformer(45.0), "Rot 45 deg"));
-        ExtensionsFeature.addExtension("Real-Time Driver 2x speed", new RealTimeDriver(null, 5, 5, "Real-Time Driver 2x speed"));
-        ExtensionsFeature.addExtension("Boundaries", new BoundsDriver(null));
         app.addComponentMenuElementWithCheckBox(
                 ExtensionsFeature.class,
                 "Recording",

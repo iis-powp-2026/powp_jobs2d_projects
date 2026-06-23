@@ -15,7 +15,10 @@ import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
 import edu.kis.powp.jobs2d.command.gui.CommandsHistoryWindow;
 import edu.kis.powp.jobs2d.command.manager.CommandPreviewChangeObserver;
+import edu.kis.powp.jobs2d.drivers.BoundsDriver;
+import edu.kis.powp.jobs2d.drivers.RealTimeDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
+import edu.kis.powp.jobs2d.drivers.optionals.LoggingExtensionDriver;
 import edu.kis.powp.jobs2d.drivers.packet_composite.CompositeDriver;
 import edu.kis.powp.jobs2d.drivers.transformations.*;
 import edu.kis.powp.jobs2d.drivers.visitor.FullNameGetterVisitor;
@@ -80,6 +83,20 @@ public class TestJobs2dApp {
                 new SelectCompareCommandsListener(new ComplexCommandComparator(new ScaleIgnoreComparator())));
         application.addTest("Show commands history", new CommandsHistoryOptionListener());
 
+    }
+
+    /**
+     * Setup extensions for application.
+     */
+    private static void setupExtensions() {
+        ExtensionsFeature.addExtension("Tracking Logger", new LoggingExtensionDriver(null));
+        ExtensionsFeature.addExtension("2x scale", new TransformingDriver(null, new ScaleTransformer(2.0, 2.0), "2x scale"));
+        ExtensionsFeature.addExtension("0.5x scale", new TransformingDriver(null, new ScaleTransformer(0.5, 0.5), "0.5x scale"));
+        ExtensionsFeature.addExtension("Flip Y", new TransformingDriver(null, new ScaleTransformer(1., -1.), "Y Flip"));
+        ExtensionsFeature.addExtension("Rotated 45 deg", new TransformingDriver(null, new RotateTransformer(45.0), "Rot 45 deg"));
+        ExtensionsFeature.addExtension("Real-Time Driver 2x speed", new RealTimeDriver(null, 5, 5, "Real-Time Driver 2x speed"));
+        ExtensionsFeature.addExtension("Boundaries", new BoundsDriver(null));
+        ExtensionsFeature.setupRecordingExtension();
     }
 
     /**
@@ -189,7 +206,7 @@ public class TestJobs2dApp {
 
             setupDrivers(app);
             RecordingFeature.setup(DriverFeature.getDriverManager());
-            ExtensionsFeature.setupRecordingExtension();
+            setupExtensions();
             setupPresetTests(app);
             setupCommandTests(app);
             setupLogger(app);
