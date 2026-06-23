@@ -1,9 +1,5 @@
 package edu.kis.powp.jobs2d;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import edu.kis.legacy.drawer.panel.DrawPanelController;
 import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.Application;
@@ -15,19 +11,20 @@ import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
 import edu.kis.powp.jobs2d.command.gui.CommandsHistoryWindow;
 import edu.kis.powp.jobs2d.command.manager.CommandPreviewChangeObserver;
-import edu.kis.powp.jobs2d.drivers.BoundsDriver;
-import edu.kis.powp.jobs2d.drivers.RealTimeDriver;
+import edu.kis.powp.jobs2d.drivers.MouseClickToDriverCall;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
-import edu.kis.powp.jobs2d.drivers.optionals.LoggingExtensionDriver;
+import edu.kis.powp.jobs2d.drivers.factory.ExtensionDriverFactory;
 import edu.kis.powp.jobs2d.drivers.packet_composite.CompositeDriver;
 import edu.kis.powp.jobs2d.drivers.transformations.*;
 import edu.kis.powp.jobs2d.drivers.visitor.FullNameGetterVisitor;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 import edu.kis.powp.jobs2d.events.*;
 import edu.kis.powp.jobs2d.features.*;
-import edu.kis.powp.jobs2d.events.SelectLoadRecordedMacroOptionListener;
-import edu.kis.powp.jobs2d.events.SelectClearPanelOptionListener;
-import edu.kis.powp.jobs2d.drivers.MouseClickToDriverCall;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TestJobs2dApp {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -89,13 +86,13 @@ public class TestJobs2dApp {
      * Setup extensions for application.
      */
     private static void setupExtensions() {
-        ExtensionsFeature.addExtension("Tracking Logger", new LoggingExtensionDriver(null));
-        ExtensionsFeature.addExtension("2x scale", new TransformingDriver(null, new ScaleTransformer(2.0, 2.0), "2x scale"));
-        ExtensionsFeature.addExtension("0.5x scale", new TransformingDriver(null, new ScaleTransformer(0.5, 0.5), "0.5x scale"));
-        ExtensionsFeature.addExtension("Flip Y", new TransformingDriver(null, new ScaleTransformer(1., -1.), "Y Flip"));
-        ExtensionsFeature.addExtension("Rotated 45 deg", new TransformingDriver(null, new RotateTransformer(45.0), "Rot 45 deg"));
-        ExtensionsFeature.addExtension("Real-Time Driver 2x speed", new RealTimeDriver(null, 5, 5, "Real-Time Driver 2x speed"));
-        ExtensionsFeature.addExtension("Boundaries", new BoundsDriver(null));
+        ExtensionsFeature.addExtension("Tracking Logger", ExtensionDriverFactory.createLoggingDriver());
+        ExtensionsFeature.addExtension("2x scale", ExtensionDriverFactory.createScaleDriver(2, "2x scale"));
+        ExtensionsFeature.addExtension("0.5x scale", ExtensionDriverFactory.createScaleDriver(0.5, "0.5x scale"));
+        ExtensionsFeature.addExtension("Flip Y", ExtensionDriverFactory.createScaleDriver(1, -1, "Y Flip"));
+        ExtensionsFeature.addExtension("Rotated 45 deg", ExtensionDriverFactory.createRotateDriver(45.0, "Rot 45 deg"));
+        ExtensionsFeature.addExtension("Real-Time Driver", ExtensionDriverFactory.createRealTimeDriver(5, "Real-Time Driver"));
+        ExtensionsFeature.addExtension("Boundaries", ExtensionDriverFactory.createBoundsDriver());
         ExtensionsFeature.setupRecordingExtension();
     }
 
