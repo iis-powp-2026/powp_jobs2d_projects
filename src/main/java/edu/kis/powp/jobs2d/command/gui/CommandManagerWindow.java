@@ -22,14 +22,13 @@ import edu.kis.legacy.drawer.panel.DrawPanelController;
 
 public class CommandManagerWindow extends JFrame implements WindowComponent {
 
-    private CommandManager commandManager;
+    private final CommandManager commandManager;
 
-    private JTextArea currentCommandField;
+    private final JTextArea currentCommandField;
 
-    private String observerListString;
-    private JTextArea observerListField;
+    private final JTextArea observerListField;
 
-    private JPanel previewPanel;
+    private final JPanel previewPanel;
 
     private static final long serialVersionUID = 9204679248304669948L;
 
@@ -41,56 +40,56 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
 
         this.commandManager = commandManager;
 
-        GridBagConstraints c = new GridBagConstraints();
+        GridBagConstraints constraint = new GridBagConstraints();
 
         observerListField = new JTextArea("");
         observerListField.setEditable(false);
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx = 1;
-        c.gridx = 0;
-        c.weighty = 0;
-        content.add(observerListField, c);
+        constraint.fill = GridBagConstraints.BOTH;
+        constraint.weightx = 1;
+        constraint.gridx = 0;
+        constraint.weighty = 0;
+        content.add(observerListField, constraint);
         updateObserverListField();
 
         currentCommandField = new JTextArea("");
         currentCommandField.setEditable(false);
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx = 1;
-        c.gridx = 0;
-        c.weighty = 0;
-        content.add(currentCommandField, c);
+        constraint.fill = GridBagConstraints.BOTH;
+        constraint.weightx = 1;
+        constraint.gridx = 0;
+        constraint.weighty = 0;
+        content.add(currentCommandField, constraint);
         updateCurrentCommandField();
 
         previewPanel = new JPanel();
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx = 1;
-        c.gridx = 0;
-        c.weighty = 1;
-        content.add(previewPanel, c);
+        constraint.fill = GridBagConstraints.BOTH;
+        constraint.weightx = 1;
+        constraint.gridx = 0;
+        constraint.weighty = 1;
+        content.add(previewPanel, constraint);
 
         JButton btnImportCommands = new JButton("Import command");
         btnImportCommands.addActionListener((ActionEvent e) -> this.importCommands());
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx = 1;
-        c.gridx = 0;
-        c.weighty = 0;
-        content.add(btnImportCommands, c);
+        constraint.fill = GridBagConstraints.BOTH;
+        constraint.weightx = 1;
+        constraint.gridx = 0;
+        constraint.weighty = 0;
+        content.add(btnImportCommands, constraint);
 
         JButton btnClearCommand = new JButton("Clear command");
         btnClearCommand.addActionListener((ActionEvent e) -> this.clearCommand());
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx = 1;
-        c.gridx = 0;
-        c.weighty = 0;
-        content.add(btnClearCommand, c);
+        constraint.fill = GridBagConstraints.BOTH;
+        constraint.weightx = 1;
+        constraint.gridx = 0;
+        constraint.weighty = 0;
+        content.add(btnClearCommand, constraint);
 
         JButton btnClearObservers = new JButton("Delete observers");
         btnClearObservers.addActionListener((ActionEvent e) -> this.deleteObservers());
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx = 1;
-        c.gridx = 0;
-        c.weighty = 0;
-        content.add(btnClearObservers, c);
+        constraint.fill = GridBagConstraints.BOTH;
+        constraint.weightx = 1;
+        constraint.gridx = 0;
+        constraint.weighty = 0;
+        content.add(btnClearObservers, constraint);
     }
 
     public void initializePreviewPanel(DrawPanelController drawPanelController) {
@@ -139,25 +138,26 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
     }
 
     private void updateObserverListField() {
-        observerListString = "";
         List<Subscriber> commandChangeSubscribers = commandManager.getChangePublisher().getSubscribers();
-        for (Subscriber observer : commandChangeSubscribers) {
-            observerListString += observer.toString() + System.lineSeparator();
+        if (commandChangeSubscribers.isEmpty()) {
+            observerListField.setText("No observers loaded");
+            return;
         }
-        if (commandChangeSubscribers.isEmpty())
-            observerListString = "No observers loaded";
 
-        observerListField.setText(observerListString);
+        StringBuilder observerListBuilder = new StringBuilder();
+        for (Subscriber observer : commandChangeSubscribers) {
+            observerListBuilder
+                    .append(observer)
+                    .append(System.lineSeparator());
+        }
+
+        observerListField.setText(observerListBuilder.toString());
     }
 
     @Override
     public void HideIfVisibleAndShowIfHidden() {
         updateObserverListField();
-        if (this.isVisible()) {
-            this.setVisible(false);
-        } else {
-            this.setVisible(true);
-        }
+        this.setVisible(!this.isVisible());
     }
 
 }

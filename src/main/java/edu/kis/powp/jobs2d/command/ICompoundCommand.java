@@ -9,7 +9,7 @@ import edu.kis.powp.jobs2d.command.visitor.ICommandVisitor;
  */
 public interface ICompoundCommand extends DriverCommand {
 
-    public Iterator<DriverCommand> iterator();
+    Iterator<DriverCommand> iterator();
 
     /**
      * Default visitor accept implementation for compound commands.

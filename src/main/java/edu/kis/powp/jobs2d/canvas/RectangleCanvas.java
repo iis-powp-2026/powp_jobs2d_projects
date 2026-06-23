@@ -63,12 +63,7 @@ public class RectangleCanvas implements ICanvas {
 
         if (tEnter > tExit) return null;
 
-        return new int[] {
-                (int) Math.round(x1 + tEnter * dx),
-                (int) Math.round(y1 + tEnter * dy),
-                (int) Math.round(x1 + tExit * dx),
-                (int) Math.round(y1 + tExit * dy)
-        };
+        return ICanvas.roundClipResult(x1, y1, tEnter, tExit, dx, dy);
     }
 
     @Override
