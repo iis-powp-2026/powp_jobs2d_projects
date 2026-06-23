@@ -211,13 +211,13 @@ public class TestJobs2dApp {
             FeaturesManager.registerFeature(new DriverFeature());
             FeaturesManager.registerFeature(new CanvasFeature());
             FeaturesManager.registerFeature(new ExtensionsFeature());
+            FeaturesManager.registerFeature(new RecordingFeature());
 
             // Automatycznie skonfiguruj wszystkie zarejestrowane funkcje
             // To zastępuje ręczne wywołania setup dla każdej funkcji
             FeaturesManager.setupAllFeatures(app);
 
             setupDrivers(app);
-            RecordingFeature.setup(DriverFeature.getDriverManager());
             ExtensionsFeature.addExtension("Tracking Logger", LoggingExtensionDriver::new);
             ExtensionsFeature.setupRecordingExtension();
             setupPresetTests(app);
