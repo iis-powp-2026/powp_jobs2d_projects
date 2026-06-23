@@ -56,12 +56,13 @@ public class ExtensionsFeature implements IFeature, Subscriber {
     }
 
     public static void setupRecordingExtension() {
-        if (!recordingComposite.getDrivers().isEmpty()) return;
 
         RecordingDriver rec = RecordingFeature.getRecordingDriver();
         boolean initial = rec.isRecordingEnabled();
 
-        recordingComposite.addDriver(rec);
+        if (recordingComposite.getDrivers().isEmpty()) {
+            recordingComposite.addDriver(rec);
+        }
 
         app.addComponentMenuElementWithCheckBox(
                 ExtensionsFeature.class,
@@ -137,12 +138,12 @@ public class ExtensionsFeature implements IFeature, Subscriber {
             previous = extension;
         }
         recordingComposite.getDrivers().clear();
-        recordingComposite.getDrivers().add(RecordingFeature.getRecordingDriver());
+        recordingComposite.addDriver(RecordingFeature.getRecordingDriver());
         if (first != null) {
             previous.setTarget(top);
-            recordingComposite.getDrivers().add(first);
+            recordingComposite.addDriver(first);
         } else {
-            recordingComposite.getDrivers().add(top);
+            recordingComposite.addDriver(top);
         }
         DriverFeature.getDriverManager().setCurrentDriver(recordingComposite);
         DriverFeature.updateDriverInfo();
