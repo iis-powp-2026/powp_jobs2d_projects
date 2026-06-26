@@ -25,6 +25,8 @@ import edu.kis.powp.jobs2d.events.SelectLoadRecordedMacroOptionListener;
 import edu.kis.powp.jobs2d.events.SelectClearPanelOptionListener;
 import edu.kis.powp.jobs2d.events.SelectToggleRecordingOptionListener;
 import edu.kis.powp.jobs2d.events.SelectClearRecordingOptionListener;
+import edu.kis.powp.jobs2d.command.SimpleComplexCommandBuilder;
+import edu.kis.powp.jobs2d.command.history.CommandEditorHistoryManager;
 
 public class TestJobs2dApp {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -71,6 +73,29 @@ public class TestJobs2dApp {
                 new SelectTransformCommandOptionListener(new FlipTransformer(false, true), "Flip Y"));
         application.addTest("FullNameGetter visitor test",
                 new SelectFullNameGetterVisitorTestListener(new FullNameGetterVisitor()));
+
+        application.addTest("Test Undo/Redo in Editor", (ActionEvent e) -> {
+            SimpleComplexCommandBuilder builder = new SimpleComplexCommandBuilder("Undo/Redo Macro");
+            CommandEditorHistoryManager historyManager = new CommandEditorHistoryManager(builder);
+            historyManager.saveState();
+            builder.setPosition(0, 0);
+            historyManager.saveState();
+            builder.operateTo(50, 0);
+            historyManager.saveState();
+            builder.operateTo(50, 50);
+            historyManager.saveState();
+            builder.operateTo(200, 200);
+            historyManager.undo();
+            historyManager.saveState();
+            builder.operateTo(0, 50);
+            historyManager.undo();
+            historyManager.redo();
+            builder.operateTo(0, 0);
+
+            CommandsFeature.getDriverCommandManager().setCurrentCommand(builder.build());
+
+            logger.info("Select 'Run command' to start simulation");
+        });
 
         RecordingDriver rec = RecordingFeature.getRecordingDriver();
         boolean initial = rec.isRecordingEnabled();
