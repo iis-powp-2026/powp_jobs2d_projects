@@ -1,4 +1,6 @@
 package edu.kis.powp.jobs2d.command;
+import edu.kis.powp.jobs2d.command.history.BuilderMemento;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,5 +51,14 @@ public class SimpleComplexCommandBuilder {
     public void reset() {
         this.commands.clear();
         this.name = null;
+    }
+
+    public BuilderMemento saveToMemento() {
+        return new BuilderMemento(this.commands, this.name);
+    }
+
+    public void restoreFromMemento(BuilderMemento memento) {
+        this.commands = memento.getCommands();
+        this.name = memento.getName();
     }
 }
