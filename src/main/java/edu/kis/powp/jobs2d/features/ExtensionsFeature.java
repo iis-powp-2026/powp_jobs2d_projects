@@ -21,7 +21,7 @@ public class ExtensionsFeature implements IFeature, Subscriber {
     private static final CompositeDriver rootComposite = new CompositeDriver("Root Composite");
     private static final Set<DecoratorDriver> extensionOrder = new LinkedHashSet<>();
     private static final Set<DecoratorDriver> activeExtensions = new HashSet<>();
-    private static final Set<VisitableDriver> activeNonDecoratorExtensions = new HashSet<>();
+    private static final Set<VisitableDriver> activeNonDecoratorExtensions = new LinkedHashSet<>();
 
     @Override
     public void setup(Application application) {
@@ -57,37 +57,42 @@ public class ExtensionsFeature implements IFeature, Subscriber {
     }
 
     public static void addNonDecoratorExtension(String name, VisitableDriver driver) {
-        app.addComponentMenuElementWithCheckBox(
-            ExtensionsFeature.class,
-            name,
-            (ActionEvent e) -> {
-                AbstractButton btn = (AbstractButton) e.getSource();
-                if (btn.isSelected()) {
-                    activeNonDecoratorExtensions.add(driver);
-                } else {
-                    activeNonDecoratorExtensions.remove(driver);
-                }
-                rebuild();
-                DriverFeature.updateDriverInfo();
-            },
-            false
-        );
+        addNonDecoratorExtension(name, driver, true);
+    }
+
+    public static void addNonDecoratorExtension(String name, VisitableDriver driver, boolean toggleable) {
+        if (toggleable) {
+            app.addComponentMenuElementWithCheckBox(
+                ExtensionsFeature.class,
+                name,
+                (ActionEvent e) -> {
+                    AbstractButton btn = (AbstractButton) e.getSource();
+                    if (btn.isSelected()) {
+                        activeNonDecoratorExtensions.add(driver);
+                    } else {
+                        activeNonDecoratorExtensions.remove(driver);
+                    }
+                    rebuild();
+                    DriverFeature.updateDriverInfo();
+                },
+                false
+            );
+        } else {
+            activeNonDecoratorExtensions.add(driver);
+            rebuild();
+        }
     }
 
     public static void setupRecordingExtension() {
-
         RecordingDriver rec = RecordingFeature.getRecordingDriver();
-        boolean initial = rec.isRecordingEnabled();
 
-        if (rootComposite.getDrivers().isEmpty()) {
-            rootComposite.addDriver(rec);
-        }
+        addNonDecoratorExtension("Recording", rec, false);
 
         app.addComponentMenuElementWithCheckBox(
                 ExtensionsFeature.class,
                 "Recording",
                 new SelectToggleRecordingOptionListener(rec),
-                initial
+                rec.isRecordingEnabled()
         );
 
         app.addComponentMenuElement(
@@ -157,7 +162,6 @@ public class ExtensionsFeature implements IFeature, Subscriber {
             previous = extension;
         }
         rootComposite.getDrivers().clear();
-        rootComposite.addDriver(RecordingFeature.getRecordingDriver());
         for (VisitableDriver leaf : activeNonDecoratorExtensions) {
             rootComposite.addDriver(leaf);
         }
