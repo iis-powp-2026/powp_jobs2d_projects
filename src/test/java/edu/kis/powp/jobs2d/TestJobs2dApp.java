@@ -19,6 +19,7 @@ import edu.kis.powp.jobs2d.command.manager.CommandPreviewChangeObserver;
 import edu.kis.powp.jobs2d.drivers.MouseClickToDriverCall;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
 import edu.kis.powp.jobs2d.drivers.factory.ExtensionDriverFactory;
+import edu.kis.powp.jobs2d.drivers.optionals.TrackingLoggerDriver;
 import edu.kis.powp.jobs2d.drivers.packet_composite.CompositeDriver;
 import edu.kis.powp.jobs2d.drivers.transformations.CoordinateTransformer;
 import edu.kis.powp.jobs2d.drivers.transformations.FlipTransformer;
@@ -121,6 +122,7 @@ public class TestJobs2dApp {
         ExtensionsFeature.addExtension("Real-Time Driver",
                 ExtensionDriverFactory.createRealTimeDriver(5, "Real-Time Driver"));
         ExtensionsFeature.addExtension("Boundaries", ExtensionDriverFactory.createBoundsDriver());
+        ExtensionsFeature.addNonDecoratorExtension("Tracking Logger", new TrackingLoggerDriver());
         ExtensionsFeature.setupRecordingExtension();
     }
 
