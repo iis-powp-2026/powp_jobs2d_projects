@@ -23,6 +23,9 @@ public class ComplexCommandEditor extends JFrame implements WindowComponent {
     private DefaultTreeModel treeModel;
     private final JTextField xField = new JTextField();
     private final JTextField yField = new JTextField();
+    private final EditorHistoryManager historyManager = new EditorHistoryManager();
+    private final JButton undoButton = new JButton("Undo");
+    private final JButton redoButton = new JButton("Redo");
 
     public ComplexCommandEditor(CommandManager commandManager) {
         this.commandManager = commandManager;
@@ -62,7 +65,15 @@ public class ComplexCommandEditor extends JFrame implements WindowComponent {
             }
         });
 
-        JPanel bottomPanel = new JPanel(new GridLayout(2, 1));
+        JPanel bottomPanel = new JPanel(new GridLayout(3, 1));
+        JPanel historyPanel = new JPanel(new GridLayout(1, 2));
+        historyPanel.setBorder(BorderFactory.createTitledBorder("History"));
+        undoButton.setEnabled(false);
+        redoButton.setEnabled(false);
+        undoButton.addActionListener(e -> undo());
+        redoButton.addActionListener(e -> redo());
+        historyPanel.add(undoButton);
+        historyPanel.add(redoButton);
 
         JPanel transformPanel = new JPanel(new GridLayout(2, 3));
         transformPanel.setBorder(BorderFactory.createTitledBorder("Whole Command Transformations"));
@@ -92,6 +103,7 @@ public class ComplexCommandEditor extends JFrame implements WindowComponent {
         editPanel.add(moveUp);
         editPanel.add(moveDown);
 
+        bottomPanel.add(historyPanel);
         bottomPanel.add(transformPanel);
         bottomPanel.add(editPanel);
 
@@ -123,21 +135,33 @@ public class ComplexCommandEditor extends JFrame implements WindowComponent {
         );
 
         moveUp.addActionListener(e -> {
-            moveUpDeep(workingCopy, selectedCommand);
-            commandManager.setCurrentCommand(workingCopy);
-            rebuildTree();
+            saveState();
+            if (moveUpDeep(workingCopy, selectedCommand)) {
+                commandManager.setCurrentCommand(workingCopy);
+                rebuildTree();
+            } else {
+                historyManager.discardLastSave();
+                updateHistoryButtons();
+            }
         });
 
         moveDown.addActionListener(e -> {
-            moveDownDeep(workingCopy, selectedCommand);
-            commandManager.setCurrentCommand(workingCopy);
-            rebuildTree();
+            saveState();
+            if (moveDownDeep(workingCopy, selectedCommand)) {
+                commandManager.setCurrentCommand(workingCopy);
+                rebuildTree();
+            } else {
+                historyManager.discardLastSave();
+                updateHistoryButtons();
+            }
         });
 
         apply.addActionListener(e -> applyChanges());
     }
 
     private void applyTransformation(CoordinateTransformer transformer) {
+        saveState();
+
         CommandTransformVisitor visitor = new CommandTransformVisitor(transformer);
         workingCopy.accept(visitor);
 
@@ -245,16 +269,20 @@ public class ComplexCommandEditor extends JFrame implements WindowComponent {
             return;
         }
 
+        saveState();
+
         CommandEditVisitor visitor = new CommandEditVisitor(x, y);
         selectedCommand.accept(visitor);
 
         DriverCommand updated = visitor.getResult();
 
-        replaceDeep(workingCopy, selectedCommand, updated);
-
-        commandManager.setCurrentCommand(workingCopy);
-
-        rebuildTree();
+        if (replaceDeep(workingCopy, selectedCommand, updated)) {
+            commandManager.setCurrentCommand(workingCopy);
+            rebuildTree();
+        } else {
+            historyManager.discardLastSave();
+            updateHistoryButtons();
+        }
     }
 
     private void updateFieldsFromSelection() {
@@ -313,8 +341,39 @@ public class ComplexCommandEditor extends JFrame implements WindowComponent {
         if (this.isVisible()) {
             this.setVisible(false);
         } else {
+            historyManager.clearHistory();
+            updateHistoryButtons();
+
             rebuildTree();
             this.setVisible(true);
         }
+    }
+
+    private void saveState() {
+        historyManager.saveState(workingCopy);
+        updateHistoryButtons();
+    }
+
+    private void undo() {
+        DriverCommand previousState = historyManager.undo(workingCopy);
+        if (previousState != null) {
+            commandManager.setCurrentCommand(previousState);
+            rebuildTree();
+            updateHistoryButtons();
+        }
+    }
+
+    private void redo() {
+        DriverCommand nextState = historyManager.redo(workingCopy);
+        if (nextState != null) {
+            commandManager.setCurrentCommand(nextState);
+            rebuildTree();
+            updateHistoryButtons();
+        }
+    }
+
+    private void updateHistoryButtons() {
+        undoButton.setEnabled(historyManager.canUndo());
+        redoButton.setEnabled(historyManager.canRedo());
     }
 }
