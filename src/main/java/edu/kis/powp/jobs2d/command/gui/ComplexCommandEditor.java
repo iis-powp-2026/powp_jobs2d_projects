@@ -23,12 +23,13 @@ public class ComplexCommandEditor extends JFrame implements WindowComponent {
     private DefaultTreeModel treeModel;
     private final JTextField xField = new JTextField();
     private final JTextField yField = new JTextField();
-    private final EditorHistoryManager historyManager = new EditorHistoryManager();
+    private final HistoryManager historyManager;
     private final JButton undoButton = new JButton("Undo");
     private final JButton redoButton = new JButton("Redo");
 
-    public ComplexCommandEditor(CommandManager commandManager) {
+    public ComplexCommandEditor(CommandManager commandManager, HistoryManager historyManager) {
         this.commandManager = commandManager;
+        this.historyManager = historyManager;
 
         setTitle("Complex Command Editor");
         setSize(600, 500);
